@@ -8,11 +8,9 @@ echo.
 
 set "STARTUP_FOLDER=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 set "VBS_TARGET=%STARTUP_FOLDER%\ee_lab_pinout_server.vbs"
-set "PYTHONW_BIN=C:\Users\nomiap\AppData\Local\Python\pythoncore-3.14-64\pythonw.exe"
-set "SERVER_SCRIPT=%~dp0pinout_server.py"
-
-if not exist "%PYTHONW_BIN%" (
-    set "PYTHONW_BIN=pythonw"
+set "PYTHONW_BIN=pythonw"
+if exist "%LOCALAPPDATA%\Python\pythoncore-3.14-64\pythonw.exe" (
+    set "PYTHONW_BIN=%LOCALAPPDATA%\Python\pythoncore-3.14-64\pythonw.exe"
 )
 
 echo Dang tao file khoi dong tu dong trong thu muc Startup...

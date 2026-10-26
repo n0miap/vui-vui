@@ -127,6 +127,245 @@ def get_pinout():
     results = search_pinout_images(name, pkg)
     return jsonify(results)
 
+@app.route('/api/desc')
+def get_desc():
+    name = request.args.get('name', '').strip()
+    if not name:
+        return jsonify({'desc': ''})
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+    
+    # 1. Thu Wikipedia Summary API
+    for q_candidate in [name, re.sub(r'^(74|CD|SN74|MC74)[A-Z]+', r'\1', name), f"{name} integrated circuit"]:
+        try:
+            url = f"https://en.wikipedia.org/api/rest_v1/page/summary/{urllib.parse.quote(q_candidate)}"
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=4) as resp:
+                data = json.loads(resp.read().decode('utf-8', errors='ignore'))
+                extract = data.get('extract', '').strip()
+                if extract:
+                    # Lay cau dau tien
+                    first_sent = extract.split('. ')[0].strip()
+                    if first_sent and len(first_sent) < 180:
+                        return jsonify({'desc': first_sent, 'source': 'wikipedia'})
+        except Exception:
+            pass
+
+    # 2. Thu DuckDuckGo Instant Answer API
+    try:
+        ddg_url = f"https://api.duckduckgo.com/?q={urllib.parse.quote_plus(name + ' IC integrated circuit')}&format=json&no_html=1&skip_disambig=1"
+        req = urllib.request.Request(ddg_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            data = json.loads(resp.read().decode('utf-8', errors='ignore'))
+            abstract = data.get('AbstractText', '').strip() or data.get('Heading', '').strip()
+            if abstract:
+                first_sent = abstract.split('. ')[0].strip()
+                return jsonify({'desc': first_sent, 'source': 'duckduckgo'})
+    except Exception:
+        pass
+
+    return jsonify({'desc': '', 'source': 'none'})
+
+# ================= 3. TIM KIEM SAN PHAM & GIA 4 SHOP (TUYET NGA, HSHOP, CAKA, SHOPEE) =================
+def search_shop_products(name, pkg=''):
+    results = {}
+    clean_pkg = (pkg or '').strip()
+    query_exact = f"{name} {clean_pkg}".strip() if clean_pkg else name.strip()
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7',
+    }
+    
+    req_pkg_type = 'dip' if re.search(r'\bdip\b', clean_pkg, re.I) else ('smd' if re.search(r'\b(smd|sop|soic|qfp)\b', clean_pkg, re.I) else None)
+    
+    # 1. DIEN TU TUYET NGA
+    tn_search_url = f"https://dientutuyetnga.com/tim-kiem?q={urllib.parse.quote(query_exact)}"
+    try:
+        req = urllib.request.Request(tn_search_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            html_text = resp.read().decode('utf-8', errors='ignore')
+            
+        pro_links = re.findall(r'<a[^>]+href="(/[^"]*)"[^>]*title="([^"]+)"', html_text) or \
+                    re.findall(r'<h[34][^>]*>\s*<a[^>]+href="(/[^"]*)"[^>]*>([^<]+)</a>', html_text)
+        prices = re.findall(r'(\d{1,3}(?:\.\d{3})+)\s*[₫đĐ]', html_text)
+        
+        found_item = None
+        for idx, (p_url, p_title) in enumerate(pro_links):
+            p_title_clean = p_title.strip()
+            if not p_url.startswith('http'):
+                p_url = 'https://dientutuyetnga.com' + p_url
+            
+            if name.lower() in p_title_clean.lower() or name.replace('-', '').lower() in p_title_clean.replace('-', '').lower():
+                pkg_match = True
+                if req_pkg_type == 'dip' and re.search(r'\b(sop|smd|soic)\b', p_title_clean, re.I):
+                    pkg_match = False
+                elif req_pkg_type == 'smd' and re.search(r'\bdip\b', p_title_clean, re.I):
+                    pkg_match = False
+                    
+                p_price = prices[idx] + '₫' if idx < len(prices) else None
+                found_item = {
+                    'name': 'Điện tử Tuyết Nga',
+                    'title': p_title_clean,
+                    'url': p_url,
+                    'price': p_price,
+                    'available': True,
+                    'pkgMatch': pkg_match
+                }
+                if pkg_match:
+                    break
+                    
+        if found_item and (found_item['pkgMatch'] or not req_pkg_type):
+            results['tuyetnga'] = found_item
+        else:
+            results['tuyetnga'] = {
+                'name': 'Điện tử Tuyết Nga',
+                'url': tn_search_url,
+                'price': None,
+                'available': False,
+                'pkgMatch': False
+            }
+    except Exception:
+        results['tuyetnga'] = {
+            'name': 'Điện tử Tuyết Nga',
+            'url': tn_search_url,
+            'price': None,
+            'available': False,
+            'pkgMatch': False
+        }
+
+    # 2. HSHOP.VN
+    hs_search_url = f"https://hshop.vn/search?q={urllib.parse.quote(query_exact)}"
+    try:
+        req = urllib.request.Request(hs_search_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            html_text = resp.read().decode('utf-8', errors='ignore')
+            
+        pro_links = re.findall(r'<a[^>]+href="(/products/[^"]*)"[^>]*>([^<]+)</a>', html_text) or \
+                    re.findall(r'<h3[^>]*>\s*<a[^>]+href="(/products/[^"]*)"[^>]*title="([^"]+)"', html_text)
+        prices = re.findall(r'(\d{1,3}(?:\.\d{3})+)\s*[₫đĐ]', html_text)
+        
+        found_item = None
+        for idx, (p_url, p_title) in enumerate(pro_links):
+            p_title_clean = p_title.strip()
+            if not p_url.startswith('http'):
+                p_url = 'https://hshop.vn' + p_url
+            if name.lower() in p_title_clean.lower() or name.replace('-', '').lower() in p_title_clean.replace('-', '').lower():
+                pkg_match = True
+                if req_pkg_type == 'dip' and re.search(r'\b(sop|smd|soic)\b', p_title_clean, re.I):
+                    pkg_match = False
+                elif req_pkg_type == 'smd' and re.search(r'\bdip\b', p_title_clean, re.I):
+                    pkg_match = False
+                    
+                p_price = prices[idx] + '₫' if idx < len(prices) else None
+                found_item = {
+                    'name': 'HShop.vn',
+                    'title': p_title_clean,
+                    'url': p_url,
+                    'price': p_price,
+                    'available': True,
+                    'pkgMatch': pkg_match
+                }
+                if pkg_match:
+                    break
+                    
+        if found_item and (found_item['pkgMatch'] or not req_pkg_type):
+            results['hshop'] = found_item
+        else:
+            results['hshop'] = {
+                'name': 'HShop.vn',
+                'url': hs_search_url,
+                'price': None,
+                'available': False,
+                'pkgMatch': False
+            }
+    except Exception:
+        results['hshop'] = {
+            'name': 'HShop.vn',
+            'url': hs_search_url,
+            'price': None,
+            'available': False,
+            'pkgMatch': False
+        }
+
+    # 3. LINH KIEN CAKA
+    ck_search_url = f"https://caka.vn/search?query={urllib.parse.quote(query_exact)}"
+    try:
+        req = urllib.request.Request(ck_search_url, headers=headers)
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            html_text = resp.read().decode('utf-8', errors='ignore')
+            
+        pro_links = re.findall(r'<a[^>]+href="(/[^"]*)"[^>]*class="[^"]*product[^"]*"[^>]*title="([^"]+)"', html_text) or \
+                    re.findall(r'<h[234][^>]*>\s*<a[^>]+href="(/[^"]*)"[^>]*>([^<]+)</a>', html_text)
+        prices = re.findall(r'(\d{1,3}(?:\.\d{3})+)\s*[₫đĐ]', html_text)
+        
+        found_item = None
+        for idx, (p_url, p_title) in enumerate(pro_links):
+            p_title_clean = p_title.strip()
+            if not p_url.startswith('http'):
+                p_url = 'https://caka.vn' + p_url
+            if name.lower() in p_title_clean.lower() or name.replace('-', '').lower() in p_title_clean.replace('-', '').lower():
+                pkg_match = True
+                if req_pkg_type == 'dip' and re.search(r'\b(sop|smd|soic)\b', p_title_clean, re.I):
+                    pkg_match = False
+                elif req_pkg_type == 'smd' and re.search(r'\bdip\b', p_title_clean, re.I):
+                    pkg_match = False
+                    
+                p_price = prices[idx] + '₫' if idx < len(prices) else None
+                found_item = {
+                    'name': 'Linh kiện Caka',
+                    'title': p_title_clean,
+                    'url': p_url,
+                    'price': p_price,
+                    'available': True,
+                    'pkgMatch': pkg_match
+                }
+                if pkg_match:
+                    break
+                    
+        if found_item and (found_item['pkgMatch'] or not req_pkg_type):
+            results['caka'] = found_item
+        else:
+            results['caka'] = {
+                'name': 'Linh kiện Caka',
+                'url': ck_search_url,
+                'price': None,
+                'available': False,
+                'pkgMatch': False
+            }
+    except Exception:
+        results['caka'] = {
+            'name': 'Linh kiện Caka',
+            'url': ck_search_url,
+            'price': None,
+            'available': False,
+            'pkgMatch': False
+        }
+
+    # 4. SHOPEE
+    shopee_q = urllib.parse.quote(query_exact)
+    results['shopee'] = {
+        'name': 'Shopee',
+        'title': f"Tìm kiếm {query_exact} trên Shopee",
+        'url': f"https://shopee.vn/search?keyword={shopee_q}",
+        'price': 'Nhiều mức giá',
+        'available': True,
+        'pkgMatch': True
+    }
+    
+    return results
+
+@app.route('/api/shops')
+def get_shops():
+    name = request.args.get('name', '').strip()
+    pkg = request.args.get('pkg', '').strip()
+    if not name:
+        return jsonify({})
+    results = search_shop_products(name, pkg)
+    return jsonify(results)
+
 def start_flask():
     app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
 

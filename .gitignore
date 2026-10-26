@@ -1,0 +1,22 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary and local check files
+check.ps1
+*.tmp
+*.log
+
