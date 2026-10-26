@@ -542,6 +542,9 @@
               <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy link
             </button>
           </div>
+          <button type="button" onclick="restoreAutoBackup()" class="w-full mt-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Khôi phục bản lưu trước đó (Chống mất dữ liệu)
+          </button>
         </div>
 
                 <!-- Google Custom Search API config -->
@@ -3802,23 +3805,82 @@
         const res = await fetch(cloudUrl);
         const data = await res.json();
         if (data && Array.isArray(data.parts)) {
+          // Bảo vệ chống mất dữ liệu: Nếu kho máy đang có nhiều hơn 5 món mà Cloud chỉ có ít hơn (ví dụ 4 món default)
+          if (silent && parts.length > 5 && data.parts.length < parts.length) {
+            console.warn(`[Cloud Sync] Kho trên máy (${parts.length}) nhiều hơn Cloud (${data.parts.length}). Tự động cập nhật kho máy lên Cloud.`);
+            await saveData();
+            updateSyncBadge('synced');
+            return;
+          }
+          if (!silent && parts.length > data.parts.length) {
+            const confirmed = confirm(`⚠️ CẢNH BÁO: Kho trên thiết bị này đang có ${parts.length} linh kiện, nhưng trên Cloud chỉ có ${data.parts.length} linh kiện.\n\nBạn có chắc chắn muốn TẢI TỪ CLOUD VỀ và ghi đè máy không?`);
+            if (!confirmed) {
+              updateSyncBadge('synced');
+              return;
+            }
+          }
+          
+          // Tạo bản snapshot sao lưu cục bộ trước khi ghi đè
+          try {
+            localStorage.setItem('ee_inventory_auto_backup', JSON.stringify({
+              savedAt: new Date().toISOString(),
+              boxes, parts, categories, projects
+            }));
+          } catch (e) {}
+
           parts = data.parts;
           if (Array.isArray(data.boxes)) boxes = data.boxes;
           if (Array.isArray(data.categories)) categories = data.categories;
           if (Array.isArray(data.projects)) projects = data.projects;
-          init();
+          
+          localStorage.setItem('ee_inventory_parts', JSON.stringify(parts));
+          localStorage.setItem('ee_inventory_boxes', JSON.stringify(boxes));
+          localStorage.setItem('ee_inventory_categories', JSON.stringify(categories));
+          localStorage.setItem('ee_inventory_projects', JSON.stringify(projects));
+          
+          activePreviewBoxId = boxes[0]?.id || null;
+          renderCategories();
+          populateCategorySelect();
+          populateProjectDatalist();
+          renderProjectQuickChips();
+          renderParts();
         } else if (Array.isArray(data)) {
           // Tương thích dữ liệu từ bản v1.0
           parts = data;
-          init();
+          localStorage.setItem('ee_inventory_parts', JSON.stringify(parts));
+          renderParts();
         } else if (data === null) {
           await saveData();
         }
         updateSyncBadge('synced');
-        if (!silent) closeSettingsModal();
+        if (!silent) {
+          closeSettingsModal();
+          alert(`Đã tải về và đồng bộ thành công ${parts.length} linh kiện và ${boxes.length} hộp từ Cloud!`);
+        }
       } catch (e) {
         updateSyncBadge('error');
         if (!silent) alert('Không kết nối được với Cloud URL!');
+      }
+    }
+
+    function restoreAutoBackup() {
+      const bkpStr = localStorage.getItem('ee_inventory_auto_backup');
+      if (!bkpStr) return alert('Chưa có bản lưu dự phòng nào trên máy này.');
+      try {
+        const bkp = JSON.parse(bkpStr);
+        if (bkp && Array.isArray(bkp.parts)) {
+          if (!confirm(`Bạn có muốn khôi phục lại bản lưu lúc ${new Date(bkp.savedAt || '').toLocaleString('vi-VN')} với ${bkp.parts.length} linh kiện không?`)) return;
+          parts = bkp.parts;
+          if (Array.isArray(bkp.boxes)) boxes = bkp.boxes;
+          if (Array.isArray(bkp.categories)) categories = bkp.categories;
+          if (Array.isArray(bkp.projects)) projects = bkp.projects;
+          saveData();
+          init();
+          closeSettingsModal();
+          alert(`Đã khôi phục thành công ${parts.length} linh kiện!`);
+        }
+      } catch (e) {
+        alert('Lỗi đọc bản lưu dự phòng!');
       }
     }
 
@@ -3846,7 +3908,7 @@
       document.getElementById('settingsModal').classList.add('hidden');
     }
 
-    function saveCloudConfig() {
+    async function saveCloudConfig() {
       let url = document.getElementById('cloudUrlInput').value.trim();
       if (url && !url.endsWith('.json')) {
         url = url.replace(/\/$/, '') + '/ee_lab_v2.json';
@@ -3854,8 +3916,38 @@
       cloudUrl = url;
       localStorage.setItem('ee_inventory_cloud_url', cloudUrl);
       if (cloudUrl) {
-        saveData();
-        alert('Đã lưu và đẩy cả Sơ đồ Hộp + Linh kiện lên Cloud!');
+        // Kiểm tra an toàn trước khi đẩy: Nếu máy mới mở lần đầu (ít linh kiện) mà trên Cloud đã có kho đầy đủ
+        try {
+          updateSyncBadge('syncing');
+          const res = await fetch(cloudUrl);
+          const cloudData = await res.json();
+          if (cloudData && Array.isArray(cloudData.parts) && cloudData.parts.length > parts.length) {
+            // Máy mới (hoặc sau khi cài lại) -> Tự động kéo kho đầy đủ từ Cloud về thay vì đẩy 4 món rỗng lên đè!
+            parts = cloudData.parts;
+            if (Array.isArray(cloudData.boxes)) boxes = cloudData.boxes;
+            if (Array.isArray(cloudData.categories)) categories = cloudData.categories;
+            if (Array.isArray(cloudData.projects)) projects = cloudData.projects;
+            
+            localStorage.setItem('ee_inventory_parts', JSON.stringify(parts));
+            localStorage.setItem('ee_inventory_boxes', JSON.stringify(boxes));
+            localStorage.setItem('ee_inventory_categories', JSON.stringify(categories));
+            localStorage.setItem('ee_inventory_projects', JSON.stringify(projects));
+            
+            activePreviewBoxId = boxes[0]?.id || null;
+            renderCategories();
+            populateCategorySelect();
+            populateProjectDatalist();
+            renderProjectQuickChips();
+            renderParts();
+            updateSyncBadge('synced');
+            alert(`Đã kết nối Cloud thành công!\nThiết bị đã nhận diện và tải về toàn bộ kho gồm ${parts.length} linh kiện và ${boxes.length} hộp của bạn.`);
+            closeSettingsModal();
+            return;
+          }
+        } catch (e) {}
+        
+        await saveData();
+        alert(`Đã lưu và đẩy cả ${boxes.length} Sơ đồ Hộp + ${parts.length} Linh kiện lên Cloud!`);
       } else {
         updateSyncBadge();
       }
