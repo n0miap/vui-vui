@@ -587,10 +587,6 @@
       } catch(e) {}
     }
 
-      renderBomQuickAddSelect();
-      lucide.createIcons();
-    }
-
     function renderBomQuickAddSelect() {
       const select = document.getElementById('bomAddPartSelect');
       if (!select || !currentBomProjectName) return;
