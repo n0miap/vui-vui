@@ -4,7 +4,7 @@
   <meta name="referrer" content="no-referrer">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>EE Lab Inventory v2.0 - Smart Component Manager</title>
+  <title>EE Lab Inventory v2.1 - Smart Storage, Breadboard & IC Cross-Ref</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -31,7 +31,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="font-bold text-lg leading-tight">Kho Linh Kiện EE</h1>
-              <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2.0</span>
+              <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2.1</span>
             </div>
             <p id="syncStatus" class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
               <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Lưu trên máy (Local)
@@ -47,6 +47,11 @@
           <button onclick="openProjectsModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 text-xs font-medium transition" title="Quản lý Dự Án & Linh kiện cắm Breadboard">
             <i data-lucide="cpu" class="w-4 h-4"></i>
             <span class="hidden md:inline">Dự án (Breadboard)</span>
+          </button>
+          <button onclick="open74AchievementModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 text-xs font-medium transition" title="Bộ sưu tập & Bảng thành tích toàn bộ IC họ 74xx">
+            <i data-lucide="award" class="w-4 h-4 text-indigo-400"></i>
+            <span class="hidden md:inline">Thành tích 74xx</span>
+            <span id="header74Badge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 font-mono">0%</span>
           </button>
           <button onclick="openCategoriesModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 text-xs font-medium transition" title="Tùy chỉnh & Quản lý Phân Loại">
             <i data-lucide="tags" class="w-4 h-4"></i>
@@ -90,8 +95,11 @@
         </div>
       </div>
 
-      <!-- PHÂN LOẠI -->
+      <!-- PHÂN LOẠI CHÍNH -->
       <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="categoryTabs"></div>
+
+      <!-- SUB-CATALOG CHO LOGIC IC (Hiện khi chọn tab Logic IC) -->
+      <div id="logicSubCategoryBar" class="hidden flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 pb-0.5 border-t border-slate-800/80"></div>
     </div>
   </header>
 
@@ -314,7 +322,7 @@
                 <i data-lucide="sliders" class="w-3 h-3"></i> Tùy chỉnh
               </button>
             </div>
-            <select id="partCategory" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+            <select id="partCategory" onchange="handleCategoryChange()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none">
             </select>
           </div>
           <div>
@@ -327,6 +335,28 @@
             <input id="partDesc" type="text" placeholder="VD: 6 cổng đảo NOT (Hex Inverter)" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none">
             <div id="descAutoBadge" class="hidden mt-1 text-[11px] text-emerald-400 flex items-center gap-1 font-medium"></div>
           </div>
+        </div>
+
+        <!-- PHÂN LOẠI CHỨC NĂNG SÂU (SUB-CATALOG LOGIC IC) -->
+        <div id="partSubCategoryGroup" class="hidden bg-indigo-950/30 border border-indigo-500/30 rounded-xl p-3 flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold text-indigo-300 flex items-center gap-1.5">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+              Phân loại chức năng sâu (Sub-catalog Logic IC)
+            </label>
+            <span class="text-[10px] text-indigo-300/80 font-mono">Tự động nhận diện</span>
+          </div>
+          <select id="partSubCategory" class="w-full mt-1 bg-slate-900 border border-indigo-500/40 rounded-lg px-3 py-2 text-xs text-indigo-200 focus:border-indigo-400 focus:outline-none">
+            <option value="">-- Tự động theo tên chip --</option>
+            <option value="Cổng Logic">🔲 Cổng Logic (NAND, NOR, AND, OR, NOT, XOR)</option>
+            <option value="Bộ Nhớ & Chốt">💾 Bộ Nhớ & Chốt (Flip-Flop, Latch, Register, SRAM, EEPROM)</option>
+            <option value="Bộ Đếm & Chia Tần">⏱️ Bộ Đếm & Chia Tần (Binary/Decade Counter, Divider)</option>
+            <option value="Thanh Ghi Dịch">🔄 Thanh Ghi Dịch (Shift Register: 74595, 74164, 74165...)</option>
+            <option value="Bộ Chọn & Giải Mã">🔀 Bộ Chọn & Giải Mã (MUX, DEMUX, 3-to-8 Decoder, 7447...)</option>
+            <option value="Bộ Đệm & Bus">🚦 Bộ Đệm & Bus (Buffer, Line Driver, Bus Transceiver: 74244, 74245...)</option>
+            <option value="Số Học & So Sánh">🧮 Số Học & So Sánh (ALU 74181, Full Adder, Magnitude Comparator)</option>
+            <option value="Schmitt & Tạo Xung">⚡ Schmitt & Tạo Xung (Schmitt Trigger 7414, Multivibrator 74123, 555)</option>
+          </select>
         </div>
 
         <!-- CHỌN HỘP VÀ CLICK CHỌN Ô TRỰC QUAN -->
@@ -749,6 +779,10 @@
             <input type="checkbox" id="batchOptBuy" checked class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-600 focus:ring-0">
             <span>Tự tìm <b>Link đặt mua 4 Shop & Giá</b> (Tuyết Nga, HShop, Caka, Shopee đúng kiểu chân)</span>
           </label>
+          <label class="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
+            <input type="checkbox" id="batchOptSubCat" checked class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-500 focus:ring-0">
+            <span>Tự động phân loại sâu <b>Sub-catalog Logic IC</b> (Cổng logic, Flip-Flop, Counter, MUX, ALU...)</span>
+          </label>
         </div>
 
         <!-- Khung hiển thị tiến trình quét (ẩn lúc đầu) -->
@@ -840,6 +874,273 @@
       <div class="flex items-center justify-between px-4 py-3 border-t border-slate-800 bg-slate-950/40 text-xs">
         <span class="text-slate-500 text-[11px]">Hỗ trợ 4 shop: Tuyết Nga, HShop, Caka & Shopee</span>
         <button type="button" onclick="closeBuyModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 9: BẢNG BOM & GOM ĐỒ DỰ ÁN ================= -->
+  <div id="bomModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950/40">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-400 flex items-center justify-center shrink-0">
+            <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 id="bomModalProjectName" class="font-bold text-base text-white tracking-wide">Tên Dự Án</h3>
+              <span id="bomModalStatusBadge" class="text-xs px-2 py-0.5 rounded-full font-medium">Trạng thái</span>
+            </div>
+            <p id="bomModalProjectNote" class="text-xs text-slate-400">Bảng kê linh kiện (Bill of Materials), kiểm tra tồn kho & gom đồ lên mạch</p>
+          </div>
+        </div>
+        <button onclick="closeBomModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 flex flex-col gap-3.5 overflow-y-auto text-sm">
+        <!-- Thống kê nhanh BoM -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-2.5 text-center">
+            <p class="text-[11px] text-slate-400">Tổng loại linh kiện</p>
+            <p id="bomStatTotalTypes" class="text-lg font-bold text-white font-mono">0</p>
+          </div>
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-2.5 text-center">
+            <p class="text-[11px] text-slate-400">Đang cắm trên mạch</p>
+            <p id="bomStatInUse" class="text-lg font-bold text-sky-400 font-mono">0</p>
+          </div>
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-2.5 text-center">
+            <p class="text-[11px] text-slate-400">Sẵn có trong hộp</p>
+            <p id="bomStatInBox" class="text-lg font-bold text-emerald-400 font-mono">0</p>
+          </div>
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-2.5 text-center">
+            <p class="text-[11px] text-slate-400">Còn thiếu cần mua</p>
+            <p id="bomStatMissing" class="text-lg font-bold text-amber-400 font-mono">0</p>
+          </div>
+        </div>
+
+        <!-- 1-Click Action Bar -->
+        <div class="bg-slate-800/40 border border-slate-700/80 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2.5">
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="kitAllProjectParts()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs transition flex items-center gap-1.5 shadow-sm" title="Chuyển toàn bộ số linh kiện có sẵn trong hộp sang cắm trên mạch">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i> Gom tất cả lên mạch
+            </button>
+            <button type="button" onclick="returnAllProjectPartsFromBom()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-medium text-xs transition flex items-center gap-1.5" title="Tháo mạch: Cất toàn bộ linh kiện của dự án này trả về đúng các ô trong hộp">
+              <i data-lucide="package-check" class="w-3.5 h-3.5"></i> Rút hết về hộp
+            </button>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="copyBomText()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition flex items-center gap-1" title="Sao chép danh sách BoM ra Clipboard">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy BoM
+            </button>
+            <button type="button" onclick="exportBomCSV()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition flex items-center gap-1" title="Tải file Excel / CSV bảng BoM">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Xuất CSV
+            </button>
+            <button type="button" onclick="printBomTable()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition flex items-center gap-1" title="In bảng BoM ra giấy">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i> In BoM
+            </button>
+          </div>
+        </div>
+
+        <!-- Bảng danh sách BoM -->
+        <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-950/40">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-800/80 text-slate-300 uppercase text-[10px] tracking-wider border-b border-slate-700">
+              <tr>
+                <th class="py-2.5 px-3">Linh kiện</th>
+                <th class="py-2.5 px-2">Vị trí cất</th>
+                <th class="py-2.5 px-2 text-center">Đang cắm</th>
+                <th class="py-2.5 px-2 text-center">Trong hộp</th>
+                <th class="py-2.5 px-2 text-center">Trạng thái</th>
+                <th class="py-2.5 px-3 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="bomTableBody" class="divide-y divide-slate-800/60 font-sans">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Thêm nhanh linh kiện vào dự án này -->
+        <div class="flex flex-wrap items-center justify-between gap-2.5 bg-slate-800/50 border border-slate-700/60 rounded-xl p-2.5 text-xs">
+          <div class="flex items-center gap-2 flex-1 min-w-[240px]">
+            <span class="text-slate-400 shrink-0 font-medium">+ Thêm linh kiện vào BoM:</span>
+            <select id="bomAddPartSelect" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs flex-1 focus:outline-none focus:border-sky-500">
+              <!-- Rendered dynamically -->
+            </select>
+          </div>
+          <button type="button" onclick="addSelectedPartToBom()" class="px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs transition flex items-center gap-1.5 shrink-0 shadow-sm">
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Thêm vào dự án
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-between px-4 py-3 border-t border-slate-800 bg-slate-950/40 text-xs">
+        <span class="text-slate-500 text-[11px]" id="bomFooterNote">Tự động so khớp với tồn kho thực tế</span>
+        <button type="button" onclick="closeBomModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 10: TRA CỨU IC THAY THẾ TƯƠNG ĐƯƠNG ================= -->
+  <div id="replaceModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950/40">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+            <i data-lucide="git-compare" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 id="replaceModalTitle" class="font-bold text-base text-white tracking-wide">IC Thay Thế Tương Đương</h3>
+              <span id="replaceModalTargetChip" class="text-xs px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono">74LS04</span>
+            </div>
+            <p id="replaceModalSubtitle" class="text-xs text-slate-400">Danh sách IC cắm thay thế trực tiếp (Drop-in Replacement) & đối chiếu kho</p>
+          </div>
+        </div>
+        <button onclick="closeReplaceModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 flex flex-col gap-3.5 overflow-y-auto text-sm">
+        <!-- Banner trạng thái tồn kho của chip gốc -->
+        <div id="replaceModalOrigBanner" class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 flex items-center justify-between text-xs">
+          <!-- Filled dynamically -->
+        </div>
+
+        <!-- Danh sách các IC tương đương -->
+        <div>
+          <span class="text-xs font-semibold text-slate-300 uppercase block mb-2">Các mã IC thay thế tương thích chân (Pin-to-Pin):</span>
+          <div id="replaceModalList" class="flex flex-col gap-2.5">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Mẹo kỹ thuật chọn họ IC logic -->
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 text-[11px] text-slate-400 flex flex-col gap-1.5">
+          <p class="font-bold text-amber-300 flex items-center gap-1.5">
+            <i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Mẹo kỹ thuật khi thay thế IC họ 74:
+          </p>
+          <ul class="list-disc list-inside space-y-0.5 leading-relaxed pl-1 text-slate-300">
+            <li><b>74HCTxx</b>: Hoàn hảo nhất để thay cho <b>74LSxx</b> vì ngõ vào nhận chuẩn TTL 5V và tốc độ tương đương.</li>
+            <li><b>74HCxx</b>: Tương thích điện áp rộng (2V - 6V), tiêu thụ dòng siêu nhỏ nhưng khi nối tiếp với 74LS nên lưu ý điện áp mức cao.</li>
+            <li><b>74ALS / 74F</b>: Tốc độ cao hơn, tải kéo mạnh hơn, thay thế tốt cho 74LS.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-between px-4 py-3 border-t border-slate-800 bg-slate-950/40 text-xs">
+        <span class="text-slate-500 text-[11px]">Hỗ trợ tra cứu tự động họ 74, 4000, Op-Amp, Nguồn & Transistor</span>
+        <button type="button" onclick="closeReplaceModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 11: BẢNG THÀNH TÍCH SƯU TẦM IC HỌ 74 ================= -->
+  <div id="achievement74Modal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-5xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[94vh]">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-3.5 border-b border-slate-800 bg-slate-950/50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-indigo-500/20 border border-indigo-500/30 text-amber-400 flex items-center justify-center shrink-0 shadow-inner">
+            <i data-lucide="award" class="w-5 h-5 text-amber-300"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="font-bold text-base text-white tracking-wide">Bảng Thành Tích Sưu Tầm IC Họ 74 (74HC & 74LS)</h3>
+              <span id="achievementRankBadge" class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
+                <span id="achievementRankText">Thợ Mạch Số TTL</span>
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Showcase toàn bộ các mã IC 74 kinh điển chia theo chức năng • Ô sáng đèn khi bạn đã sở hữu</p>
+          </div>
+        </div>
+        <button onclick="close74AchievementModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 flex flex-col gap-3.5 overflow-y-auto text-sm">
+        <!-- Dashboard Tiến Độ Sưu Tầm -->
+        <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950/40 border border-slate-700/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+          <div class="flex-1">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <span class="text-slate-400 flex items-center gap-1.5 font-medium">
+                <i data-lucide="compass" class="w-3.5 h-3.5 text-indigo-400"></i>
+                Tiến độ mở khóa IC Họ 74:
+              </span>
+              <span id="achievementProgressPercent" class="font-bold font-mono text-emerald-400 text-sm">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5 border border-slate-700">
+              <div id="achievementProgressBar" class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1.5 flex items-center gap-2">
+              <span>Đã sưu tầm: <b id="achievementOwnedCount" class="text-emerald-300">0</b> / <span id="achievementTotalCatalogCount">68</span> mã chuẩn</span>
+              <span>•</span>
+              <span>Tổng số lượng trong Lab: <b id="achievementTotalQuantity" class="text-sky-300">0</b> con</span>
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-slate-800 pt-3 sm:pt-0 sm:pl-4">
+            <div class="text-center px-3">
+              <span class="text-[10px] text-slate-400 block uppercase">Đèn Sáng</span>
+              <span id="achievementStatLit" class="text-base font-bold font-mono text-emerald-400">0</span>
+            </div>
+            <div class="text-center px-3 border-l border-slate-800">
+              <span class="text-[10px] text-slate-400 block uppercase">Đèn Tắt</span>
+              <span id="achievementStatDimmed" class="text-base font-bold font-mono text-slate-500">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Tabs trong Modal Thành Tích -->
+        <div class="flex flex-col gap-2">
+          <!-- Hàng 1: Lọc trạng thái Đã có / Chưa có -->
+          <div class="flex items-center gap-1.5 flex-wrap text-xs">
+            <span class="text-slate-400 text-[11px] mr-1">Bộ lọc:</span>
+            <button type="button" onclick="set74AchievementStatusFilter('all')" id="achievFilterBtn_all" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-indigo-600 text-white shadow-sm">
+              Tất cả (68)
+            </button>
+            <button type="button" onclick="set74AchievementStatusFilter('owned')" id="achievFilterBtn_owned" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800 text-emerald-300 hover:bg-slate-700 border border-emerald-500/30">
+              🟢 Đã có trong kho (<span id="achievBadgeOwned">0</span>)
+            </button>
+            <button type="button" onclick="set74AchievementStatusFilter('missing')" id="achievFilterBtn_missing" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700">
+              ⚪ Chưa có (<span id="achievBadgeMissing">0</span>)
+            </button>
+          </div>
+
+          <!-- Hàng 2: Lọc theo 8 Phân Loại Chức Năng (Sub-catalogs) -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 border-t border-slate-800/80 text-xs" id="achievSubCatFilterBar">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Grid Danh Sách IC 74xx -->
+        <div id="achievement74Grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-between px-4 py-3 border-t border-slate-800 bg-slate-950/50 text-xs">
+        <span class="text-slate-500 text-[11px]">Tự động đối chiếu theo thời gian thực với toàn bộ kho linh kiện của bạn</span>
+        <button type="button" onclick="close74AchievementModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">
           Đóng
         </button>
       </div>
@@ -966,15 +1267,86 @@
     let parts = JSON.parse(localStorage.getItem('ee_inventory_parts')) || DEFAULT_PARTS;
     let cloudUrl = localStorage.getItem('ee_inventory_cloud_url') || '';
 
+    // KIỂM TRA PHÂN LOẠI CÓ PHẢI NHÓM LOGIC IC KHÔNG (Hỗ trợ cả tên tùy chỉnh như 'Logic IC (74HC, CD40...)')
+    function isLogicCategory(cat) {
+      if (!cat) return false;
+      const c = String(cat).toLowerCase().trim();
+      return c === 'logic ic' || c.includes('logic') || c.includes('74hc') || c.includes('cd40');
+    }
+
+    // TÌM PHÂN LOẠI PHÙ HỢP TRONG DANH SÁCH CATEGORIES HIỆN CÓ CỦA NGƯỜI DÙNG
+    function findCategoryMatch(targetCat) {
+      if (!targetCat) return '';
+      if (categories.includes(targetCat)) return targetCat;
+      if (isLogicCategory(targetCat)) {
+        const found = categories.find(c => isLogicCategory(c));
+        if (found) return found;
+      }
+      const tLower = targetCat.toLowerCase().trim();
+      const partial = categories.find(c => {
+        const cl = c.toLowerCase().trim();
+        return cl === tLower || cl.includes(tLower) || tLower.includes(cl);
+      });
+      if (partial) return partial;
+      return categories[0] || targetCat;
+    }
+
+    // TRÍCH XUẤT MÃ SỐ CHIP HỌ 74 VỚI WHITELIST CHUẨN XÁC (CHỈ CHẤP NHẬN 74HC, 74LS, 74HCT, 74ALS, 74F, 74...)
+    function extract74ChipNumber(rawName) {
+      if (!rawName) return null;
+      // Bỏ ghi chú kiểu chân trong ngoặc và bỏ hậu tố đóng gói như DIP-14, SOP-16 để không bị dính số chân vào mã chip
+      let s = String(rawName).trim().replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '');
+      s = s.replace(/(?:DIP|SOP|SOIC|TSSOP|QFP|QFN|PDIP|CDIP)[\s\-_0-9]*/gi, '');
+      const tokens = s.split(/[\s,/]+/);
+      let targetToken = tokens.find(t => /74/i.test(t)) || tokens[0] || '';
+      let clean = targetToken.toUpperCase().replace(/^(?:IC|CHIP)/i, '').replace(/[\s\-_]/g, '');
+
+      // Whitelist họ 74 chuẩn:
+      // Tiền tố hãng: SN, HD, DM, MC, TC, MM, TI, GD, KS, UT... (hoặc rỗng)
+      // Base: 74 hoặc 54
+      // Family whitelist: HC, HCT, LS, ALS, F, ACT, AC, AHC, AHCT, LVC, LV, VHC, VHCT, S, C, L (hoặc rỗng cho chuẩn 74xx TTL gốc)
+      // Số chip: 2 đến 4 chữ số (\d{2,4})
+      // Hậu tố vỏ / package: chỉ chữ cái ([A-Z]*), TUYỆT ĐỐI KHÔNG ĐƯỢC CHỨA SỐ
+      const m = clean.match(/^(?:SN|HD|DM|MC|TC|MM|TI|GD|KS|UT)?(?:74|54)(HC|HCT|LS|ALS|F|ACT|AC|AHC|AHCT|LVC|LV|VHC|VHCT|S|C|L)?(\d{2,4})([A-Z]*)$/i);
+      if (!m) return null;
+      return m[2];
+    }
+
+    // KIỂM TRA CHIP CÓ KHỚP ĐÚNG SỐ CODE 74 HAY KHÔNG (Tránh 74HC138 bị ăn nhầm vào 74xx13)
+    function isMatching74Code(partName, code) {
+      const chipNum = extract74ChipNumber(partName);
+      if (!chipNum) return false;
+
+      // 1. So khớp chính xác số (exact match)
+      if (chipNum === code) return true;
+
+      // 2. So khớp trường hợp có / không có số 0 ở đầu (VD: '4' vs '04')
+      if (parseInt(chipNum, 10) === parseInt(code, 10)) {
+        if (chipNum.length >= 2 && code.length >= 2) {
+          return chipNum === code;
+        }
+        return (code === '0' + chipNum) || (chipNum === '0' + code);
+      }
+
+      return false;
+    }
+
+    function getPartsMatching74Code(code) {
+      return parts.filter(p => isMatching74Code(p.name, code));
+    }
+
     function init() {
-      // Đảm bảo categories là mảng hợp lệ và bao gồm các phân loại đang có của parts
+      // Đảm bảo categories là mảng hợp lệ, loại bỏ trùng lặp và bao gồm các phân loại đang có của parts
       if (!Array.isArray(categories) || categories.length === 0) {
         categories = [...DEFAULT_CATEGORIES];
       }
+      categories = Array.from(new Set(categories.map(c => (c || '').trim()).filter(Boolean)));
       const existingPartCats = parts.map(p => p.category).filter(Boolean);
       existingPartCats.forEach(cat => {
-        if (!categories.includes(cat)) categories.push(cat);
+        const trimmed = cat.trim();
+        if (trimmed && !categories.includes(trimmed)) categories.push(trimmed);
       });
+      categories = Array.from(new Set(categories.map(c => (c || '').trim()).filter(Boolean)));
 
       // Đảm bảo projects là mảng hợp lệ và thu thập các project từ parts nếu có
       if (!Array.isArray(projects) || projects.length === 0) {
@@ -1072,11 +1444,15 @@
       `;
 
       container.innerHTML = tabsHtml + manageBtn;
+      renderLogicSubCategoryBar();
       lucide.createIcons();
     }
 
     function setCategory(cat) {
       currentCategory = cat;
+      if (!isLogicCategory(cat)) {
+        currentLogicSubCategory = 'Tất cả';
+      }
       renderCategories();
       renderParts();
     }
@@ -1350,9 +1726,15 @@
     function populateCategorySelect(selectedCategory = '') {
       const sel = document.getElementById('partCategory');
       if (!sel) return;
+      // Loại bỏ trùng lặp trong categories
+      categories = Array.from(new Set(categories.map(c => (c || '').trim()).filter(Boolean)));
       let target = selectedCategory;
       if (!target && currentCategory !== 'Tất cả') target = currentCategory;
       if (!target && categories.length > 0) target = categories[0];
+
+      // Tìm phân loại khớp tốt nhất (ưu tiên nhóm Logic IC nếu target là Logic IC)
+      const matched = findCategoryMatch(target);
+      if (matched && categories.includes(matched)) target = matched;
 
       let opts = categories.map(cat => `<option value="${cat}" ${cat === target ? 'selected' : ''}>${cat}</option>`).join('');
       if (target && !categories.includes(target)) {
@@ -1444,6 +1826,9 @@
             </div>
 
             <div class="flex items-center gap-1.5 flex-wrap">
+              <button onclick="openBomModal('${escaped}')" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 text-xs font-medium transition flex items-center gap-1" title="Bảng kê linh kiện BoM & Gom đồ dự án">
+                <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Bảng BoM
+              </button>
               ${inUseParts.length > 0 ? `
                 <button onclick="returnPartsFromProject('${escaped}')" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-medium transition flex items-center gap-1" title="Đã tháo mạch: Thu hồi toàn bộ linh kiện này về hộp">
                   <i data-lucide="package-check" class="w-3.5 h-3.5"></i> Rút hết về hộp
@@ -1643,6 +2028,15 @@
             <i data-lucide="alert-circle" class="w-3 h-3"></i>
             <span>Chưa gán</span>
             <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-900 text-amber-300 font-mono">${unassignedList.length}</span>
+          </button>
+        `;
+      }
+
+      if (selectedInUseProject && selectedInUseProject !== 'all' && selectedInUseProject !== '__unassigned__') {
+        const escProj = selectedInUseProject.replace(/'/g, "\\'");
+        html += `
+          <button type="button" onclick="openBomModal('${escProj}')" class="px-2.5 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/40 text-xs font-medium transition flex items-center gap-1 shrink-0 ml-auto" title="Xem bảng BoM của dự án này">
+            <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Bảng BoM
           </button>
         `;
       }
@@ -1946,9 +2340,16 @@
         }
         if (local.cat) {
           const catSelect = document.getElementById('partCategory');
-          if (catSelect && categories.includes(local.cat)) {
-            catSelect.value = local.cat;
+          if (catSelect) {
+            const matched = findCategoryMatch(local.cat);
+            if (matched) catSelect.value = matched;
           }
+        }
+        handleCategoryChange();
+        if (isLogicCategory(document.getElementById('partCategory')?.value)) {
+          const autoSub = determineLogicSubcategory(rawName, descInput.value);
+          const subSelect = document.getElementById('partSubCategory');
+          if (subSelect && autoSub) subSelect.value = autoSub;
         }
         let pinoutAdded = false;
         if (local.pinout && pinoutInput && !pinoutInput.value.trim()) {
@@ -2004,7 +2405,16 @@
         if (pkgInput && (!pkgInput.value || manualClick)) pkgInput.value = local.pkg || '';
         if (local.cat) {
           const catSelect = document.getElementById('partCategory');
-          if (catSelect && categories.includes(local.cat)) catSelect.value = local.cat;
+          if (catSelect) {
+            const matched = findCategoryMatch(local.cat);
+            if (matched) catSelect.value = matched;
+          }
+        }
+        handleCategoryChange();
+        if (isLogicCategory(document.getElementById('partCategory')?.value)) {
+          const autoSub = determineLogicSubcategory(rawName, descInput.value);
+          const subSelect = document.getElementById('partSubCategory');
+          if (subSelect && autoSub) subSelect.value = autoSub;
         }
         let pinoutAdded = false;
         if (local.pinout && pinoutInput && !pinoutInput.value.trim()) {
@@ -2060,6 +2470,11 @@
 
         if (foundDesc) {
           descInput.value = foundDesc;
+          if (isLogicCategory(document.getElementById('partCategory')?.value)) {
+            const autoSub = determineLogicSubcategory(rawName, foundDesc);
+            const subSelect = document.getElementById('partSubCategory');
+            if (subSelect && autoSub && !subSelect.value) subSelect.value = autoSub;
+          }
           if (badge) {
             badge.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Đã tìm thấy mô tả từ Wikipedia</span>`;
             lucide.createIcons();
@@ -2110,9 +2525,15 @@
       if (badgeFav) badgeFav.innerText = favoriteCount;
 
       renderInUseProjectFilterBar();
+      update74AchievementHeaderBadge();
 
       const filtered = parts.filter(p => {
         const matchCat = currentCategory === 'Tất cả' || p.category === currentCategory;
+        let matchSubCat = true;
+        if (isLogicCategory(currentCategory) && currentLogicSubCategory && currentLogicSubCategory !== 'Tất cả') {
+          const actualSub = p.subCategory || determineLogicSubcategory(p.name, p.desc);
+          matchSubCat = (actualSub === currentLogicSubCategory);
+        }
         let matchMode = true;
         if (currentViewMode === 'all') matchMode = true;
         else if (currentViewMode === 'favorite') matchMode = !!p.favorite;
@@ -2124,12 +2545,20 @@
         } else if (currentViewMode === 'shopping') {
           matchMode = (Number(p.qty) + Number(p.inUse || 0)) <= Number(p.minQty ?? 2);
         }
-        const matchSearch = p.name.toLowerCase().includes(query) ||
+        let match74Search = false;
+        if (query) {
+          const q74 = query.match(/^74(?:xx)?(\d{2,4})$/i);
+          if (q74) {
+            match74Search = isMatching74Code(p.name, q74[1]);
+          }
+        }
+        const matchSearch = match74Search ||
+                            p.name.toLowerCase().includes(query) ||
                             (p.desc && p.desc.toLowerCase().includes(query)) ||
                             (p.location && p.location.toLowerCase().includes(query)) ||
                             (p.project && p.project.toLowerCase().includes(query)) ||
                             (p.package && p.package.toLowerCase().includes(query));
-        return matchCat && matchMode && matchSearch;
+        return matchCat && matchSubCat && matchMode && matchSearch;
       });
 
       // Ưu tiên hiển thị linh kiện Ghim (Favorite) lên đầu danh sách
@@ -2154,6 +2583,8 @@
                        : needBuy ? 'text-amber-300 bg-amber-500/10 border-amber-500/30'
                        : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
 
+        const inStockAlts = (isOutBox || needBuy) ? findInStockReplacements(p.name, p.id) : [];
+
         const cardBorder = p.favorite 
           ? 'border-amber-500/60 shadow-md shadow-amber-950/20' 
           : needBuy 
@@ -2170,6 +2601,7 @@
                   <h3 class="font-bold text-base text-white tracking-wide truncate">${p.name}</h3>
                   ${p.favorite ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 font-medium"><i data-lucide="star" class="w-2.5 h-2.5 fill-amber-300"></i>Ghim</span>` : ''}
                   ${p.package ? `<span class="text-[10px] px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono">${p.package}</span>` : ''}
+                  ${isLogicCategory(p.category) ? `<span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">${p.subCategory || determineLogicSubcategory(p.name, p.desc)}</span>` : ''}
                   ${needBuy ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">Sắp hết</span>` : ''}
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5 line-clamp-1">${p.desc || p.category}</p>
@@ -2197,7 +2629,21 @@
                 <span>Mua</span>
                 ${p.minPrice ? `<span class="text-[10px] text-amber-300 font-mono font-bold ml-0.5">(${p.minPrice})</span>` : ''}
               </button>
+              <button onclick="openReplaceModal('${p.id}')" class="text-[11px] px-2 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 transition" title="Tra cứu IC thay thế tương đương & đối chiếu kho">
+                <i data-lucide="git-compare" class="w-3 h-3 text-emerald-400"></i>
+                <span>Thay thế</span>
+              </button>
             </div>
+
+            ${inStockAlts.length > 0 ? `
+              <div class="mt-2 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-2.5 py-1.5 flex items-center justify-between text-[11px] text-emerald-300">
+                <span class="flex items-center gap-1.5 truncate">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
+                  <span class="truncate">Sẵn có thay thế: <b>${inStockAlts[0].name}</b> (${inStockAlts[0].qty} con)</span>
+                </span>
+                <button onclick="openReplaceModal('${p.id}')" class="text-[11px] text-emerald-400 hover:text-emerald-200 underline font-medium ml-1 shrink-0">Xem</button>
+              </div>
+            ` : ''}
 
             <!-- Trạng thái Đang cắm trên mạch (Breadboard) -->
             <div class="mt-2.5 bg-slate-900/70 border border-slate-800 rounded-xl p-2 flex items-center justify-between text-xs">
@@ -3076,7 +3522,13 @@
         document.getElementById('partInUse').value = p.inUse || 0;
         document.getElementById('partMinQty').value = p.minQty ?? 2;
         document.getElementById('partProject').value = p.project || '';
-        populateCategorySelect(p.category);
+        const editCatVal = p.category || (categories[0] || '');
+        populateCategorySelect(editCatVal);
+        handleCategoryChange(editCatVal);
+        const subSelect = document.getElementById('partSubCategory');
+        if (subSelect) {
+          subSelect.value = p.subCategory || (isLogicCategory(editCatVal) ? determineLogicSubcategory(p.name, p.desc) : '');
+        }
         document.getElementById('partDesc').value = p.desc || '';
         populateProjectDatalist();
         renderProjectQuickChips();
@@ -3106,7 +3558,11 @@
         document.getElementById('partMinQty').value = 2;
         document.getElementById('partProject').value = '';
         document.getElementById('partDesc').value = '';
-        populateCategorySelect(currentCategory !== 'Tất cả' ? currentCategory : (categories[0] || ''));
+        const newCatVal = currentCategory !== 'Tất cả' ? currentCategory : (categories[0] || '');
+        populateCategorySelect(newCatVal);
+        handleCategoryChange(newCatVal);
+        const newSubSelect = document.getElementById('partSubCategory');
+        if (newSubSelect) newSubSelect.value = '';
         populateProjectDatalist();
         renderProjectQuickChips();
         const autoBadge = document.getElementById('descAutoBadge');
@@ -3163,6 +3619,9 @@
         minQty: Number(document.getElementById('partMinQty').value || 0),
         project: document.getElementById('partProject').value.trim(),
         category: document.getElementById('partCategory').value.trim() || (categories[0] || 'Thụ động / Khác'),
+        subCategory: isLogicCategory(document.getElementById('partCategory').value.trim())
+          ? (document.getElementById('partSubCategory')?.value || determineLogicSubcategory(document.getElementById('partName').value.trim(), document.getElementById('partDesc').value.trim()))
+          : '',
         desc: document.getElementById('partDesc').value.trim(),
         boxId: boxId,
         cell: cell,
@@ -3769,8 +4228,9 @@
       const doPinout = document.getElementById('batchOptPinout')?.checked ?? true;
       const doPkg = document.getElementById('batchOptPkg')?.checked ?? true;
       const doBuy = document.getElementById('batchOptBuy')?.checked ?? true;
+      const doSubCat = document.getElementById('batchOptSubCat')?.checked ?? true;
 
-      if (!doDesc && !doPinout && !doPkg && !doBuy) {
+      if (!doDesc && !doPinout && !doPkg && !doBuy && !doSubCat) {
         return alert('Vui lòng chọn ít nhất 1 tùy chọn tự động bổ sung!');
       }
 
@@ -3780,7 +4240,8 @@
         const needPinout = doPinout && (!p.pinout || !p.pinout.trim());
         const needPkg = doPkg && (!p.package || !p.package.trim());
         const needBuy = doBuy && (!p.buyUrl && (!p.buyShops || Object.keys(p.buyShops).length === 0));
-        return needDesc || needPinout || needPkg || needBuy;
+        const needSubCat = doSubCat && (isLogicCategory(p.category) && !p.subCategory);
+        return needDesc || needPinout || needPkg || needBuy || needSubCat;
       });
 
       if (targets.length === 0) {
@@ -3810,6 +4271,7 @@
       let updatedPinout = 0;
       let updatedPkg = 0;
       let updatedBuy = 0;
+      let updatedSubCat = 0;
 
       for (let i = 0; i < targets.length; i++) {
         if (!isBatchRunning) break;
@@ -3876,6 +4338,16 @@
           } catch(e) {}
         }
 
+        // 4. PHÂN LOẠI SÂU SUB-CATALOG CHO LOGIC IC
+        if (doSubCat && isLogicCategory(p.category) && !p.subCategory) {
+          const sub = determineLogicSubcategory(p.name, p.desc);
+          if (sub) {
+            p.subCategory = sub;
+            updatedSubCat++;
+            changes.push(`+ Sub-catalog (${sub})`);
+          }
+        }
+
         // Ghi nhật ký dòng
         const logLine = document.createElement('div');
         logLine.className = 'py-0.5 flex items-center justify-between border-b border-slate-800/60';
@@ -3901,7 +4373,7 @@
       btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Hoàn tất';
       btn.className = 'px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs transition flex items-center gap-1.5';
       currentItemText.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> Quét hoàn tất!</span>`;
-      summaryNotice.innerHTML = `Đã bổ sung: <b class="text-emerald-400">${updatedDesc}</b> mô tả • <b class="text-sky-400">${updatedPinout}</b> ảnh pinout • <b class="text-amber-400">${updatedPkg}</b> kiểu chân • <b class="text-rose-400">${updatedBuy}</b> linh kiện gắn 4 shop mua. Các dữ liệu cũ của bạn được giữ nguyên 100%.`;
+      summaryNotice.innerHTML = `Đã bổ sung: <b class="text-emerald-400">${updatedDesc}</b> mô tả • <b class="text-sky-400">${updatedPinout}</b> ảnh pinout • <b class="text-amber-400">${updatedPkg}</b> kiểu chân • <b class="text-rose-400">${updatedBuy}</b> 4 shop • <b class="text-indigo-400">${updatedSubCat}</b> sub-catalog Logic. Các dữ liệu cũ của bạn được giữ nguyên 100%.`;
 
       saveData();
       renderParts();
@@ -4339,6 +4811,1352 @@
       else parts.push(tempPart);
 
       openBuyModal('__temp_form__');
+    }
+
+    // =========================================================================
+    // FEATURE 3: TRA CỨU IC THAY THẾ TƯƠNG ĐƯƠNG (CROSS-REFERENCE & DROP-IN IC)
+    // =========================================================================
+
+    const EQUIVALENT_IC_DB = {
+      // --- OP-AMP & COMPARATOR (CHUẨN CHÂN SO-8 / DIP-8) ---
+      'LM358': [
+        { name: 'LM2904', type: 'Drop-in 100%', note: 'Phiên bản công nghiệp, dải nhiệt độ rộng (-40°C đến 125°C), cùng sơ đồ chân.' },
+        { name: 'NE5532', type: 'Thay thế âm thanh Hi-Fi', note: 'Op-amp âm thanh low noise, méo tiếng siêu thấp (khuyên dùng nguồn đôi ±5V~±15V).' },
+        { name: 'TL072', type: 'Thay thế JFET Input', note: 'Trở kháng vào siêu cao (10¹² Ω), tốc độ đáp ứng nhanh (13V/µs), tối ưu tiền khuếch đại âm thanh / cảm biến.' },
+        { name: 'TL082', type: 'Thay thế JFET Input', note: 'Cùng họ TL072, chuyên dùng tiền khuếch đại JFET.' },
+        { name: 'RC4558', type: 'Drop-in Dual Op-Amp', note: 'Op-amp kép phổ biến, hoạt động ổn định trong các mạch âm thanh và lọc tần số.' },
+        { name: 'MCP6002', type: 'Drop-in Rail-to-Rail 3.3V/5V', note: 'Op-amp Rail-to-Rail nguồn đơn 1.8V - 6V, tối ưu tuyệt đối cho Arduino/ESP32.' }
+      ],
+      'LM324': [
+        { name: 'LM2902', type: 'Drop-in 100%', note: 'Quad Op-Amp công nghiệp (-40°C đến 125°C), cùng sơ đồ chân DIP-14.' },
+        { name: 'TL074', type: 'Thay thế JFET Quad', note: '4 cổng Op-Amp JFET trở kháng vào cao, chuyên tiền khuếch đại.' },
+        { name: 'TL084', type: 'Thay thế JFET Quad', note: 'Tương đương TL074, tốc độ cao (13V/µs).' },
+        { name: 'MCP6004', type: 'Drop-in Rail-to-Rail 3.3V/5V', note: 'Quad Op-Amp Rail-to-Rail 1.8V - 6V, tín hiệu ngõ ra đạt sát 0V và VCC.' }
+      ],
+      'LM741': [
+        { name: 'TL071', type: 'Thay thế JFET cao cấp', note: 'Single Op-Amp ngõ vào JFET, méo tiếng thấp, nhanh hơn LM741 nhiều lần.' },
+        { name: 'TL081', type: 'Thay thế JFET', note: 'Single Op-Amp tương đương TL071.' },
+        { name: 'NE5534', type: 'Thay thế Audio Low-Noise', note: 'Op-amp đơn âm thanh độ ồn cực thấp, cần nguồn đôi ±5V~±15V.' },
+        { name: 'OP07', type: 'Thay thế Đo lường chính xác', note: 'Điện áp bù (Offset voltage) cực thấp chỉ vài chục µV, siêu chuẩn cho mạch đo lường/cảm biến.' }
+      ],
+      'LM393': [
+        { name: 'LM2903', type: 'Drop-in 100%', note: 'Dual Comparator công nghiệp (-40°C đến 125°C), ngõ ra Open-Collector, cần trở kéo lên (pull-up).' },
+        { name: 'LM393B', type: 'Drop-in Nâng cấp', note: 'Phiên bản cải tiến của TI, chống nhiễu ESD cao hơn.' }
+      ],
+      'LM339': [
+        { name: 'LM2901', type: 'Drop-in 100%', note: 'Quad Comparator công nghiệp, 4 bộ so sánh Open-Collector độc lập.' }
+      ],
+
+      // --- TIMER 555 ---
+      'NE555': [
+        { name: 'LM555', type: 'Drop-in 100%', note: 'IC định thời 555 kinh điển của TI/National Semiconductor (4.5V - 16V).' },
+        { name: 'SE555 / SA555', type: 'Drop-in Chuẩn quân sự / Công nghiệp', note: 'Dải nhiệt độ hoạt động chịu nhiệt cao hơn.' },
+        { name: 'ICM7555', type: 'Thay thế CMOS Tiết kiệm điện', note: 'Bản CMOS tiêu thụ dòng chỉ ~60µA, chạy được từ 2V - 18V, không bị sụt áp nguồn nhọn lúc đổi trạng thái.' },
+        { name: 'TLC555', type: 'Thay thế LinCMOS (TI)', note: 'Bản LinCMOS tốc độ cao lên đến 2.1MHz, ngõ ra Rail-to-Rail, chạy từ 2V.' }
+      ],
+
+      // --- REGULATOR (ỔN ÁP TUYẾN TÍNH & LDO) ---
+      'LM7805': [
+        { name: 'L7805CV', type: 'Drop-in 100%', note: 'Ổn áp 5V 1.5A hãng STMicroelectronics, chân 1=IN, 2=GND, 3=OUT (TO-220).' },
+        { name: 'KA7805', type: 'Drop-in 100%', note: 'Ổn áp 5V 1.5A Fairchild/ON Semiconductor.' },
+        { name: 'MC7805', type: 'Drop-in 100%', note: 'Ổn áp 5V 1.5A Motorola/ON Semi.' },
+        { name: 'LM2940CT-5.0', type: 'Thay thế LDO (Độ sụt áp thấp)', note: 'Cùng sơ đồ chân TO-220, nhưng chỉ cần chênh áp ~0.5V (thay vì 2V như 7805) để ra đủ 5V.' }
+      ],
+      'LM7812': [
+        { name: 'L7812CV', type: 'Drop-in 100%', note: 'Ổn áp 12V 1.5A TO-220.' },
+        { name: 'KA7812', type: 'Drop-in 100%', note: 'Ổn áp 12V 1.5A Fairchild.' }
+      ],
+      'LM317': [
+        { name: 'LM317T', type: 'Drop-in 100%', note: 'Ổn áp tuyến tính điều chỉnh điện áp ngõ ra (1.2V - 37V, 1.5A, TO-220: 1=ADJ, 2=OUT, 3=IN).' },
+        { name: 'LM117 / LM217', type: 'Drop-in Công nghiệp / Quân sự', note: 'Độ ổn định nhiệt và độ bền chuẩn công nghiệp cao cấp.' }
+      ],
+      'AMS1117-3.3': [
+        { name: 'LM1117-3.3', type: 'Drop-in 100%', note: 'LDO 3.3V 800mA - 1A, cùng sơ đồ chân (1=GND, 2=VOUT, 3=VIN).' },
+        { name: 'LD1117V33', type: 'Tương đương', note: 'Phiên bản TO-220 hoặc SOT-223 của STMicro.' }
+      ],
+      'AMS1117-5.0': [
+        { name: 'LM1117-5.0', type: 'Drop-in 100%', note: 'LDO 5V 800mA - 1A.' },
+        { name: 'LD1117V50', type: 'Tương đương', note: 'Phiên bản của STMicro.' }
+      ],
+
+      // --- DRIVER & OPTOCOUPLER ---
+      'ULN2003': [
+        { name: 'ULN2003A', type: 'Drop-in 100%', note: 'Mảng 7 transistor Darlington kéo dòng 500mA/kênh, tích hợp diode dập xung ngược.' },
+        { name: 'MC1413', type: 'Drop-in 100%', note: 'Tương đương 100% ULN2003 của Motorola.' },
+        { name: 'ULN2004', type: 'Tương đương cho CMOS 6-15V', note: 'Tương thích chân, tối ưu kích mở với mức logic CMOS 6V - 15V.' },
+        { name: 'ULN2803', type: 'Thay thế 8 kênh (DIP-18)', note: 'Có 8 kênh thay vì 7 kênh, lưu ý lệch chân do vỏ DIP-18.' }
+      ],
+      'L293D': [
+        { name: 'SN754410', type: 'Drop-in Pin-to-Pin Dòng cao hơn', note: 'Cùng sơ đồ chân 16 chân, dòng định mức 1A/kênh (so với 600mA của L293D). Cần thêm diode nếu kéo động cơ công suất lớn.' },
+        { name: 'L293', type: 'Tương đương chân', note: 'Dòng 1A nhưng không có sẵn diode kẹp dập xung ngược bên trong ruột chip.' }
+      ],
+      'PC817': [
+        { name: 'EL817', type: 'Drop-in 100%', note: 'Opto cách ly quang 4 chân của Everlight, cùng chân 1=Anode, 2=Cathode, 3=Emitter, 4=Collector.' },
+        { name: 'LTV-817', type: 'Drop-in 100%', note: 'Opto của Lite-On, tương thích 100% pin-to-pin.' },
+        { name: 'PS2501-1', type: 'Drop-in 100%', note: 'Opto của Renesas / NEC, tốc độ và độ bền cao.' },
+        { name: 'TLP521-1', type: 'Drop-in 100%', note: 'Opto của Toshiba 4 chân.' }
+      ],
+
+      // --- CMOS 4000 LOGIC SERIES ---
+      'CD4017': [
+        { name: 'HEF4017B', type: 'Drop-in 100%', note: 'Bộ đếm thập phân 10 ngõ ra (Decade Counter) của Nexperia/Philips (3V - 15V).' },
+        { name: 'MC14017B', type: 'Drop-in 100%', note: 'Phiên bản Motorola/ON Semi.' },
+        { name: 'HCF4017BE', type: 'Drop-in 100%', note: 'Phiên bản STMicroelectronics.' },
+        { name: '74HC4017', type: 'Thay thế CMOS Tốc độ cao', note: 'Chạy điện áp chuẩn 2V - 6V, tốc độ chuyển mạch cao hơn nhiều so với CD4000 cổ điển.' }
+      ],
+      'CD4011': [
+        { name: 'HEF4011B', type: 'Drop-in 100%', note: 'Quad 2-Input NAND gate họ CMOS (3V - 15V).' },
+        { name: 'MC14011B', type: 'Drop-in 100%', note: 'Tương đương 100% pin-to-pin.' }
+      ],
+      'CD4001': [
+        { name: 'HEF4001B', type: 'Drop-in 100%', note: 'Quad 2-Input NOR gate họ CMOS (3V - 15V).' },
+        { name: 'MC14001B', type: 'Drop-in 100%', note: 'Tương đương 100% pin-to-pin.' }
+      ],
+      'CD4069': [
+        { name: 'HEF4069UB', type: 'Drop-in 100%', note: 'Hex Inverter họ CMOS (3V - 15V).' },
+        { name: 'MC14069UB', type: 'Drop-in 100%', note: 'Tương đương 100% pin-to-pin.' }
+      ],
+      'CD4066': [
+        { name: '74HC4066', type: 'Thay thế Tốc độ cao & Ron nhỏ', note: 'Quad Bilateral Analog Switch, điện trở dẫn Ron nhỏ hơn nhiều, tốc độ đóng cắt cao.' },
+        { name: 'HEF4066B', type: 'Drop-in 100%', note: 'Tương đương 100% pin-to-pin họ CMOS.' }
+      ],
+
+      // --- TRANSISTOR & MOSFET ---
+      '2N3904': [
+        { name: '2N2222 / PN2222', type: 'Cùng sơ đồ chân (E-B-C), dòng mạnh hơn', note: 'TO-92 chân 1=E, 2=B, 3=C. Dòng Ic chịu được 600mA - 800mA (so với 200mA của 2N3904).' },
+        { name: 'BC547 / BC548', type: 'Tương đương NPN (LƯU Ý ĐẢO CHÂN)', note: 'TO-92 thứ tự chân ngược lại: 1=C, 2=B, 3=E! Khi cắm mạch breadboard cần quay ngược 180°.' },
+        { name: 'C1815 (2SC1815)', type: 'Tương đương NPN (LƯU Ý CHÂN)', note: 'TO-92 thứ tự chân: 1=E, 2=C, 3=B. Cần chú ý cắm đúng chân Base ở giữa.' }
+      ],
+      '2N3906': [
+        { name: '2N2907', type: 'Cùng sơ đồ chân (E-B-C), dòng mạnh hơn', note: 'PNP TO-92 chân 1=E, 2=B, 3=C. Dòng Ic chịu được 600mA.' },
+        { name: 'BC557 / BC558', type: 'Tương đương PNP (LƯU Ý ĐẢO CHÂN)', note: 'PNP TO-92 thứ tự chân ngược lại: 1=C, 2=B, 3=E! Khi cắm cần xoay 180°.' },
+        { name: 'A1015 (2SA1015)', type: 'Tương đương PNP (LƯU Ý CHÂN)', note: 'PNP TO-92 thứ tự chân: 1=E, 2=C, 3=B.' }
+      ],
+      'IRFZ44N': [
+        { name: 'IRF3205', type: 'Drop-in Dòng khủng 110A', note: 'N-MOSFET 55V 110A, Rds(on) siêu thấp 8mΩ, chạy mát hơn khi gánh tải nặng.' },
+        { name: 'IRF540N', type: 'Drop-in Chịu áp cao 100V', note: 'N-MOSFET 100V 33A, phù hợp mạch nguồn hoặc tải điện áp 24V - 48V.' },
+        { name: 'IRLB8721', type: 'Thay thế Logic-Level (3.3V / 5V)', note: 'Kích mở trực tiếp hoàn toàn từ chân GPIO vi điều khiển mà không cần tầng kích Gate 10V!' },
+        { name: 'STP55NF06', type: 'Drop-in 100%', note: 'N-MOSFET 60V 50A TO-220 của STMicroelectronics.' }
+      ]
+    };
+
+    function getEquivalentChips(partName) {
+      if (!partName) return [];
+      const clean = partName.toUpperCase().trim();
+      const results = [];
+
+      // 1. Kiểm tra họ 74xx
+      const match74 = clean.match(/^(?:SN|HD|DM|MC|TC)?74([A-Z]{0,4})(\d{2,4})([A-Z0-9]*)$/);
+      if (match74) {
+        const currentFamily = match74[1] || ''; // 'LS', 'HC', 'HCT', etc.
+        const code = match74[2]; // '04', '00', '138', '595'
+        
+        const subFamilies = [
+          {
+            fam: 'HCT',
+            type: currentFamily === 'LS' ? 'Khuyên dùng thay cho 74LS' : 'Tương đương Pin-to-Pin',
+            note: 'Tương thích 100% pin-to-pin. Ngõ vào nhận mức logic TTL 5V chuẩn xác giống 74LS, ngõ ra CMOS tiết kiệm điện.'
+          },
+          {
+            fam: 'HC',
+            type: 'Tương thích Pin-to-Pin',
+            note: 'Họ High-speed CMOS (2V - 6V), tiêu thụ dòng tĩnh cực nhỏ. Tương thích chân 100%.'
+          },
+          {
+            fam: 'LS',
+            type: 'Chuẩn TTL cổ điển',
+            note: 'Họ Low-power Schottky phổ biến, ngõ vào chuẩn TTL 5V.'
+          },
+          {
+            fam: 'ALS',
+            type: 'Nâng cấp Tốc độ cao',
+            note: 'Advanced Low-power Schottky: Nhanh hơn 74LS, tiêu thụ điện năng ít hơn.'
+          },
+          {
+            fam: 'F',
+            type: 'Tốc độ cực nhanh (Fast)',
+            note: 'Họ Fast Schottky (Fairchild/TI), kéo tải mạnh và tần số hoạt động cao.'
+          },
+          {
+            fam: 'AHC',
+            type: 'Advanced High-Speed',
+            note: 'Thế hệ CMOS tiên tiến hơn họ HC, tốc độ tăng gấp 3 lần và giảm nhiễu.'
+          }
+        ];
+
+        subFamilies.forEach(sf => {
+          if (sf.fam !== currentFamily) {
+            results.push({
+              name: `74${sf.fam}${code}`,
+              type: sf.type,
+              note: sf.note,
+              compatibility: '100% Pin-to-pin'
+            });
+          }
+        });
+
+        // Một số mã đặc biệt có chip tương đương chức năng
+        if (code === '04') {
+          results.push({
+            name: '74HC14 / 74LS14',
+            type: 'Nâng cấp có Schmitt Trigger',
+            note: 'Cùng sơ đồ 6 cổng đảo NOT 14 chân, nhưng có mạch kích Schmitt Trigger giúp chống dội phím và lọc nhiễu ngõ vào cực tốt.',
+            compatibility: '100% Pin-to-pin'
+          });
+        } else if (code === '00') {
+          results.push({
+            name: '74HC132 / 74LS132',
+            type: 'Nâng cấp có Schmitt Trigger',
+            note: 'Cùng sơ đồ 4 cổng NAND 2 ngõ vào, có Schmitt Trigger chống dội xung.',
+            compatibility: '100% Pin-to-pin'
+          });
+        } else if (code === '595') {
+          results.push({
+            name: 'TPIC6B595',
+            type: 'Thay thế Kéo Tải Dòng Cao',
+            note: 'Power Logic 8-bit Shift Register: Kéo tải trực tiếp lên đến 150mA/kênh cho Relay/LED công suất cao.',
+            compatibility: 'Khác chân một số ngõ ra (Cần xem Pinout)'
+          });
+        }
+      }
+
+      // 2. Tra cứu trong cơ sở dữ liệu mẫu EXACT_EQUIVALENT_DB
+      let matchedKey = null;
+      for (const key in EQUIVALENT_IC_DB) {
+        if (clean.includes(key) || key.includes(clean)) {
+          matchedKey = key;
+          break;
+        }
+      }
+
+      if (matchedKey) {
+        EQUIVALENT_IC_DB[matchedKey].forEach(item => {
+          if (!results.some(r => r.name.toLowerCase() === item.name.toLowerCase())) {
+            results.push({
+              name: item.name,
+              type: item.type,
+              note: item.note,
+              compatibility: item.type.includes('Drop-in') ? '100% Pin-to-pin' : 'Tương đương chức năng'
+            });
+          }
+        });
+      }
+
+      return results;
+    }
+
+    function findInStockReplacements(partName, currentPartId = null) {
+      const candidates = getEquivalentChips(partName);
+      if (candidates.length === 0) return [];
+
+      const inStockMatches = [];
+
+      candidates.forEach(cand => {
+        const subNames = cand.name.split('/').map(s => s.trim().toUpperCase());
+
+        parts.forEach(p => {
+          if (currentPartId && p.id === currentPartId) return;
+          if (Number(p.qty || 0) <= 0) return;
+
+          const pClean = p.name.toUpperCase().trim();
+          const isMatch = subNames.some(sn => {
+            const snBase = sn.replace(/[^A-Z0-9]/g, '');
+            const pBase = pClean.replace(/[^A-Z0-9]/g, '');
+            return pBase.includes(snBase) || snBase.includes(pBase);
+          });
+
+          if (isMatch && !inStockMatches.some(m => m.id === p.id)) {
+            inStockMatches.push({
+              id: p.id,
+              name: p.name,
+              package: p.package || '',
+              qty: Number(p.qty),
+              location: p.location || 'Chưa xếp ô',
+              boxId: p.boxId,
+              cell: p.cell,
+              subCell: p.subCell,
+              type: cand.type,
+              note: cand.note,
+              compatibility: cand.compatibility
+            });
+          }
+        });
+      });
+
+      return inStockMatches;
+    }
+
+    let currentReplacePartId = null;
+
+    function openReplaceModal(partId) {
+      const p = parts.find(x => x.id === partId);
+      if (!p) return;
+      currentReplacePartId = partId;
+
+      document.getElementById('replaceModalTargetChip').innerText = `${p.name} ${p.package ? `(${p.package})` : ''}`;
+      
+      const inStockAlts = findInStockReplacements(p.name, p.id);
+      const allEquivalents = getEquivalentChips(p.name);
+
+      // Banner trạng thái của chip gốc
+      const origBanner = document.getElementById('replaceModalOrigBanner');
+      const isOut = Number(p.qty || 0) === 0;
+      origBanner.innerHTML = `
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg ${isOut ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'} flex items-center justify-center font-bold">
+            ${isOut ? '<i data-lucide="alert-triangle" class="w-4 h-4"></i>' : '<i data-lucide="check" class="w-4 h-4"></i>'}
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-white text-sm">${p.name}</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded font-mono ${isOut ? 'bg-rose-950 text-rose-300 border border-rose-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'}">
+                ${isOut ? 'HẾT HÀNG TRONG HỘP' : `Còn ${p.qty} con trong hộp`}
+              </span>
+            </div>
+            <p class="text-slate-400 text-[11px] mt-0.5">Vị trí: ${p.location} • Đang cắm mạch: ${p.inUse || 0} con</p>
+          </div>
+        </div>
+        <button onclick="openBuyModal('${p.id}')" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs transition flex items-center gap-1 shrink-0 shadow-sm">
+          <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i> Mua thêm
+        </button>
+      `;
+
+      // Danh sách các IC thay thế
+      const listEl = document.getElementById('replaceModalList');
+      if (allEquivalents.length === 0) {
+        listEl.innerHTML = `
+          <div class="bg-slate-800/40 border border-slate-700/60 rounded-xl p-4 text-center text-xs text-slate-400">
+            Chưa có dữ liệu IC thay thế tương đương cho mã này.<br>
+            <span class="text-[11px] text-slate-500 mt-1 inline-block">Bạn có thể kiểm tra datasheet hoặc tìm mua trực tiếp từ 4 shop.</span>
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = allEquivalents.map(eq => {
+          const matchInStock = inStockAlts.find(m => {
+            const sub = eq.name.split('/').map(s => s.trim().toUpperCase());
+            const mClean = m.name.toUpperCase();
+            return sub.some(s => mClean.includes(s.replace(/[^A-Z0-9]/g, '')) || s.replace(/[^A-Z0-9]/g, '').includes(mClean));
+          });
+
+          return `
+          <div class="bg-slate-800/80 border ${matchInStock ? 'border-emerald-500/50 bg-emerald-950/20' : 'border-slate-700/80'} rounded-xl p-3 flex flex-col gap-2 transition">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-bold text-sm text-white font-mono">${eq.name}</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full ${eq.type.includes('Khuyên dùng') ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-700 text-slate-300'} font-medium">
+                    ${eq.type}
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-mono">${eq.compatibility}</span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1 leading-relaxed">${eq.note}</p>
+              </div>
+
+              <!-- Nút hành động -->
+              <div class="shrink-0 flex items-center gap-1.5">
+                ${matchInStock ? `
+                  <button onclick="closeReplaceModal(); locateInBox('${matchInStock.boxId}', '${matchInStock.cell}', '${matchInStock.subCell || ''}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition flex items-center gap-1 shadow-sm" title="Xem vị trí ô trên sơ đồ hộp">
+                    <i data-lucide="grid" class="w-3.5 h-3.5"></i> Lấy tại ${matchInStock.location}
+                  </button>
+                ` : `
+                  <button onclick="openBuyModalForExternal('${eq.name.split('/')[0].trim()}')" class="px-2.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs transition flex items-center gap-1" title="Tìm mua IC thay thế này từ 4 shop">
+                    <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-rose-400"></i> Mua
+                  </button>
+                `}
+              </div>
+            </div>
+
+            ${matchInStock ? `
+              <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-2.5 py-1 flex items-center justify-between text-[11px] text-emerald-300">
+                <span class="flex items-center gap-1 font-semibold">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                  Sẵn có trong kho: <b>${matchInStock.name}</b> (${matchInStock.qty} con)
+                </span>
+                <span class="font-mono text-emerald-400">${matchInStock.location}</span>
+              </div>
+            ` : ''}
+          </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('replaceModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeReplaceModal() {
+      document.getElementById('replaceModal').classList.add('hidden');
+    }
+
+    function openBuyModalForExternal(chipName) {
+      const tempId = '__ext_buy_' + Date.now();
+      const tempPart = {
+        id: tempId,
+        name: chipName,
+        package: 'DIP',
+        desc: 'IC thay thế tương đương',
+        qty: 0,
+        inUse: 0,
+        buyShops: generateShopLinksForPart(chipName, 'DIP')
+      };
+      parts.push(tempPart);
+      closeReplaceModal();
+      openBuyModal(tempId);
+    }
+
+    // =========================================================================
+    // FEATURE 2: BẢNG KÊ LINH KIỆN BOM & GOM ĐỒ DỰ ÁN (PROJECT KITTING)
+    // =========================================================================
+
+    let currentBomProjectName = null;
+
+    function openBomModal(projectName) {
+      if (!projectName) {
+        if (projects.length > 0) projectName = projects[0].name;
+        else {
+          alert('Chưa có dự án nào! Bạn hãy tạo dự án mới trước nhé.');
+          return openProjectsModal();
+        }
+      }
+
+      currentBomProjectName = projectName;
+      renderBomTable(projectName);
+      document.getElementById('bomModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeBomModal() {
+      document.getElementById('bomModal').classList.add('hidden');
+    }
+
+    function renderBomTable(projectName) {
+      const proj = projects.find(x => x.name.toLowerCase() === projectName.toLowerCase()) || { name: projectName, note: '' };
+      document.getElementById('bomModalProjectName').innerText = `Dự án: ${proj.name}`;
+      document.getElementById('bomModalProjectNote').innerText = proj.note || 'Bảng kê linh kiện (Bill of Materials), kiểm tra tồn kho & gom đồ lên mạch';
+
+      const projParts = parts.filter(p => p.project && p.project.toLowerCase() === projectName.toLowerCase());
+
+      const totalTypes = projParts.length;
+      const totalInUse = projParts.reduce((s, p) => s + Number(p.inUse || 0), 0);
+      const totalInBox = projParts.reduce((s, p) => s + Number(p.qty || 0), 0);
+      const missingCount = projParts.filter(p => Number(p.qty || 0) === 0 && Number(p.inUse || 0) === 0).length;
+
+      document.getElementById('bomStatTotalTypes').innerText = totalTypes;
+      document.getElementById('bomStatInUse').innerText = totalInUse;
+      document.getElementById('bomStatInBox').innerText = totalInBox;
+      document.getElementById('bomStatMissing').innerText = missingCount;
+
+      const badge = document.getElementById('bomModalStatusBadge');
+      if (projParts.length === 0) {
+        badge.className = 'text-xs px-2 py-0.5 rounded-full font-medium bg-slate-800 text-slate-400 border border-slate-700';
+        badge.innerText = 'Chưa có linh kiện';
+      } else if (missingCount > 0) {
+        badge.className = 'text-xs px-2 py-0.5 rounded-full font-medium bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        badge.innerText = `Thiếu ${missingCount} loại`;
+      } else if (totalInBox === 0 && totalInUse > 0) {
+        badge.className = 'text-xs px-2 py-0.5 rounded-full font-medium bg-sky-500/20 text-sky-300 border border-sky-500/30';
+        badge.innerText = 'Đã cắm hết lên mạch';
+      } else {
+        badge.className = 'text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        badge.innerText = 'Sẵn sàng gom đồ';
+      }
+
+      const tbody = document.getElementById('bomTableBody');
+      if (projParts.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center py-8 text-slate-500">
+              <i data-lucide="package-search" class="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
+              Dự án này chưa có linh kiện nào trong danh sách BoM.<br>
+              <span class="text-xs text-slate-400 mt-1 inline-block">Hãy chọn linh kiện ở ô bên dưới để thêm vào dự án!</span>
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = projParts.map(p => {
+          const inUse = Number(p.inUse || 0);
+          const inBox = Number(p.qty || 0);
+          const isOut = inBox === 0;
+          const alts = isOut ? findInStockReplacements(p.name, p.id) : [];
+
+          let statusCol = '';
+          if (inUse > 0 && inBox > 0) {
+            statusCol = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-medium">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Đủ (Cắm ${inUse} + Dư ${inBox})
+            </span>`;
+          } else if (inUse > 0 && inBox === 0) {
+            statusCol = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30 text-[10px] font-medium">
+              <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span> Đã cắm hết (${inUse})
+            </span>`;
+          } else if (inUse === 0 && inBox > 0) {
+            statusCol = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-medium">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Chờ gom lên (${inBox})
+            </span>`;
+          } else {
+            if (alts.length > 0) {
+              statusCol = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-medium" title="Có ${alts[0].name} sẵn trong kho">
+                ⚡ Có IC thay thế (${alts[0].name})
+              </span>`;
+            } else {
+              statusCol = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[10px] font-medium">
+                🔴 Hết hàng
+              </span>`;
+            }
+          }
+
+          return `
+          <tr class="hover:bg-slate-800/40 transition">
+            <td class="py-2.5 px-3">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-white font-mono">${p.name}</span>
+                ${p.package ? `<span class="text-[10px] font-mono text-slate-400">(${p.package})</span>` : ''}
+              </div>
+              <p class="text-[11px] text-slate-400 truncate max-w-[200px]">${p.desc || p.category}</p>
+            </td>
+            <td class="py-2.5 px-2">
+              <button onclick="closeBomModal(); locateInBox('${p.boxId}', '${p.cell}', '${p.subCell || ''}')" class="text-amber-300 hover:underline flex items-center gap-1 text-[11px]" title="Bấm để xem ô cất">
+                <i data-lucide="map-pin" class="w-3 h-3 text-amber-400"></i>
+                <span class="truncate max-w-[120px]">${p.location || 'Chưa xếp ô'}</span>
+              </button>
+            </td>
+            <td class="py-2.5 px-2 text-center">
+              <div class="inline-flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-lg p-0.5">
+                <button onclick="moveBomPartStock('${p.id}', 'to_box')" class="w-5 h-5 rounded hover:bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs" title="Rút 1 con về hộp">-</button>
+                <span class="font-mono font-bold text-xs px-1 text-sky-400 min-w-[20px]">${inUse}</span>
+                <button onclick="moveBomPartStock('${p.id}', 'to_board')" class="w-5 h-5 rounded hover:bg-slate-800 text-slate-300 flex items-center justify-center font-bold text-xs" title="Cắm thêm 1 con lên mạch">+</button>
+              </div>
+            </td>
+            <td class="py-2.5 px-2 text-center font-mono font-bold ${inBox > 0 ? 'text-emerald-400' : 'text-rose-400'}">
+              ${inBox}
+            </td>
+            <td class="py-2.5 px-2 text-center">
+              ${statusCol}
+            </td>
+            <td class="py-2.5 px-3 text-right">
+              <div class="inline-flex items-center gap-1">
+                ${isOut ? `
+                  <button onclick="openReplaceModal('${p.id}')" class="p-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 transition" title="Tra cứu IC thay thế">
+                    <i data-lucide="git-compare" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <button onclick="openBuyModal('${p.id}')" class="p-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition" title="Mua từ 4 Shop">
+                    <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                  </button>
+                ` : ''}
+                <button onclick="removePartFromBomProject('${p.id}')" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-rose-400 transition" title="Gỡ linh kiện khỏi dự án này">
+                  <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          `;
+        }).join('');
+      }
+
+      renderBomQuickAddSelect();
+      lucide.createIcons();
+    }
+
+    function renderBomQuickAddSelect() {
+      const select = document.getElementById('bomAddPartSelect');
+      if (!select || !currentBomProjectName) return;
+
+      const availableParts = parts.filter(p => !p.project || p.project.toLowerCase() !== currentBomProjectName.toLowerCase());
+      if (availableParts.length === 0) {
+        select.innerHTML = '<option value="">(Tất cả linh kiện đã ở trong dự án này)</option>';
+        return;
+      }
+
+      select.innerHTML = '<option value="">-- Chọn linh kiện từ kho để thêm vào --</option>' +
+        availableParts.map(p => `
+          <option value="${p.id}">
+            ${p.name} ${p.package ? `(${p.package})` : ''} - Trong hộp: ${p.qty} con [${p.location || 'Chưa xếp ô'}]
+          </option>
+        `).join('');
+    }
+
+    function addSelectedPartToBom() {
+      const select = document.getElementById('bomAddPartSelect');
+      if (!select || !select.value || !currentBomProjectName) {
+        return alert('Vui lòng chọn 1 linh kiện từ danh sách để thêm vào dự án!');
+      }
+
+      const p = parts.find(x => x.id === select.value);
+      if (!p) return;
+
+      p.project = currentBomProjectName;
+      if (Number(p.inUse || 0) <= 0 && Number(p.qty || 0) > 0) {
+        p.inUse = 1;
+        p.qty = Number(p.qty) - 1;
+      }
+
+      saveData();
+      renderBomTable(currentBomProjectName);
+      renderParts();
+    }
+
+    function removePartFromBomProject(partId) {
+      const p = parts.find(x => x.id === partId);
+      if (!p) return;
+      if (!confirm(`Bạn có chắc muốn gỡ "${p.name}" khỏi dự án "${currentBomProjectName}"? (Số linh kiện đang cắm sẽ được trả về hộp)`)) return;
+
+      p.qty = Number(p.qty || 0) + Number(p.inUse || 0);
+      p.inUse = 0;
+      p.project = '';
+      saveData();
+      renderBomTable(currentBomProjectName);
+      renderParts();
+    }
+
+    function moveBomPartStock(partId, direction) {
+      const p = parts.find(x => x.id === partId);
+      if (!p) return;
+
+      if (direction === 'to_board') {
+        if (Number(p.qty || 0) <= 0) return alert('Trong hộp đã hết linh kiện này để cắm thêm lên mạch!');
+        p.qty = Number(p.qty) - 1;
+        p.inUse = Number(p.inUse || 0) + 1;
+      } else {
+        if (Number(p.inUse || 0) <= 0) return;
+        p.inUse = Number(p.inUse) - 1;
+        p.qty = Number(p.qty || 0) + 1;
+      }
+
+      saveData();
+      renderBomTable(currentBomProjectName);
+      renderParts();
+    }
+
+    function kitAllProjectParts() {
+      if (!currentBomProjectName) return;
+      const projParts = parts.filter(p => p.project && p.project.toLowerCase() === currentBomProjectName.toLowerCase());
+      if (projParts.length === 0) return alert('Dự án này chưa có linh kiện nào để gom!');
+
+      let transferredCount = 0;
+      projParts.forEach(p => {
+        if (Number(p.qty || 0) > 0 && Number(p.inUse || 0) === 0) {
+          p.inUse = 1;
+          p.qty = Number(p.qty) - 1;
+          transferredCount++;
+        }
+      });
+
+      saveData();
+      renderBomTable(currentBomProjectName);
+      renderParts();
+      alert(`Đã gom nhanh ${transferredCount} linh kiện có sẵn trong hộp lên mạch!`);
+    }
+
+    function returnAllProjectPartsFromBom() {
+      if (!currentBomProjectName) return;
+      if (!confirm(`Bạn có chắc chắn muốn rút toàn bộ linh kiện của dự án "${currentBomProjectName}" về cất lại vào các hộp?`)) return;
+
+      const projParts = parts.filter(p => p.project && p.project.toLowerCase() === currentBomProjectName.toLowerCase());
+      let returnedCount = 0;
+
+      projParts.forEach(p => {
+        const inUse = Number(p.inUse || 0);
+        if (inUse > 0) {
+          p.qty = Number(p.qty || 0) + inUse;
+          p.inUse = 0;
+          returnedCount += inUse;
+        }
+      });
+
+      saveData();
+      renderBomTable(currentBomProjectName);
+      renderParts();
+      alert(`Đã thu hồi an toàn ${returnedCount} linh kiện từ mạch về các ngăn hộp!`);
+    }
+
+    function copyBomText() {
+      if (!currentBomProjectName) return;
+      const projParts = parts.filter(p => p.project && p.project.toLowerCase() === currentBomProjectName.toLowerCase());
+      if (projParts.length === 0) return alert('Dự án chưa có linh kiện nào để sao chép!');
+
+      let text = `BẢNG KÊ LINH KIỆN (BOM) - DỰ ÁN: ${currentBomProjectName.toUpperCase()}\n`;
+      text += `Ngày tạo: ${new Date().toLocaleDateString('vi-VN')}\n`;
+      text += `------------------------------------------------------------\n`;
+      text += `STT | Tên Linh Kiện | Kiểu Chân | Đang Cắm | Trong Hộp | Vị Trí Cất\n`;
+      text += `------------------------------------------------------------\n`;
+
+      projParts.forEach((p, idx) => {
+        text += `${idx + 1}. ${(p.name || '').padEnd(12)} | ${(p.package || 'N/A').padEnd(8)} | Cắm: ${String(p.inUse || 0).padEnd(4)} | Hộp: ${String(p.qty || 0).padEnd(4)} | ${p.location || 'Chưa xếp ô'}\n`;
+      });
+      text += `------------------------------------------------------------\n`;
+      text += `Tổng cộng: ${projParts.length} loại linh kiện.\n`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Đã sao chép Bảng kê BoM vào Clipboard thành công!');
+      }).catch(() => {
+        prompt('Copy bảng BoM tại đây:', text);
+      });
+    }
+
+    function exportBomCSV() {
+      if (!currentBomProjectName) return;
+      const projParts = parts.filter(p => p.project && p.project.toLowerCase() === currentBomProjectName.toLowerCase());
+      if (projParts.length === 0) return alert('Dự án chưa có linh kiện nào để xuất!');
+
+      let csvContent = '\uFEFF'; // UTF-8 BOM cho Microsoft Excel nhận tiếng Việt
+      csvContent += 'STT,Tên Linh Kiện,Kiểu Chân (Package),Mô Tả,Đang Cắm Trên Mạch,Sẵn Có Trong Hộp,Vị Trí Cất,Trạng Thái\n';
+
+      projParts.forEach((p, idx) => {
+        const inUse = Number(p.inUse || 0);
+        const inBox = Number(p.qty || 0);
+        const status = inBox === 0 ? (inUse > 0 ? 'Đã cắm hết' : 'Hết hàng') : 'Đủ dùng';
+
+        const row = [
+          idx + 1,
+          `"${(p.name || '').replace(/"/g, '""')}"`,
+          `"${(p.package || '').replace(/"/g, '""')}"`,
+          `"${(p.desc || p.category || '').replace(/"/g, '""')}"`,
+          inUse,
+          inBox,
+          `"${(p.location || '').replace(/"/g, '""')}"`,
+          `"${status}"`
+        ];
+        csvContent += row.join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `BoM_${currentBomProjectName.replace(/[^a-zA-Z0-9_\u00C0-\u024F\u1E00-\u1EFF]/g, '_')}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function printBomTable() {
+      if (!currentBomProjectName) return;
+      const projParts = parts.filter(p => p.project && p.project.toLowerCase() === currentBomProjectName.toLowerCase());
+      if (projParts.length === 0) return alert('Dự án chưa có linh kiện nào để in!');
+
+      const printWin = window.open('', '_blank');
+      if (!printWin) return alert('Vui lòng cho phép mở popup để in bảng BoM!');
+
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Bảng Kê BoM - ${currentBomProjectName}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 24px; color: #111; }
+            h2 { margin-bottom: 4px; }
+            p { color: #555; margin-top: 0; font-size: 13px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 12px; }
+            th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+            th { background-color: #f4f4f4; font-weight: bold; }
+            .text-center { text-align: center; }
+            .checkbox { width: 16px; height: 16px; border: 1px solid #666; display: inline-block; }
+            @media print {
+              button { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h2>BẢNG KÊ LINH KIỆN (BoM) - DỰ ÁN: ${currentBomProjectName}</h2>
+              <p>Ngày in: ${new Date().toLocaleDateString('vi-VN')} • EE Lab Inventory</p>
+            </div>
+            <button onclick="window.print()" style="padding: 8px 16px; cursor: pointer; font-weight: bold;">In Ngay</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th class="text-center" style="width: 30px;">#</th>
+                <th>Tên Linh Kiện</th>
+                <th>Kiểu Chân</th>
+                <th>Vị Trí Cất</th>
+                <th class="text-center">Đang Cắm</th>
+                <th class="text-center">Trong Hộp</th>
+                <th class="text-center" style="width: 60px;">Đã Lấy</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${projParts.map((p, i) => `
+                <tr>
+                  <td class="text-center">${i + 1}</td>
+                  <td><b>${p.name}</b><br><small style="color:#666;">${p.desc || p.category}</small></td>
+                  <td>${p.package || '-'}</td>
+                  <td>${p.location || 'Chưa xếp ô'}</td>
+                  <td class="text-center">${p.inUse || 0}</td>
+                  <td class="text-center">${p.qty || 0}</td>
+                  <td class="text-center"><div class="checkbox"></div></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
+      printWin.document.open();
+      printWin.document.write(html);
+      printWin.document.close();
+      printWin.focus();
+    }
+
+    // =========================================================================
+    // FEATURE 1: SUB-CATALOG PHÂN LOẠI CHỨC NĂNG SÂU CHO LOGIC IC
+    // =========================================================================
+
+    const LOGIC_SUBCAT_LIST = [
+      { id: 'Cổng Logic', label: 'Cổng Logic', icon: 'square', desc: 'NAND, NOR, AND, OR, NOT, XOR, XNOR' },
+      { id: 'Bộ Nhớ & Chốt', label: 'Bộ Nhớ & Chốt', icon: 'database', desc: 'D Flip-Flop, JK Flip-Flop, D Latch, SRAM, EEPROM' },
+      { id: 'Bộ Đếm & Chia Tần', label: 'Bộ Đếm & Chia Tần', icon: 'timer', desc: 'Binary Counter, Decade/BCD Counter, Up/Down Counter' },
+      { id: 'Thanh Ghi Dịch', label: 'Thanh Ghi Dịch', icon: 'arrow-right-left', desc: 'Shift Register: SIPO (74595, 74164), PISO (74165)' },
+      { id: 'Bộ Chọn & Giải Mã', label: 'Bộ Chọn & Giải Mã', icon: 'git-merge', desc: 'MUX 8-to-1, Demux, 3-to-8 Decoder (74138), LED 7 đoạn (7447)' },
+      { id: 'Bộ Đệm & Bus', label: 'Bộ Đệm & Bus', icon: 'binary', desc: 'Octal Buffer (74244, 74541), Bus Transceiver 2 chiều (74245)' },
+      { id: 'Số Học & So Sánh', label: 'Số Học & So Sánh', icon: 'calculator', desc: 'Khối ALU (74181), Bộ cộng Full Adder (7483/74283), So sánh (7485)' },
+      { id: 'Schmitt & Tạo Xung', label: 'Schmitt & Tạo Xung', icon: 'zap', desc: 'Cổng Schmitt Trigger (7414, 74132), Đơn ổn Monostable (74123)' }
+    ];
+
+    let currentLogicSubCategory = 'Tất cả';
+
+    function determineLogicSubcategory(rawName, rawDesc = '') {
+      if (!rawName) return '';
+      const clean = rawName.toUpperCase().trim();
+      const desc = (rawDesc || '').toLowerCase();
+
+      // 1. Kiểm tra theo mã chip họ 74xx
+      const m74 = clean.match(/^(?:SN|HD|DM|MC|TC)?74[A-Z]{0,4}(\d{2,4})[A-Z0-9]*$/i) || clean.match(/^74(\d{2,4})/i);
+      if (m74) {
+        const code = m74[1];
+
+        // Cổng Logic
+        if (['00', '01', '02', '03', '04', '05', '08', '09', '10', '11', '12', '20', '21', '27', '30', '32', '86', '260'].includes(code)) {
+          return 'Cổng Logic';
+        }
+        // Schmitt & Tạo xung
+        if (['13', '14', '121', '122', '123', '132', '221'].includes(code)) {
+          return 'Schmitt & Tạo Xung';
+        }
+        // Bộ Nhớ & Chốt (Flip-Flop, Latch)
+        if (['73', '74', '75', '76', '107', '109', '112', '173', '174', '175', '259', '273', '373', '374', '377', '573', '574'].includes(code)) {
+          return 'Bộ Nhớ & Chốt';
+        }
+        // Bộ Đếm & Chia Tần
+        if (['90', '92', '93', '160', '161', '162', '163', '190', '191', '192', '193', '390', '393', '4017', '4020', '4040'].includes(code)) {
+          return 'Bộ Đếm & Chia Tần';
+        }
+        // Thanh Ghi Dịch
+        if (['164', '165', '166', '194', '195', '299', '595', '597'].includes(code)) {
+          return 'Thanh Ghi Dịch';
+        }
+        // Bộ Chọn & Giải Mã
+        if (['42', '47', '48', '138', '139', '147', '148', '151', '153', '154', '157', '158', '251', '257'].includes(code)) {
+          return 'Bộ Chọn & Giải Mã';
+        }
+        // Bộ Đệm & Bus
+        if (['06', '07', '125', '126', '240', '241', '244', '245', '541', '640', '645'].includes(code)) {
+          return 'Bộ Đệm & Bus';
+        }
+        // Số Học & So Sánh
+        if (['83', '85', '181', '280', '283', '688'].includes(code)) {
+          return 'Số Học & So Sánh';
+        }
+      }
+
+      // 2. Kiểm tra các chip CMOS 4000
+      if (clean.includes('4017') || clean.includes('4020') || clean.includes('4040') || clean.includes('4026') || clean.includes('4033') || clean.includes('4060')) {
+        return 'Bộ Đếm & Chia Tần';
+      }
+      if (clean.includes('4011') || clean.includes('4001') || clean.includes('4069') || clean.includes('4071') || clean.includes('4081') || clean.includes('4070') || clean.includes('4077')) {
+        return 'Cổng Logic';
+      }
+      if (clean.includes('4013') || clean.includes('4027') || clean.includes('4042') || clean.includes('4043') || clean.includes('4044')) {
+        return 'Bộ Nhớ & Chốt';
+      }
+      if (clean.includes('4014') || clean.includes('4015') || clean.includes('4021') || clean.includes('4094')) {
+        return 'Thanh Ghi Dịch';
+      }
+      if (clean.includes('4051') || clean.includes('4052') || clean.includes('4053') || clean.includes('4066') || clean.includes('4067') || clean.includes('4028')) {
+        return 'Bộ Chọn & Giải Mã';
+      }
+      if (clean.includes('4093') || clean.includes('4046') || clean.includes('555') || clean.includes('556')) {
+        return 'Schmitt & Tạo Xung';
+      }
+
+      // 3. Kiểm tra các bộ nhớ song song & I2C/SPI
+      if (clean.includes('28C') || clean.includes('62256') || clean.includes('24C') || clean.includes('W25Q') || desc.includes('eeprom') || desc.includes('sram') || desc.includes('bộ nhớ')) {
+        return 'Bộ Nhớ & Chốt';
+      }
+
+      // 4. Kiểm tra giao tiếp & Bus driver
+      if (clean.includes('MAX232') || clean.includes('MAX485') || clean.includes('CH340') || clean.includes('CP2102') || clean.includes('ULN2803') || clean.includes('ULN2003')) {
+        return 'Bộ Đệm & Bus';
+      }
+
+      // 5. Kiểm tra theo từ khóa trong mô tả (Description Keyword matching)
+      if (desc.includes('cổng đảo') || desc.includes('inverter') || desc.includes('nand') || desc.includes('nor') || desc.includes('xor') || desc.includes('cổng and') || desc.includes('cổng or')) {
+        return 'Cổng Logic';
+      }
+      if (desc.includes('flip-flop') || desc.includes('latch') || desc.includes('chốt') || desc.includes('thanh ghi dữ liệu')) {
+        return 'Bộ Nhớ & Chốt';
+      }
+      if (desc.includes('bộ đếm') || desc.includes('counter') || desc.includes('chia tần')) {
+        return 'Bộ Đếm & Chia Tần';
+      }
+      if (desc.includes('thanh ghi dịch') || desc.includes('shift register') || desc.includes('sipo') || desc.includes('piso')) {
+        return 'Thanh Ghi Dịch';
+      }
+      if (desc.includes('giải mã') || desc.includes('chọn kênh') || desc.includes('dồn kênh') || desc.includes('multiplexer') || desc.includes('decoder') || desc.includes('7 đoạn') || desc.includes('7-segment')) {
+        return 'Bộ Chọn & Giải Mã';
+      }
+      if (desc.includes('bộ đệm') || desc.includes('buffer') || desc.includes('transceiver') || desc.includes('thu phát bus') || desc.includes('line driver')) {
+        return 'Bộ Đệm & Bus';
+      }
+      if (desc.includes('alu') || desc.includes('bộ cộng') || desc.includes('full adder') || desc.includes('so sánh độ lớn') || desc.includes('comparator')) {
+        return 'Số Học & So Sánh';
+      }
+      if (desc.includes('schmitt') || desc.includes('dao động') || desc.includes('tạo xung') || desc.includes('đơn ổn') || desc.includes('multivibrator') || desc.includes('timer')) {
+        return 'Schmitt & Tạo Xung';
+      }
+
+      return 'Cổng Logic';
+    }
+
+    function renderLogicSubCategoryBar() {
+      const bar = document.getElementById('logicSubCategoryBar');
+      if (!bar) return;
+
+      if (!isLogicCategory(currentCategory)) {
+        bar.classList.add('hidden');
+        return;
+      }
+
+      bar.classList.remove('hidden');
+
+      const logicParts = parts.filter(p => isLogicCategory(p.category));
+      const isAllActive = currentLogicSubCategory === 'Tất cả';
+
+      let html = `
+        <button type="button" onclick="setLogicSubCategory('Tất cả')" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${isAllActive ? 'bg-indigo-600 text-white shadow-sm font-semibold' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/80'}">
+          <span>Tất cả Logic IC</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isAllActive ? 'bg-indigo-800 text-white' : 'bg-slate-900 text-indigo-300'} font-mono">${logicParts.length}</span>
+        </button>
+      `;
+
+      LOGIC_SUBCAT_LIST.forEach(sub => {
+        const count = logicParts.filter(p => (p.subCategory || determineLogicSubcategory(p.name, p.desc)) === sub.id).length;
+        const isActive = currentLogicSubCategory === sub.id;
+        const escSub = sub.id.replace(/'/g, "\\'");
+
+        html += `
+          <button type="button" onclick="setLogicSubCategory('${escSub}')" title="${sub.desc}" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${isActive ? 'bg-indigo-600 text-white shadow-sm font-semibold' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/80'}">
+            <span>${sub.label}</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-indigo-800 text-white' : 'bg-slate-900 text-indigo-300'} font-mono">${count}</span>
+          </button>
+        `;
+      });
+
+      html += `
+        <button type="button" onclick="open74AchievementModal()" class="shrink-0 ml-auto px-2.5 py-1 rounded-lg text-xs bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 font-medium transition flex items-center gap-1" title="Xem bảng thành tích & tiến độ sưu tầm 74xx">
+          <i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Thành Tích 74xx</span>
+        </button>
+      `;
+
+      bar.innerHTML = html;
+      lucide.createIcons();
+    }
+
+    function setLogicSubCategory(subCat) {
+      currentLogicSubCategory = subCat;
+      renderLogicSubCategoryBar();
+      renderParts();
+    }
+
+    function handleCategoryChange(chosenCat = null) {
+      const cat = chosenCat || document.getElementById('partCategory')?.value;
+      const subGroup = document.getElementById('partSubCategoryGroup');
+      if (!subGroup) return;
+      if (isLogicCategory(cat)) {
+        subGroup.classList.remove('hidden');
+        const nameVal = document.getElementById('partName')?.value;
+        const descVal = document.getElementById('partDesc')?.value;
+        const subSelect = document.getElementById('partSubCategory');
+        if (subSelect && !subSelect.value && nameVal) {
+          const autoSub = determineLogicSubcategory(nameVal, descVal);
+          if (autoSub) subSelect.value = autoSub;
+        }
+      } else {
+        subGroup.classList.add('hidden');
+      }
+    }
+
+    // =========================================================================
+    // FEATURE 2: BẢNG THÀNH TÍCH SƯU TẦM IC HỌ 74 (ACHIEVEMENT / POKEDEX GRID)
+    // =========================================================================
+
+    const STANDARD_74_CATALOG = [
+      // --- 1. CỔNG LOGIC (GATES) ---
+      { code: '00', name: '7400', subCat: 'Cổng Logic', title: 'Quad 2-Input NAND', desc: '4 cổng NAND 2 ngõ vào', pkg: 'DIP-14' },
+      { code: '02', name: '7402', subCat: 'Cổng Logic', title: 'Quad 2-Input NOR', desc: '4 cổng NOR 2 ngõ vào', pkg: 'DIP-14' },
+      { code: '04', name: '7404', subCat: 'Cổng Logic', title: 'Hex Inverter (NOT)', desc: '6 cổng đảo NOT độc lập', pkg: 'DIP-14' },
+      { code: '08', name: '7408', subCat: 'Cổng Logic', title: 'Quad 2-Input AND', desc: '4 cổng AND 2 ngõ vào', pkg: 'DIP-14' },
+      { code: '10', name: '7410', subCat: 'Cổng Logic', title: 'Triple 3-Input NAND', desc: '3 cổng NAND 3 ngõ vào', pkg: 'DIP-14' },
+      { code: '11', name: '7411', subCat: 'Cổng Logic', title: 'Triple 3-Input AND', desc: '3 cổng AND 3 ngõ vào', pkg: 'DIP-14' },
+      { code: '20', name: '7420', subCat: 'Cổng Logic', title: 'Dual 4-Input NAND', desc: '2 cổng NAND 4 ngõ vào', pkg: 'DIP-14' },
+      { code: '21', name: '7421', subCat: 'Cổng Logic', title: 'Dual 4-Input AND', desc: '2 cổng AND 4 ngõ vào', pkg: 'DIP-14' },
+      { code: '27', name: '7427', subCat: 'Cổng Logic', title: 'Triple 3-Input NOR', desc: '3 cổng NOR 3 ngõ vào', pkg: 'DIP-14' },
+      { code: '30', name: '7430', subCat: 'Cổng Logic', title: '8-Input NAND Gate', desc: '1 cổng NAND 8 ngõ vào', pkg: 'DIP-14' },
+      { code: '32', name: '7432', subCat: 'Cổng Logic', title: 'Quad 2-Input OR', desc: '4 cổng OR 2 ngõ vào', pkg: 'DIP-14' },
+      { code: '86', name: '7486', subCat: 'Cổng Logic', title: 'Quad 2-Input XOR', desc: '4 cổng XOR 2 ngõ vào', pkg: 'DIP-14' },
+      { code: '260', name: '74260', subCat: 'Cổng Logic', title: 'Dual 5-Input NOR', desc: '2 cổng NOR 5 ngõ vào', pkg: 'DIP-14' },
+
+      // --- 2. BỘ NHỚ & CHỐT (FLIP-FLOPS & LATCHES) ---
+      { code: '73', name: '7473', subCat: 'Bộ Nhớ & Chốt', title: 'Dual JK Flip-Flop', desc: 'JK Flip-Flop kép có Reset', pkg: 'DIP-14' },
+      { code: '74', name: '7474', subCat: 'Bộ Nhớ & Chốt', title: 'Dual D-Type Flip-Flop', desc: 'D Flip-Flop kép có Set/Reset', pkg: 'DIP-14' },
+      { code: '75', name: '7475', subCat: 'Bộ Nhớ & Chốt', title: 'Quad Bistable Latch', desc: '4 chốt dữ liệu D hai trạng thái', pkg: 'DIP-16' },
+      { code: '76', name: '7476', subCat: 'Bộ Nhớ & Chốt', title: 'Dual JK Flip-Flop', desc: 'JK Flip-Flop kép có Preset & Clear', pkg: 'DIP-16' },
+      { code: '107', name: '74107', subCat: 'Bộ Nhớ & Chốt', title: 'Dual JK Flip-Flop', desc: 'JK Flip-Flop kép ngõ vào Clear', pkg: 'DIP-14' },
+      { code: '109', name: '74109', subCat: 'Bộ Nhớ & Chốt', title: 'Dual J-Not-K Flip-Flop', desc: 'J-Not-K Flip-Flop kích cạnh dương', pkg: 'DIP-16' },
+      { code: '112', name: '74112', subCat: 'Bộ Nhớ & Chốt', title: 'Dual JK Flip-Flop', desc: 'JK Flip-Flop kích cạnh âm', pkg: 'DIP-16' },
+      { code: '173', name: '74173', subCat: 'Bộ Nhớ & Chốt', title: '4-Bit D Register', desc: 'Thanh ghi 4 D-FF ngõ ra 3 trạng thái', pkg: 'DIP-16' },
+      { code: '174', name: '74174', subCat: 'Bộ Nhớ & Chốt', title: 'Hex D Flip-Flop', desc: 'Thanh ghi 6 D-FF có Master Reset', pkg: 'DIP-16' },
+      { code: '175', name: '74175', subCat: 'Bộ Nhớ & Chốt', title: 'Quad D Flip-Flop', desc: 'Thanh ghi 4 D-FF có ngõ ra bù đảo', pkg: 'DIP-16' },
+      { code: '259', name: '74259', subCat: 'Bộ Nhớ & Chốt', title: '8-Bit Addressable Latch', desc: 'Chốt dữ liệu 8-bit định địa chỉ', pkg: 'DIP-16' },
+      { code: '273', name: '74273', subCat: 'Bộ Nhớ & Chốt', title: 'Octal D Flip-Flop', desc: 'Thanh ghi 8 D-FF kích cạnh dương', pkg: 'DIP-20' },
+      { code: '373', name: '74373', subCat: 'Bộ Nhớ & Chốt', title: 'Octal Transparent Latch', desc: 'Chốt 8-bit trong suốt 3 trạng thái', pkg: 'DIP-20' },
+      { code: '374', name: '74374', subCat: 'Bộ Nhớ & Chốt', title: 'Octal D Flip-Flop (3S)', desc: 'Thanh ghi 8 D-FF ngõ ra 3 trạng thái', pkg: 'DIP-20' },
+      { code: '377', name: '74377', subCat: 'Bộ Nhớ & Chốt', title: 'Octal D-FF with Enable', desc: 'Thanh ghi 8 D-FF có chân Clock Enable', pkg: 'DIP-20' },
+      { code: '573', name: '74573', subCat: 'Bộ Nhớ & Chốt', title: 'Octal Latch Flow-thru', desc: 'Chốt 8-bit chân thẳng hàng dễ layout', pkg: 'DIP-20' },
+      { code: '574', name: '74574', subCat: 'Bộ Nhớ & Chốt', title: 'Octal D-FF Flow-thru', desc: 'Thanh ghi 8 D-FF chân thẳng hàng', pkg: 'DIP-20' },
+
+      // --- 3. BỘ ĐẾM & CHIA TẦN (COUNTERS & DIVIDERS) ---
+      { code: '90', name: '7490', subCat: 'Bộ Đếm & Chia Tần', title: 'Decade Counter (÷10)', desc: 'Bộ đếm thập phân chia 10 bất đồng bộ', pkg: 'DIP-14' },
+      { code: '92', name: '7492', subCat: 'Bộ Đếm & Chia Tần', title: 'Divide-by-12 Counter', desc: 'Bộ đếm chia 12 / chia 6', pkg: 'DIP-14' },
+      { code: '93', name: '7493', subCat: 'Bộ Đếm & Chia Tần', title: '4-Bit Binary Counter', desc: 'Bộ đếm nhị phân 4-bit chia 16', pkg: 'DIP-14' },
+      { code: '160', name: '74160', subCat: 'Bộ Đếm & Chia Tần', title: 'Sync BCD Counter', desc: 'Bộ đếm BCD đồng bộ nạp song song', pkg: 'DIP-16' },
+      { code: '161', name: '74161', subCat: 'Bộ Đếm & Chia Tần', title: 'Sync 4-Bit Binary Counter', desc: 'Bộ đếm nhị phân 4-bit đồng bộ', pkg: 'DIP-16' },
+      { code: '162', name: '74162', subCat: 'Bộ Đếm & Chia Tần', title: 'Sync BCD Counter', desc: 'Bộ đếm BCD đồng bộ xóa đồng bộ', pkg: 'DIP-16' },
+      { code: '163', name: '74163', subCat: 'Bộ Đếm & Chia Tần', title: 'Sync Binary Counter', desc: 'Bộ đếm nhị phân 4-bit xóa đồng bộ', pkg: 'DIP-16' },
+      { code: '190', name: '74190', subCat: 'Bộ Đếm & Chia Tần', title: 'Sync Up/Down BCD', desc: 'Bộ đếm lên/xuống BCD đồng bộ', pkg: 'DIP-16' },
+      { code: '191', name: '74191', subCat: 'Bộ Đếm & Chia Tần', title: 'Sync Up/Down Binary', desc: 'Bộ đếm lên/xuống nhị phân đồng bộ', pkg: 'DIP-16' },
+      { code: '192', name: '74192', subCat: 'Bộ Đếm & Chia Tần', title: 'Dual-Clock Up/Down BCD', desc: 'Đếm lên/xuống BCD 2 chân clock', pkg: 'DIP-16' },
+      { code: '193', name: '74193', subCat: 'Bộ Đếm & Chia Tần', title: 'Dual-Clock Up/Down Bin', desc: 'Đếm lên/xuống nhị phân 2 chân clock', pkg: 'DIP-16' },
+      { code: '390', name: '74390', subCat: 'Bộ Đếm & Chia Tần', title: 'Dual Decade Counter', desc: 'Bộ đếm thập phân kép (2 trong 1)', pkg: 'DIP-16' },
+      { code: '393', name: '74393', subCat: 'Bộ Đếm & Chia Tần', title: 'Dual 4-Bit Binary Counter', desc: 'Bộ đếm nhị phân kép 4-bit độc lập', pkg: 'DIP-14' },
+      { code: '4017', name: '74HC4017', subCat: 'Bộ Đếm & Chia Tần', title: 'Decade Counter 10 Out', desc: 'Bộ đếm 10 ngõ ra dạng giải mã', pkg: 'DIP-16' },
+      { code: '4020', name: '74HC4020', subCat: 'Bộ Đếm & Chia Tần', title: '14-Stage Ripple Counter', desc: 'Bộ đếm gợn nhị phân 14 tầng', pkg: 'DIP-16' },
+      { code: '4040', name: '74HC4040', subCat: 'Bộ Đếm & Chia Tần', title: '12-Stage Ripple Counter', desc: 'Bộ đếm gợn nhị phân 12 tầng', pkg: 'DIP-16' },
+
+      // --- 4. THANH GHI DỊCH (SHIFT REGISTERS) ---
+      { code: '164', name: '74164', subCat: 'Thanh Ghi Dịch', title: '8-Bit SIPO Shift Reg', desc: 'Dịch nối tiếp sang song song 8-bit', pkg: 'DIP-14' },
+      { code: '165', name: '74165', subCat: 'Thanh Ghi Dịch', title: '8-Bit PISO Shift Reg', desc: 'Dịch song song sang nối tiếp 8-bit', pkg: 'DIP-16' },
+      { code: '166', name: '74166', subCat: 'Thanh Ghi Dịch', title: '8-Bit PISO Synchronous', desc: 'Dịch song song sang nối tiếp đồng bộ', pkg: 'DIP-16' },
+      { code: '194', name: '74194', subCat: 'Thanh Ghi Dịch', title: '4-Bit Universal Shift Reg', desc: 'Thanh ghi dịch đa năng 2 chiều 4-bit', pkg: 'DIP-16' },
+      { code: '299', name: '74299', subCat: 'Thanh Ghi Dịch', title: '8-Bit Universal Shift Reg', desc: 'Thanh ghi dịch đa năng 8-bit 3S', pkg: 'DIP-20' },
+      { code: '595', name: '74595', subCat: 'Thanh Ghi Dịch', title: '8-Bit SIPO with Latch (3S)', desc: 'Thanh ghi dịch 8-bit có chốt 3 trạng thái', pkg: 'DIP-16' },
+      { code: '597', name: '74597', subCat: 'Thanh Ghi Dịch', title: '8-Bit PISO with Latch', desc: 'Thanh ghi dịch 8-bit có chốt đầu vào', pkg: 'DIP-16' },
+
+      // --- 5. BỘ CHỌN KÊNH & GIẢI MÃ (MULTIPLEXERS & DECODERS) ---
+      { code: '42', name: '7442', subCat: 'Bộ Chọn & Giải Mã', title: 'BCD-to-Decimal Decoder', desc: 'Giải mã BCD sang thập phân 10 đường', pkg: 'DIP-16' },
+      { code: '47', name: '7447', subCat: 'Bộ Chọn & Giải Mã', title: 'BCD to 7-Segment (Anode)', desc: 'Giải mã BCD sang LED 7 đoạn Anode chung', pkg: 'DIP-16' },
+      { code: '48', name: '7448', subCat: 'Bộ Chọn & Giải Mã', title: 'BCD to 7-Segment (Cathode)', desc: 'Giải mã BCD sang LED 7 đoạn Cathode chung', pkg: 'DIP-16' },
+      { code: '138', name: '74138', subCat: 'Bộ Chọn & Giải Mã', title: '3-to-8 Line Decoder/Demux', desc: 'Giải mã 3-sang-8 đường / Demultiplexer', pkg: 'DIP-16' },
+      { code: '139', name: '74139', subCat: 'Bộ Chọn & Giải Mã', title: 'Dual 2-to-4 Line Decoder', desc: 'Bộ giải mã 2-sang-4 kép', pkg: 'DIP-16' },
+      { code: '147', name: '74147', subCat: 'Bộ Chọn & Giải Mã', title: '10-to-4 Priority Encoder', desc: 'Bộ mã hóa ưu tiên 10-sang-4 BCD', pkg: 'DIP-16' },
+      { code: '148', name: '74148', subCat: 'Bộ Chọn & Giải Mã', title: '8-to-3 Priority Encoder', desc: 'Bộ mã hóa ưu tiên 8-sang-3 đường', pkg: 'DIP-16' },
+      { code: '151', name: '74151', subCat: 'Bộ Chọn & Giải Mã', title: '8-to-1 Multiplexer', desc: 'Bộ chọn dữ liệu / dồn kênh 8-sang-1', pkg: 'DIP-16' },
+      { code: '153', name: '74153', subCat: 'Bộ Chọn & Giải Mã', title: 'Dual 4-to-1 Multiplexer', desc: 'Bộ dồn kênh 4-sang-1 kép', pkg: 'DIP-16' },
+      { code: '154', name: '74154', subCat: 'Bộ Chọn & Giải Mã', title: '4-to-16 Line Decoder', desc: 'Giải mã 4-sang-16 đường / Demux', pkg: 'DIP-24' },
+      { code: '157', name: '74157', subCat: 'Bộ Chọn & Giải Mã', title: 'Quad 2-to-1 MUX (Non-inv)', desc: 'Bộ chọn 2-sang-1 4-kênh không đảo', pkg: 'DIP-16' },
+      { code: '251', name: '74251', subCat: 'Bộ Chọn & Giải Mã', title: '8-to-1 MUX 3-State', desc: 'Bộ chọn 8-sang-1 ngõ ra 3 trạng thái', pkg: 'DIP-16' },
+      { code: '257', name: '74257', subCat: 'Bộ Chọn & Giải Mã', title: 'Quad 2-to-1 MUX 3-State', desc: 'Bộ chọn 2-sang-1 4-kênh 3 trạng thái', pkg: 'DIP-16' },
+
+      // --- 6. BỘ ĐỆM & THU PHÁT BUS (BUFFERS & TRANSCEIVERS) ---
+      { code: '06', name: '7406', subCat: 'Bộ Đệm & Bus', title: 'Hex Inverting Buffer (OC)', desc: '6 bộ đệm đảo cực thu hở áp cao 30V', pkg: 'DIP-14' },
+      { code: '07', name: '7407', subCat: 'Bộ Đệm & Bus', title: 'Hex Buffer (OC 30V)', desc: '6 bộ đệm không đảo cực thu hở 30V', pkg: 'DIP-14' },
+      { code: '125', name: '74125', subCat: 'Bộ Đệm & Bus', title: 'Quad 3-State Buffer (Low)', desc: '4 bộ đệm 3 trạng thái kích mức thấp', pkg: 'DIP-14' },
+      { code: '126', name: '74126', subCat: 'Bộ Đệm & Bus', title: 'Quad 3-State Buffer (High)', desc: '4 bộ đệm 3 trạng thái kích mức cao', pkg: 'DIP-14' },
+      { code: '240', name: '74240', subCat: 'Bộ Đệm & Bus', title: 'Octal Inverting Buffer 3S', desc: 'Bộ đệm Bus 8 đường đảo 3 trạng thái', pkg: 'DIP-20' },
+      { code: '241', name: '74241', subCat: 'Bộ Đệm & Bus', title: 'Octal Buffer/Line Driver', desc: 'Bộ đệm Bus 8 đường 3 trạng thái', pkg: 'DIP-20' },
+      { code: '244', name: '74244', subCat: 'Bộ Đệm & Bus', title: 'Octal Buffer/Line Driver', desc: 'Bộ đệm Bus 8 đường không đảo 3S', pkg: 'DIP-20' },
+      { code: '245', name: '74245', subCat: 'Bộ Đệm & Bus', title: 'Octal Bus Transceiver', desc: 'Bộ thu phát Bus 8-bit 2 chiều', pkg: 'DIP-20' },
+      { code: '541', name: '74541', subCat: 'Bộ Đệm & Bus', title: 'Octal Buffer Flow-Through', desc: 'Bộ đệm Bus 8 đường chân thẳng hàng', pkg: 'DIP-20' },
+      { code: '640', name: '74640', subCat: 'Bộ Đệm & Bus', title: 'Octal Transceiver Inverting', desc: 'Bộ thu phát Bus 8-bit đảo 2 chiều', pkg: 'DIP-20' },
+      { code: '645', name: '74645', subCat: 'Bộ Đệm & Bus', title: 'Octal Bus Transceiver', desc: 'Bộ thu phát Bus 8-bit không đảo 2 chiều', pkg: 'DIP-20' },
+
+      // --- 7. SỐ HỌC & SO SÁNH (ARITHMETIC & COMPARATORS) ---
+      { code: '83', name: '7483', subCat: 'Số Học & So Sánh', title: '4-Bit Binary Full Adder', desc: 'Bộ cộng nhị phân 4-bit có nhớ', pkg: 'DIP-16' },
+      { code: '85', name: '7485', subCat: 'Số Học & So Sánh', title: '4-Bit Magnitude Comparator', desc: 'Bộ so sánh độ lớn nhị phân 4-bit', pkg: 'DIP-16' },
+      { code: '181', name: '74181', subCat: 'Số Học & So Sánh', title: '4-Bit ALU Processor', desc: 'Khối số học logic ALU 4-bit', pkg: 'DIP-24' },
+      { code: '280', name: '74280', subCat: 'Số Học & So Sánh', title: '9-Bit Parity Generator', desc: 'Bộ kiểm tra / tạo bit chẵn lẻ 9-bit', pkg: 'DIP-14' },
+      { code: '283', name: '74283', subCat: 'Số Học & So Sánh', title: '4-Bit Fast Full Adder', desc: 'Bộ cộng nhị phân 4-bit tốc độ cao', pkg: 'DIP-16' },
+      { code: '688', name: '74688', subCat: 'Số Học & So Sánh', title: '8-Bit Identity Comparator', desc: 'Bộ so sánh đẳng thức (bằng nhau) 8-bit', pkg: 'DIP-20' },
+
+      // --- 8. SCHMITT TRIGGER & TẠO XUNG (PULSE & SCHMITT) ---
+      { code: '13', name: '7413', subCat: 'Schmitt & Tạo Xung', title: 'Dual 4-NAND Schmitt Trigger', desc: '2 cổng NAND 4 ngõ vào kích Schmitt', pkg: 'DIP-14' },
+      { code: '14', name: '7414', subCat: 'Schmitt & Tạo Xung', title: 'Hex Schmitt Inverter', desc: '6 cổng đảo Schmitt Trigger lọc nhiễu', pkg: 'DIP-14' },
+      { code: '121', name: '74121', subCat: 'Schmitt & Tạo Xung', title: 'Monostable Multivibrator', desc: 'Bộ tạo xung đơn ổn (One-Shot Timer)', pkg: 'DIP-14' },
+      { code: '122', name: '74122', subCat: 'Schmitt & Tạo Xung', title: 'Retriggerable Monostable', desc: 'Bộ tạo xung đơn ổn kích lại được có Clear', pkg: 'DIP-14' },
+      { code: '123', name: '74123', subCat: 'Schmitt & Tạo Xung', title: 'Dual Retriggerable Monostable', desc: 'Bộ tạo xung đơn ổn kép kích lại được', pkg: 'DIP-16' },
+      { code: '132', name: '74132', subCat: 'Schmitt & Tạo Xung', title: 'Quad 2-NAND Schmitt', desc: '4 cổng NAND 2 ngõ vào Schmitt Trigger', pkg: 'DIP-14' },
+      { code: '221', name: '74221', subCat: 'Schmitt & Tạo Xung', title: 'Dual Monostable Schmitt', desc: 'Bộ tạo xung đơn ổn kép ngõ vào Schmitt', pkg: 'DIP-16' }
+    ];
+
+    let currentAchievStatusFilter = 'all';
+    let currentAchievSubCatFilter = 'Tất cả';
+
+    function open74AchievementModal() {
+      render74Achievement();
+      document.getElementById('achievement74Modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function close74AchievementModal() {
+      document.getElementById('achievement74Modal').classList.add('hidden');
+    }
+
+    function set74AchievementStatusFilter(status) {
+      currentAchievStatusFilter = status;
+      ['all', 'owned', 'missing'].forEach(s => {
+        const btn = document.getElementById('achievFilterBtn_' + s);
+        if (!btn) return;
+        if (s === status) {
+          btn.className = 'px-3 py-1 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow-sm';
+        } else {
+          btn.className = 'px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-slate-700';
+        }
+      });
+      render74AchievementGrid();
+    }
+
+    function set74AchievementSubCatFilter(subCat) {
+      currentAchievSubCatFilter = subCat;
+      render74AchievementSubCatTabs();
+      render74AchievementGrid();
+    }
+
+    function render74Achievement() {
+      let ownedChipsCount = 0;
+      let totalOwnedQuantity = 0;
+
+      STANDARD_74_CATALOG.forEach(item => {
+        const matches = getPartsMatching74Code(item.code);
+        const qtySum = matches.reduce((s, p) => s + Number(p.qty || 0) + Number(p.inUse || 0), 0);
+        if (qtySum > 0) {
+          ownedChipsCount++;
+          totalOwnedQuantity += qtySum;
+        }
+      });
+
+      const totalCatalog = STANDARD_74_CATALOG.length;
+      const percent = Math.round((ownedChipsCount / totalCatalog) * 100);
+
+      document.getElementById('achievementProgressPercent').innerText = `${percent}%`;
+      document.getElementById('achievementProgressBar').style.width = `${percent}%`;
+      document.getElementById('achievementOwnedCount').innerText = ownedChipsCount;
+      document.getElementById('achievementTotalCatalogCount').innerText = totalCatalog;
+      document.getElementById('achievementTotalQuantity').innerText = totalOwnedQuantity;
+      document.getElementById('achievementStatLit').innerText = `${ownedChipsCount} IC`;
+      document.getElementById('achievementStatDimmed').innerText = `${totalCatalog - ownedChipsCount} IC`;
+
+      let rankTitle = 'Tập Sự Breadboard 🥉';
+      if (ownedChipsCount >= 45) rankTitle = 'Huyền Thoại 74xx IC Master 👑';
+      else if (ownedChipsCount >= 30) rankTitle = 'Kỹ Sư Kiến Trúc Máy Tính 💎';
+      else if (ownedChipsCount >= 20) rankTitle = 'Chuyên Gia Họ 74 🥇';
+      else if (ownedChipsCount >= 10) rankTitle = 'Thợ Mạch Số TTL 🥈';
+      else if (ownedChipsCount >= 3) rankTitle = 'Học Viên Mạch Số 🥉';
+
+      document.getElementById('achievementRankText').innerText = rankTitle;
+      document.getElementById('achievBadgeOwned').innerText = ownedChipsCount;
+      document.getElementById('achievBadgeMissing').innerText = totalCatalog - ownedChipsCount;
+
+      render74AchievementSubCatTabs();
+      render74AchievementGrid();
+      update74AchievementHeaderBadge();
+    }
+
+    function update74AchievementHeaderBadge() {
+      const badge = document.getElementById('header74Badge');
+      if (!badge) return;
+      let ownedCount = 0;
+      STANDARD_74_CATALOG.forEach(item => {
+        const matches = getPartsMatching74Code(item.code);
+        const qty = matches.reduce((s, p) => s + Number(p.qty || 0) + Number(p.inUse || 0), 0);
+        if (qty > 0) ownedCount++;
+      });
+      const pct = Math.round((ownedCount / STANDARD_74_CATALOG.length) * 100);
+      badge.innerText = `${pct}% (${ownedCount})`;
+      if (pct > 0) {
+        badge.className = 'text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono font-bold';
+      } else {
+        badge.className = 'text-[10px] px-1.5 py-0.2 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800 font-mono';
+      }
+    }
+
+    function render74AchievementSubCatTabs() {
+      const container = document.getElementById('achievSubCatFilterBar');
+      if (!container) return;
+
+      const allActive = currentAchievSubCatFilter === 'Tất cả';
+      let html = `
+        <button type="button" onclick="set74AchievementSubCatFilter('Tất cả')" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition ${allActive ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'bg-slate-800/80 text-slate-400 hover:text-white border border-slate-700/80'}">
+          Tất cả chức năng
+        </button>
+      `;
+
+      LOGIC_SUBCAT_LIST.forEach(sub => {
+        const isActive = currentAchievSubCatFilter === sub.id;
+        const esc = sub.id.replace(/'/g, "\\'");
+        html += `
+          <button type="button" onclick="set74AchievementSubCatFilter('${esc}')" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition ${isActive ? 'bg-indigo-600 text-white font-semibold shadow-sm' : 'bg-slate-800/80 text-slate-400 hover:text-white border border-slate-700/80'}">
+            ${sub.label}
+          </button>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function render74AchievementGrid() {
+      const grid = document.getElementById('achievement74Grid');
+      if (!grid) return;
+
+      const filtered = STANDARD_74_CATALOG.filter(item => {
+        const matches = getPartsMatching74Code(item.code);
+        const qtySum = matches.reduce((s, p) => s + Number(p.qty || 0) + Number(p.inUse || 0), 0);
+        const isOwned = qtySum > 0;
+
+        if (currentAchievStatusFilter === 'owned' && !isOwned) return false;
+        if (currentAchievStatusFilter === 'missing' && isOwned) return false;
+        if (currentAchievSubCatFilter !== 'Tất cả' && item.subCat !== currentAchievSubCatFilter) return false;
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-500 text-xs bg-slate-950/40 rounded-xl border border-slate-800">
+            Không có IC họ 74 nào phù hợp với bộ lọc đã chọn.
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => {
+        const matches = getPartsMatching74Code(item.code);
+        const inBox = matches.reduce((s, p) => s + Number(p.qty || 0), 0);
+        const inUse = matches.reduce((s, p) => s + Number(p.inUse || 0), 0);
+        const totalQty = inBox + inUse;
+        const isOwned = totalQty > 0;
+
+        if (isOwned) {
+          return `
+          <div class="bg-gradient-to-b from-emerald-950/40 to-slate-900 border border-emerald-500/60 rounded-xl p-3 flex flex-col justify-between shadow-lg shadow-emerald-950/30 hover:border-emerald-400 transition relative overflow-hidden group">
+            <div class="absolute -top-3 -right-3 w-16 h-16 bg-emerald-500/15 blur-xl rounded-full pointer-events-none"></div>
+
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-1.5">
+                <span class="text-xs font-mono font-bold text-white bg-slate-800/90 px-2 py-0.5 rounded border border-slate-700/80">74xx${item.code}</span>
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  ${totalQty} con
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-emerald-300 truncate" title="${item.title}">${item.title}</h4>
+              <p class="text-[11px] text-slate-300 line-clamp-2 mt-0.5 leading-snug">${item.desc}</p>
+
+              <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex flex-col gap-1 text-[10px]">
+                ${matches.map(m => `
+                  <div class="flex items-center justify-between text-slate-400 bg-slate-900/60 px-1.5 py-0.5 rounded">
+                    <span class="font-mono text-emerald-200 font-semibold truncate">${m.name}</span>
+                    <span class="text-slate-300 shrink-0 ml-1">x${Number(m.qty) + Number(m.inUse || 0)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
+              <span class="text-[10px] text-indigo-300 bg-indigo-950/40 px-1.5 py-0.2 rounded border border-indigo-900/60">${item.subCat}</span>
+              <button onclick="filterPartsBy74Code('${item.code}')" class="text-emerald-400 hover:text-emerald-200 underline font-medium text-xs">
+                Xem trong kho →
+              </button>
+            </div>
+          </div>
+          `;
+        } else {
+          return `
+          <div class="bg-slate-900/50 border border-slate-800/80 rounded-xl p-3 flex flex-col justify-between opacity-75 hover:opacity-100 hover:border-slate-700 transition group">
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-1.5">
+                <span class="text-xs font-mono font-medium text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">74xx${item.code}</span>
+                <span class="inline-flex items-center gap-1 text-[10px] text-slate-500 bg-slate-800/60 px-2 py-0.5 rounded-full border border-slate-700/50">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
+                  Chưa có
+                </span>
+              </div>
+              <h4 class="font-bold text-sm text-slate-300 truncate" title="${item.title}">${item.title}</h4>
+              <p class="text-[11px] text-slate-400 line-clamp-2 mt-0.5 leading-snug">${item.desc}</p>
+            </div>
+
+            <div class="mt-3 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
+              <span class="text-[10px] text-slate-500 font-mono">${item.pkg}</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="quickAdd74ToInventory('${item.code}', '${item.name}', '${item.desc.replace(/'/g, "\\'")}', '${item.pkg}', '${item.subCat}')" class="px-2 py-1 rounded bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-300 text-[10px] font-medium transition flex items-center gap-1" title="Thêm linh kiện này vào kho">
+                  <i data-lucide="plus" class="w-3 h-3"></i> Thêm
+                </button>
+                <button onclick="openBuyModalForExternal('${item.name}')" class="px-2 py-1 rounded bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-[10px] font-medium transition flex items-center gap-1" title="Tìm mua từ 4 shop">
+                  <i data-lucide="shopping-bag" class="w-3 h-3 text-rose-400"></i> Mua
+                </button>
+              </div>
+            </div>
+          </div>
+          `;
+        }
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function filterPartsBy74Code(code) {
+      close74AchievementModal();
+      const targetLogicCat = categories.find(c => isLogicCategory(c)) || 'Logic IC';
+      setCategory(targetLogicCat);
+      const input = document.getElementById('searchInput');
+      if (input) {
+        input.value = `74xx` + code;
+      }
+      renderParts();
+    }
+
+    function quickAdd74ToInventory(code, name, desc, pkg, subCat) {
+      const chipPref = prompt(`Thêm IC họ 74 vào kho:\nBạn muốn thêm mã nào? (Ví dụ: 74LS${code}, 74HC${code}, 74HCT${code}):`, `74LS${code}`);
+      if (!chipPref) return;
+
+      const newId = 'p_74_' + Date.now();
+      const targetLogicCat = categories.find(c => isLogicCategory(c)) || 'Logic IC';
+      const newPart = {
+        id: newId,
+        name: chipPref.trim().toUpperCase(),
+        package: pkg || 'DIP-14',
+        category: targetLogicCat,
+        subCategory: subCat || 'Cổng Logic',
+        desc: desc,
+        qty: 5,
+        inUse: 0,
+        minQty: 2,
+        project: '',
+        boxId: boxes[0]?.id || '',
+        cell: 'A1',
+        subCell: '',
+        location: boxes[0]?.name ? `${boxes[0].name} • Ô A1` : 'Chưa xếp ô',
+        pinout: LOGIC_74_MAP[code]?.pinout || '',
+        buyShops: generateShopLinksForPart(chipPref.trim().toUpperCase(), pkg || 'DIP-14')
+      };
+
+      parts.push(newPart);
+      saveData();
+      renderParts();
+      render74Achievement();
+      alert(`Đã thêm thành công "${newPart.name}" vào kho!`);
     }
 
     init();
