@@ -601,20 +601,28 @@
         <div class="bg-slate-800/70 border border-emerald-500/30 rounded-xl p-3">
           <div class="flex items-center justify-between mb-1">
             <p class="font-semibold text-emerald-400 flex items-center gap-1.5">
-              <i data-lucide="server" class="w-4 h-4"></i> 2. Server Cào Ảnh Pinout (Laptop / Pi 5)
+              <i data-lucide="server" class="w-4 h-4"></i> 2. Server Cào Ảnh Pinout & Giá Shop (Laptop / Pi 5)
             </p>
             <span class="text-[10px] text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30 font-medium">0 Cần API Key</span>
           </div>
-          <p class="text-xs text-slate-400 mb-2">Chạy file <code>run_server.bat</code> trên Laptop (hoặc <code>pinout_server.py</code> trên Pi 5) để cào ảnh DuckDuckGo/Google không giới hạn:</p>
+          <p class="text-xs text-slate-400 mb-2">Chạy <code>run_server.bat</code> trên Laptop để cào ảnh HD và giá shop không giới hạn:</p>
           <div class="mb-2">
-            <label class="text-[11px] text-slate-400">Địa chỉ Server Pinout:</label>
-            <input id="pinoutServerUrlInput" type="text" placeholder="http://localhost:5000" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono">
+            <label class="text-[11px] text-slate-400 flex items-center justify-between">
+              <span>Địa chỉ Server Pinout:</span>
+              <span class="text-[10px] text-slate-500 font-mono">(Laptop hoặc Link HTTPS cho ĐT)</span>
+            </label>
+            <input id="pinoutServerUrlInput" type="text" placeholder="http://localhost:5000 hoặc https://...trycloudflare.com" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono">
           </div>
           <div class="flex gap-2">
             <button onclick="savePinoutServerConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-1.5 rounded-lg text-xs transition">Lưu Địa Chỉ Server</button>
             <button onclick="testPinoutServerConnection()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs transition">Kiểm tra kết nối</button>
           </div>
           <p id="pinoutServerStatus" class="text-[11px] text-center mt-1.5 text-slate-400 font-medium"></p>
+          <div class="mt-2.5 pt-2 border-t border-slate-700/60 text-[11px] text-slate-400 flex flex-col gap-1">
+            <p class="text-emerald-300 font-medium">📱 Cách kết nối điện thoại với Laptop:</p>
+            <p>• <b>Cùng Wi-Fi:</b> Mở trực tiếp link <code>http://&lt;IP-Laptop&gt;:5000</code> trên điện thoại (xem IP hiện trên cửa sổ server).</p>
+            <p>• <b>Web GitHub Pages / 4G:</b> Chạy file <code>tao_link_https_dien_thoai.bat</code> trên Laptop, copy link HTTPS dán vào ô trên rồi bấm Lưu!</p>
+          </div>
         </div>
 
         <div class="bg-slate-800/70 border border-slate-700 rounded-xl p-3">
@@ -1025,17 +1033,54 @@
           </table>
         </div>
 
-        <!-- Thêm nhanh linh kiện vào dự án này -->
-        <div class="flex flex-wrap items-center justify-between gap-2.5 bg-slate-800/50 border border-slate-700/60 rounded-xl p-2.5 text-xs">
-          <div class="flex items-center gap-2 flex-1 min-w-[240px]">
-            <span class="text-slate-400 shrink-0 font-medium">+ Thêm linh kiện vào BoM:</span>
-            <select id="bomAddPartSelect" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 text-xs flex-1 focus:outline-none focus:border-sky-500">
+        <!-- Thêm linh kiện vào dự án này (Từ kho hoặc Tự gõ linh kiện ngoài chưa có) -->
+        <div class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-3 text-xs flex flex-col gap-2.5">
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-2">
+            <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+              <i data-lucide="plus-circle" class="w-4 h-4 text-sky-400"></i> Thêm linh kiện vào BoM dự án:
+            </span>
+            <div class="flex items-center bg-slate-900 rounded-lg p-0.5 border border-slate-700">
+              <button type="button" id="tabBomAddFromStock" onclick="switchBomAddTab('stock')" class="px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-sky-600 text-white">
+                📦 Chọn từ kho
+              </button>
+              <button type="button" id="tabBomAddCustom" onclick="switchBomAddTab('custom')" class="px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-white">
+                ✍️ Gõ linh kiện ngoài (Chưa có)
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab 1: Chọn từ kho có sẵn -->
+          <div id="bomAddStockPanel" class="flex flex-wrap items-center gap-2">
+            <select id="bomAddPartSelect" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-slate-200 text-xs flex-1 min-w-[220px] focus:outline-none focus:border-sky-500">
               <!-- Rendered dynamically -->
             </select>
+            <button type="button" onclick="addSelectedPartToBom()" class="px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs transition flex items-center gap-1.5 shrink-0 shadow-sm">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Thêm vào BoM
+            </button>
           </div>
-          <button type="button" onclick="addSelectedPartToBom()" class="px-3.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs transition flex items-center gap-1.5 shrink-0 shadow-sm">
-            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Thêm vào dự án
-          </button>
+
+          <!-- Tab 2: Tự gõ linh kiện ngoài chưa có trong kho -->
+          <div id="bomAddCustomPanel" class="hidden flex flex-col gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+              <div class="sm:col-span-5">
+                <input id="bomCustomPartName" type="text" placeholder="Tên IC / Linh kiện (VD: 74HC165, ESP32-S3, Relay 5V)..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-sky-500 font-mono">
+              </div>
+              <div class="sm:col-span-3">
+                <input id="bomCustomPartPkg" type="text" placeholder="Kiểu chân (DIP-16, SMD...)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
+              </div>
+              <div class="sm:col-span-2">
+                <input id="bomCustomPartQty" type="number" min="1" value="1" placeholder="Số lượng cần" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500 font-mono" title="Số lượng cần dùng cho mạch này">
+              </div>
+              <div class="sm:col-span-2">
+                <button type="button" onclick="addCustomPartToBom()" class="w-full h-full py-2 px-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-medium text-xs transition flex items-center justify-center gap-1 shrink-0 shadow-sm">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Thêm LK
+                </button>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-400 italic">
+              💡 Linh kiện ngoài sẽ được đánh dấu <b>"Chưa có trong kho"</b> để bạn theo dõi cần mua bao nhiêu con, và có sẵn nút so sánh giá 4 Shop để đặt mua ngay.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -4055,7 +4100,11 @@
     }
 
     // ================= SERVER CÀO ẢNH PINOUT (LOCAL / PI 5) =================
-    let pinoutServerUrl = localStorage.getItem('ee_pinout_server_url') || 'http://localhost:5000';
+    let defaultServerUrl = 'http://localhost:5000';
+    if (window.location.protocol.startsWith('http') && window.location.port === '5000') {
+      defaultServerUrl = window.location.origin;
+    }
+    let pinoutServerUrl = localStorage.getItem('ee_pinout_server_url') || defaultServerUrl;
 
     function savePinoutServerConfig() {
       let url = document.getElementById('pinoutServerUrlInput').value.trim();
@@ -5458,12 +5507,28 @@
               statusCol = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-medium" title="Có ${alts[0].name} sẵn trong kho">
                 ⚡ Có IC thay thế (${alts[0].name})
               </span>`;
+            } else if (!p.boxId || p.location === 'Chưa có trong kho') {
+              statusCol = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span> Chưa có trong kho (Cần: ${p.minQty || 1})
+              </span>`;
             } else {
               statusCol = `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[10px] font-medium">
                 🔴 Hết hàng
               </span>`;
             }
           }
+
+          const hasBox = !!p.boxId;
+          const locCellHtml = hasBox ? `
+            <button onclick="closeBomModal(); locateInBox('${p.boxId}', '${p.cell}', '${p.subCell || ''}')" class="text-amber-300 hover:underline flex items-center gap-1 text-[11px]" title="Bấm để xem ô cất">
+              <i data-lucide="map-pin" class="w-3 h-3 text-amber-400"></i>
+              <span class="truncate max-w-[120px]">${p.location || 'Chưa xếp ô'}</span>
+            </button>
+          ` : `
+            <button onclick="closeBomModal(); openPartModal('${p.id}')" class="text-[11px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 flex items-center gap-1 transition" title="Bấm để xếp linh kiện này vào hộp">
+              <i data-lucide="package-plus" class="w-3 h-3 text-amber-400"></i> Xếp vào hộp
+            </button>
+          `;
 
           return `
           <tr class="hover:bg-slate-800/40 transition">
@@ -5475,10 +5540,7 @@
               <p class="text-[11px] text-slate-400 truncate max-w-[200px]">${p.desc || p.category}</p>
             </td>
             <td class="py-2.5 px-2">
-              <button onclick="closeBomModal(); locateInBox('${p.boxId}', '${p.cell}', '${p.subCell || ''}')" class="text-amber-300 hover:underline flex items-center gap-1 text-[11px]" title="Bấm để xem ô cất">
-                <i data-lucide="map-pin" class="w-3 h-3 text-amber-400"></i>
-                <span class="truncate max-w-[120px]">${p.location || 'Chưa xếp ô'}</span>
-              </button>
+              ${locCellHtml}
             </td>
             <td class="py-2.5 px-2 text-center">
               <div class="inline-flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-lg p-0.5">
@@ -5503,6 +5565,11 @@
                     <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
                   </button>
                 ` : ''}
+                ${!hasBox ? `
+                  <button onclick="closeBomModal(); openPartModal('${p.id}')" class="p-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 transition" title="Xếp linh kiện này vào hộp">
+                    <i data-lucide="box" class="w-3.5 h-3.5"></i>
+                  </button>
+                ` : ''}
                 <button onclick="removePartFromBomProject('${p.id}')" class="p-1.5 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-rose-400 transition" title="Gỡ linh kiện khỏi dự án này">
                   <i data-lucide="x" class="w-3.5 h-3.5"></i>
                 </button>
@@ -5512,6 +5579,104 @@
           `;
         }).join('');
       }
+
+      renderBomQuickAddSelect();
+      lucide.createIcons();
+    }
+
+    function switchBomAddTab(tab) {
+      const stockBtn = document.getElementById('tabBomAddFromStock');
+      const customBtn = document.getElementById('tabBomAddCustom');
+      const stockPanel = document.getElementById('bomAddStockPanel');
+      const customPanel = document.getElementById('bomAddCustomPanel');
+      if (!stockBtn || !customBtn || !stockPanel || !customPanel) return;
+
+      if (tab === 'stock') {
+        stockBtn.className = 'px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-sky-600 text-white';
+        customBtn.className = 'px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-white';
+        stockPanel.classList.remove('hidden');
+        customPanel.classList.add('hidden');
+      } else {
+        customBtn.className = 'px-2.5 py-1 rounded-md text-[11px] font-medium transition bg-sky-600 text-white';
+        stockBtn.className = 'px-2.5 py-1 rounded-md text-[11px] font-medium transition text-slate-400 hover:text-white';
+        customPanel.classList.remove('hidden');
+        stockPanel.classList.add('hidden');
+        setTimeout(() => {
+          const input = document.getElementById('bomCustomPartName');
+          if (input) input.focus();
+        }, 50);
+      }
+    }
+
+    async function addCustomPartToBom() {
+      const nameInput = document.getElementById('bomCustomPartName');
+      const pkgInput = document.getElementById('bomCustomPartPkg');
+      const qtyInput = document.getElementById('bomCustomPartQty');
+
+      if (!nameInput || !nameInput.value.trim() || !currentBomProjectName) {
+        return alert('Vui lòng nhập tên IC / linh kiện!');
+      }
+
+      const rawName = nameInput.value.trim();
+      const pkg = pkgInput ? pkgInput.value.trim() : '';
+      const neededQty = qtyInput ? Math.max(1, parseInt(qtyInput.value) || 1) : 1;
+
+      // Kiểm tra xem linh kiện này đã tồn tại trong parts chưa
+      let existing = parts.find(p => p.name.toLowerCase() === rawName.toLowerCase());
+      if (existing) {
+        existing.project = currentBomProjectName;
+        existing.minQty = Math.max(existing.minQty || 0, neededQty);
+      } else {
+        let autoCat = detectSmartCategory(rawName, pkg);
+        let autoDesc = '';
+        const knowledge = lookupComponentKnowledge(rawName);
+        if (knowledge) {
+          if (knowledge.desc) autoDesc = knowledge.desc;
+          if (knowledge.cat) autoCat = knowledge.cat;
+        }
+
+        const newPart = {
+          id: 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          name: rawName,
+          category: autoCat,
+          package: pkg || (knowledge ? knowledge.pkg : ''),
+          project: currentBomProjectName,
+          location: 'Chưa có trong kho',
+          boxId: '',
+          cell: '',
+          subCell: '',
+          qty: 0,
+          inUse: 0,
+          minQty: neededQty,
+          desc: autoDesc || `Linh kiện cần dùng cho dự án ${currentBomProjectName}`,
+          pinout: (knowledge && knowledge.pinout) ? knowledge.pinout : '',
+          datasheet: '',
+          buyUrl: '',
+          notes: `Linh kiện dự án ${currentBomProjectName} (Cần: ${neededQty})`,
+          favorite: false
+        };
+
+        parts.unshift(newPart);
+
+        if (!categories.includes(autoCat)) {
+          categories.push(autoCat);
+        }
+      }
+
+      // Reset form
+      nameInput.value = '';
+      if (pkgInput) pkgInput.value = '';
+      if (qtyInput) qtyInput.value = '1';
+
+      saveData();
+      renderBomTable(currentBomProjectName);
+      renderParts();
+
+      // Tự động tìm pinout/mô tả nếu có server
+      try {
+        enrichSinglePartData(existing || parts[0]);
+      } catch(e) {}
+    }
 
       renderBomQuickAddSelect();
       lucide.createIcons();

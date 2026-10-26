@@ -8,11 +8,12 @@ import re
 import html
 import json
 import logging
+import socket
 from PIL import Image, ImageDraw
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 import pystray
 from pystray import MenuItem as item, Menu
@@ -24,6 +25,29 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INDEX_HTML = os.path.join(SCRIPT_DIR, 'index.html')
 STARTUP_DIR = os.path.join(os.environ.get('APPDATA', ''), r'Microsoft\Windows\Start Menu\Programs\Startup')
 VBS_STARTUP_PATH = os.path.join(STARTUP_DIR, 'ee_lab_pinout_server.vbs')
+
+def get_local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 1))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return '127.0.0.1'
+
+@app.route('/')
+def serve_index():
+    if os.path.exists(INDEX_HTML):
+        return send_file(INDEX_HTML)
+    return "EE Lab Server is running", 200
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    full_path = os.path.join(SCRIPT_DIR, filename)
+    if os.path.isfile(full_path):
+        return send_from_directory(SCRIPT_DIR, filename)
+    return jsonify({"error": "File not found"}), 404
 
 def clean_image_url(url):
     if not url:
@@ -414,12 +438,22 @@ def quit_server(icon, item):
     os._exit(0)
 
 def main():
+    local_ip = get_local_ip()
+    print("=" * 60)
+    print("  EE LAB PINOUT & INVENTORY SERVER (ĐANG CHẠY)")
+    print("=" * 60)
+    print(f"  [+] Máy tính Laptop:    http://localhost:5000")
+    print(f"  [+] Điện thoại (Wi-Fi): http://{local_ip}:5000")
+    print("  (Mở link trên trên trình duyệt điện thoại để cào ảnh trực tiếp)")
+    print("=" * 60)
+
     flask_thread = threading.Thread(target=start_flask, daemon=True)
     flask_thread.start()
 
     icon_image = create_chip_icon()
     menu = Menu(
-        item('🟢 EE Lab Pinout Server (Port 5000)', lambda: None, enabled=False),
+        item('🟢 EE Lab Server (Port 5000)', lambda: None, enabled=False),
+        item(f'📱 ĐT Wi-Fi: http://{local_ip}:5000', lambda: None, enabled=False),
         Menu.SEPARATOR,
         item('🌐 Mở Kho Linh Kiện (Web)', open_web, default=True),
         item('🚀 Tự chạy khi bật máy (Startup)', toggle_startup, checked=lambda item: is_startup_enabled()),
@@ -430,7 +464,7 @@ def main():
     tray_icon = pystray.Icon(
         "EELabPinoutServer",
         icon_image,
-        "EE Lab Pinout Server (Đang chạy: Port 5000)",
+        f"EE Lab Server (Laptop: 5000 | Wi-Fi: {local_ip}:5000)",
         menu
     )
 
