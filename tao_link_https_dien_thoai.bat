@@ -27,3 +27,4 @@ echo --------------------------------------------------------
 echo.
 "%~dp0cloudflared.exe" tunnel --url http://localhost:5000
 pause
+
