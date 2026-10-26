@@ -1,9 +1,7 @@
 import os
 import sys
-import re
 import urllib.request
 import subprocess
-import time
 
 try:
     if hasattr(sys.stdout, 'reconfigure'):
@@ -19,7 +17,7 @@ DOWNLOAD_URL = "https://github.com/cloudflare/cloudflared/releases/latest/downlo
 
 def download_cloudflared():
     print("[1/2] Đang tải công cụ Cloudflare Tunnel (cloudflared.exe)...")
-    print("      (Chỉ cần tải 1 lần duy nhất, kích thước ~30MB, xin chờ giây lát)")
+    print("      (Chỉ tải 1 lần duy nhất, kích thước ~50MB, xin chờ giây lát)")
     
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
     req = urllib.request.Request(DOWNLOAD_URL, headers=headers)
@@ -53,54 +51,28 @@ def run_tunnel():
         download_cloudflared()
         
     print("\n[2/2] Đang khởi tạo đường hầm HTTPS tới cổng 5000 của Laptop...")
+    print("=" * 65)
+    print("  HÃY TÌM VÀ SAO CHÉP LINK CÓ ĐUÔI:")
+    print("  👉 https://xxxxxxxx.trycloudflare.com")
+    print("=" * 65)
+    print("  📱 CÁCH SỬ DỤNG TRÊN ĐIỆN THOẠI:")
+    print("  1. Mở Kho Linh Kiện trên Điện Thoại (link GitHub Pages).")
+    print("  2. Bấm vào nút Cài đặt Cloud (hình đám mây).")
+    print("  3. Dán link trycloudflare.com vào ô 'Địa chỉ Server Pinout'.")
+    print("  4. Bấm 'Lưu' và 'Kiểm tra kết nối' -> Xanh là xong!")
+    print("=" * 65)
+    print("  (Giữ cửa sổ này mở trong suốt quá trình cào ảnh nhé!)\n")
     
     cmd = [CLOUDFLARED_EXE, "tunnel", "--url", "http://localhost:5000"]
     try:
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding='utf-8',
-            errors='ignore'
-        )
+        subprocess.run(cmd)
+    except KeyboardInterrupt:
+        print("\nĐã dừng đường hầm Cloudflare Tunnel.")
     except Exception as e:
-        print(f"[!] Không thể chạy cloudflared: {e}")
-        input("\nNhấn Enter để thoát...")
-        return
-
-    tunnel_url = None
-    print("      Đang chờ Cloudflare cấp tên miền HTTPS...")
-    
-    while True:
-        line = proc.stdout.readline()
-        if not line:
-            break
-        
-        # Look for trycloudflare.com
-        m = re.search(r'(https://[a-zA-Z0-9\-]+\.trycloudflare\.com)', line)
-        if m and not tunnel_url:
-            tunnel_url = m.group(1)
-            print("\n" + "=" * 65)
-            print("  🎉 LINK HTTPS CỦA BẠN ĐÃ SẴN SÀNG:")
-            print(f"  👉 {tunnel_url}")
-            print("=" * 65)
-            print("  📱 HƯỚNG DẪN KẾT NỐI TỪ ĐIỆN THOẠI:")
-            print("  1. Mở Kho Linh Kiện trên Điện Thoại (web GitHub Pages).")
-            print("  2. Bấm vào nút Cài đặt Cloud (hình đám mây trên góc).")
-            print("  3. Dán link trên vào ô 'Địa chỉ Server Pinout' và bấm 'Lưu'.")
-            print("  4. Bấm 'Kiểm tra kết nối' -> Báo màu xanh là thành công!")
-            print("=" * 65)
-            print("  (Giữ cửa sổ này mở trong suốt quá trình cào ảnh nhé!)\n")
-        elif not tunnel_url:
-            # Print startup log if informative
-            if "error" in line.lower() or "retrying" in line.lower():
-                print("      " + line.strip())
-
-    proc.wait()
+        print(f"[!] Lỗi khi chạy: {e}")
 
 if __name__ == "__main__":
     try:
         run_tunnel()
     except KeyboardInterrupt:
-        print("\nĐã dừng đường hầm Cloudflare Tunnel.")
+        print("\nĐã dừng.")
