@@ -4,6 +4,10 @@
   <meta name="referrer" content="no-referrer">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0b1120">
   <title>EE Lab Inventory v2.1 - Smart Storage, Breadboard & IC Cross-Ref</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -531,9 +535,12 @@
           <p class="text-xs text-slate-400 mb-2">Lưu đồng thời cả <b>Danh sách Linh kiện</b> lẫn <b>Sơ đồ các Hộp nhựa</b> của bạn:</p>
           <input id="cloudUrlInput" type="url" placeholder="https://ten-project-default-rtdb.asia-southeast1.firebasedatabase.app/lab.json" 
             class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none mb-2">
-          <div class="flex gap-2">
+          <div class="flex gap-2 flex-wrap sm:flex-nowrap">
             <button onclick="saveCloudConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-medium text-xs">Lưu & Đồng Bộ</button>
             <button onclick="pullFromCloud()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg text-xs">Tải từ Cloud về</button>
+            <button type="button" onclick="copyCloudUrl()" class="px-3 py-2 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 text-xs font-medium flex items-center justify-center gap-1 shrink-0" title="Sao chép link này để gửi qua điện thoại">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy link
+            </button>
           </div>
         </div>
 
@@ -3853,6 +3860,19 @@
         updateSyncBadge();
       }
       closeSettingsModal();
+    }
+
+    function copyCloudUrl() {
+      let url = document.getElementById('cloudUrlInput').value.trim() || cloudUrl;
+      if (!url) return alert('Chưa có đường link Cloud nào để copy!');
+      if (!url.endsWith('.json')) {
+        url = url.replace(/\/$/, '') + '/ee_lab_v2.json';
+      }
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Đã sao chép link Cloud:\n' + url + '\n\nHãy gửi link này qua điện thoại (Zalo/Tin nhắn) để dán vào cài đặt trên điện thoại nhé!');
+      }).catch(() => {
+        prompt('Hãy copy link Cloud dưới đây để gửi qua điện thoại:', url);
+      });
     }
 
     function exportJSON() {
