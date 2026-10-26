@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta name="referrer" content="no-referrer">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>EE Lab Inventory v2.0 - Smart Component Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { background-color: #0b1120; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    }
+    .cell-highlight { animation: pulse-border 1.8s infinite; }
+  </style>
+</head>
+<body class="min-h-screen pb-24">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex flex-col gap-3">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <div class="bg-emerald-500/20 text-emerald-400 p-2 rounded-xl border border-emerald-500/30">
+            <i data-lucide="cpu" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-bold text-lg leading-tight">Kho Linh Kiện EE</h1>
+              <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v2.0</span>
+            </div>
+            <p id="syncStatus" class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Lưu trên máy (Local)
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button onclick="openBoxesModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-medium transition" title="Tạo & Quản lý Sơ đồ Hộp/Kệ">
+            <i data-lucide="grid" class="w-4 h-4"></i>
+            <span class="hidden md:inline">Sơ đồ Hộp/Kệ</span>
+          </button>
+          <button onclick="openSettingsModal()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" title="Cloud Sync & Backup Pi 5">
+            <i data-lucide="cloud-cog" class="w-5 h-5"></i>
+          </button>
+          <button onclick="openPartModal()" class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-3.5 py-2 rounded-lg shadow-lg shadow-emerald-900/30 text-sm transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Thêm LK</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- CHẾ ĐỘ XEM (TẤT CẢ / ĐANG CẮM MẠCH / CẦN MUA) + TÌM KIẾM -->
+      <div class="flex flex-col md:flex-row gap-2">
+        <div class="flex bg-slate-800/90 p-1 rounded-lg border border-slate-700/80 shrink-0">
+          <button onclick="setViewMode('all')" id="tabMode_all" class="flex-1 md:flex-initial px-3 py-1.5 rounded-md text-xs font-medium transition">
+            Tất cả kho
+          </button>
+          <button onclick="setViewMode('inuse')" id="tabMode_inuse" class="flex-1 md:flex-initial px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center justify-center gap-1">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-sky-400"></i> Đang cắm mạch <span id="badgeInUse" class="ml-0.5 px-1.5 py-0.2 rounded-full bg-sky-500/20 text-sky-300 text-[10px]">0</span>
+          </button>
+          <button onclick="setViewMode('shopping')" id="tabMode_shopping" class="flex-1 md:flex-initial px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center justify-center gap-1">
+            <i data-lucide="shopping-cart" class="w-3.5 h-3.5 text-rose-400"></i> Cần mua <span id="badgeShopping" class="ml-0.5 px-1.5 py-0.2 rounded-full bg-rose-500/20 text-rose-300 text-[10px]">0</span>
+          </button>
+        </div>
+
+        <div class="relative flex-1">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5"></i>
+          <input id="searchInput" oninput="renderParts()" type="text" placeholder="Tìm mã IC, cảm biến, tên mạch (project), hộp..." 
+            class="w-full bg-slate-800/90 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500 text-slate-100 placeholder-slate-400">
+        </div>
+      </div>
+
+      <!-- PHÂN LOẠI -->
+      <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="categoryTabs"></div>
+    </div>
+  </header>
+
+  <!-- THỐNG KÊ NHANH -->
+  <div class="max-w-6xl mx-auto px-4 mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+    <div class="bg-slate-800/50 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+      <div>
+        <p class="text-[11px] text-slate-400">Tổng mã linh kiện</p>
+        <p id="statTotalTypes" class="text-lg font-bold text-white">0</p>
+      </div>
+      <i data-lucide="layers" class="w-5 h-5 text-slate-500"></i>
+    </div>
+    <div class="bg-slate-800/50 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+      <div>
+        <p class="text-[11px] text-slate-400">Sẵn trong hộp</p>
+        <p id="statInBox" class="text-lg font-bold text-emerald-400">0</p>
+      </div>
+      <i data-lucide="box" class="w-5 h-5 text-emerald-500/60"></i>
+    </div>
+    <div class="bg-slate-800/50 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+      <div>
+        <p class="text-[11px] text-slate-400">Đang cắm trên mạch</p>
+        <p id="statInUse" class="text-lg font-bold text-sky-400">0</p>
+      </div>
+      <i data-lucide="cpu" class="w-5 h-5 text-sky-500/60"></i>
+    </div>
+    <div class="bg-slate-800/50 border border-slate-800 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:border-amber-500/40 transition" onclick="openBoxesModal()">
+      <div>
+        <p class="text-[11px] text-slate-400">Số Hộp / Kệ đã tạo</p>
+        <p id="statBoxes" class="text-lg font-bold text-amber-400">0</p>
+      </div>
+      <i data-lucide="grid" class="w-5 h-5 text-amber-500/60"></i>
+    </div>
+  </div>
+
+  <!-- DANH SÁCH LINH KIỆN -->
+  <main class="max-w-6xl mx-auto px-4 mt-4">
+    <div id="partsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+  </main>
+
+  <!-- ================= MODAL 1: QUẢN LÝ & VẼ SƠ ĐỒ HỘP NHỰA TỰ DO ================= -->
+  <div id="boxesModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <div>
+          <h3 class="font-bold text-base text-amber-400 flex items-center gap-2">
+            <i data-lucide="grid" class="w-5 h-5"></i> Trình Thiết Kế Sơ Đồ Hộp & Kệ Đựng Đồ
+          </h3>
+          <p class="text-xs text-slate-400">Tự tạo kích thước hàng × cột theo đúng hộp nhựa hoặc kệ ngăn kéo ngoài đời của bạn</p>
+        </div>
+        <button onclick="closeBoxesModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Cột trái: Tạo hộp mới & Danh sách hộp -->
+        <div class="lg:col-span-5 flex flex-col gap-3">
+          <form onsubmit="saveBox(event)" class="bg-slate-800/70 border border-slate-700 rounded-xl p-3 flex flex-col gap-2.5">
+            <input type="hidden" id="editBoxId">
+            <div class="flex items-center justify-between">
+              <span id="boxFormTitle" class="text-xs font-bold uppercase text-emerald-400">Tạo Hộp / Kệ Mới</span>
+              <button type="button" id="btnCancelEditBox" onclick="resetBoxForm()" class="hidden text-xs text-slate-400 hover:text-white">Hủy sửa</button>
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Tên Hộp / Kệ *</label>
+              <input id="boxName" required type="text" placeholder="VD: Hộp Nhựa Cam 24 Ngăn, Kệ Tầng 2..." class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:border-emerald-500 focus:outline-none">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-xs text-slate-400">Số hàng ngang (Rows: 1-15)</label>
+                <input id="boxRows" required type="number" min="1" max="15" value="4" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm">
+              </div>
+              <div>
+                <label class="text-xs text-slate-400">Số cột dọc (Cols: 1-15)</label>
+                <input id="boxCols" required type="number" min="1" max="15" value="6" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm">
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Ghi chú (Loại hộp, chỗ để trong phòng)</label>
+              <input id="boxNote" type="text" placeholder="VD: Để trên bàn làm việc bên phải" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm">
+            </div>
+            <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-lg text-xs mt-1 transition">
+              Lưu Cấu Hình Hộp
+            </button>
+          </form>
+
+          <div class="flex flex-col gap-2">
+            <p class="text-xs font-semibold text-slate-400 uppercase">Danh sách Hộp hiện có:</p>
+            <div id="boxesList" class="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1"></div>
+          </div>
+        </div>
+
+        <!-- Cột phải: Xem trước Sơ đồ hộp & Các linh kiện bên trong -->
+        <div class="lg:col-span-7 bg-slate-800/40 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h4 id="previewBoxTitle" class="font-bold text-sm text-white">Sơ đồ ngăn chứa</h4>
+                <p id="previewBoxSub" class="text-xs text-slate-400">Bấm vào từng ô để xem hoặc kiểm tra linh kiện bên trong</p>
+              </div>
+              <span id="previewHighlightBadge" class="hidden text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold"></span>
+            </div>
+
+            <!-- LƯỚI VẼ SƠ ĐỒ -->
+            <div id="visualGridContainer" class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 overflow-x-auto min-h-[220px] flex items-center justify-center"></div>
+          </div>
+
+          <!-- Thông tin chi tiết ô đang bấm -->
+          <div id="cellDetailPanel" class="mt-3 bg-slate-900/90 border border-slate-700/80 rounded-xl p-3">
+            <p class="text-xs text-slate-400">Chọn một ô bất kỳ trên sơ đồ để xem những linh kiện nào đang nằm trong ô đó.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 2: THÊM / SỬA LINH KIỆN ================= -->
+  <div id="partModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <h3 id="modalFormTitle" class="font-bold text-base text-emerald-400">Thêm Linh Kiện Mới</h3>
+        <button onclick="closePartModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="savePart(event)" class="p-4 flex flex-col gap-3 overflow-y-auto text-sm">
+        <input type="hidden" id="partId">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div class="sm:col-span-2">
+            <label class="text-xs text-slate-400">Mã / Tên linh kiện *</label>
+            <input id="partName" required type="text" placeholder="VD: 74HC595N, MCP602, ESP32-S3..." class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Kiểu chân (Package)</label>
+            <input id="partPackage" type="text" placeholder="DIP-16, DIP-8, Module..." class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- QUẢN LÝ SỐ LƯỢNG: TRONG HỘP VS ĐANG CẮM MẠCH -->
+        <div class="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 grid grid-cols-3 gap-2.5">
+          <div>
+            <label class="text-xs text-emerald-400 font-medium">Sẵn trong hộp *</label>
+            <input id="partQty" required type="number" min="0" value="5" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono font-bold text-emerald-400">
+          </div>
+          <div>
+            <label class="text-xs text-sky-400 font-medium">Đang cắm mạch</label>
+            <input id="partInUse" type="number" min="0" value="0" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono font-bold text-sky-400">
+          </div>
+          <div>
+            <label class="text-xs text-rose-400 font-medium" title="Khi tổng số lượng <= mức này sẽ tự báo vào tab Cần Mua">Báo hết khi &le;</label>
+            <input id="partMinQty" type="number" min="0" value="2" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm font-mono text-rose-300">
+          </div>
+          <div class="col-span-3">
+            <label class="text-xs text-slate-400">Tên mạch / Breadboard đang cắm (nếu có)</label>
+            <input id="partProject" type="text" placeholder="VD: Breadboard máy tính 8-bit, Mạch Analog Lorenz..." class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-xs text-slate-400">Phân loại</label>
+            <select id="partCategory" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+              <option value="Logic IC">Logic IC (74HC, CD40, EEPROM...)</option>
+              <option value="Analog / Op-Amp">Analog / Op-Amp / 555</option>
+              <option value="MCU / Board">MCU / Board (ESP, STM, Pi...)</option>
+              <option value="Cảm biến / Module">Cảm biến / Module</option>
+              <option value="Công suất">MOSFET / Nguồn / Relay</option>
+              <option value="Thụ động / Khác">Trở / Tụ / Biến trở / Khác</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400">Chức năng ngắn gọn</label>
+            <input id="partDesc" type="text" placeholder="VD: Thanh ghi dịch 8-bit, Dual Op-Amp" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- CHỌN HỘP VÀ CLICK CHỌN Ô TRỰC QUAN -->
+        <div class="bg-slate-800/60 border border-amber-500/30 rounded-xl p-3 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> Vị trí cất trong Hộp / Kệ
+            </label>
+            <button type="button" onclick="closePartModal(); openBoxesModal();" class="text-[11px] text-emerald-400 hover:underline">+ Tạo hộp mới</button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div>
+              <label class="text-[11px] text-slate-400">Chọn Hộp đã tạo</label>
+              <select id="partBoxId" onchange="renderPickerGrid()" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs">
+                <option value="">-- Không dùng sơ đồ --</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400">Mã Ô (Click lưới bên dưới)</label>
+              <input id="partCell" type="text" placeholder="VD: A1, B3..." oninput="updateLocationTextFromGrid()" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-amber-300">
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400">Tên vị trí hiển thị *</label>
+              <input id="partLocation" required type="text" placeholder="VD: Hộp Logic - Ô A1" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs">
+            </div>
+          </div>
+
+          <!-- Lưới mini để click chọn ô nhanh -->
+          <div id="pickerGridWrapper" class="hidden mt-1 pt-2 border-t border-slate-700/70">
+            <p class="text-[11px] text-slate-400 mb-1.5">Chạm vào ô trên sơ đồ để chọn nhanh ngăn chứa:</p>
+            <div id="pickerGrid" class="overflow-x-auto bg-slate-950/70 p-2 rounded-lg flex justify-center"></div>
+          </div>
+        </div>
+
+           <!-- PINOUT, DATASHEET & LINK MUA HANG -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <div class="flex items-center justify-between">
+              <label class="text-xs text-slate-400">Link ảnh Pinout (URL)</label>
+              <div class="flex items-center gap-2">
+                <button type="button" id="btnAutoPinout" onclick="autoFetchPinout()" class="flex items-center gap-1 text-[11px] font-semibold text-amber-300 bg-amber-500/10 hover:bg-amber-500/25 px-2 py-0.5 rounded-md border border-amber-500/30 transition">
+                  <i data-lucide="sparkles" class="w-3 h-3"></i> Auto tìm ảnh
+                </button>
+                <button type="button" onclick="searchGoogle('pinout')" class="text-[11px] text-emerald-400 hover:underline">Google</button>
+              </div>
+            </div>
+            <input id="partPinout" type="url" placeholder="Dán link ảnh, hoặc bấm 'Auto tìm ảnh'..." oninput="onPinoutInputChange()" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
+            <div id="pinoutAutoResults" class="hidden mt-2 bg-slate-950/80 border border-amber-500/30 rounded-xl p-2">
+              <p id="pinoutResultStatus" class="text-[10px] text-amber-300 mb-1.5 flex items-center gap-1">
+                <i data-lucide="image" class="w-3 h-3"></i> Chọn ảnh pinout đúng nhất:
+              </p>
+              <div id="pinoutThumbsList" class="grid grid-cols-4 gap-1.5"></div>
+            </div>
+            <div id="pinoutMiniPreview" class="hidden mt-2 bg-slate-950/70 border border-emerald-500/30 rounded-lg p-1.5 flex items-center gap-2">
+              <img id="pinoutMiniImg" referrerpolicy="no-referrer" src="" alt="preview" class="w-10 h-10 object-contain rounded bg-white p-0.5 shrink-0">
+              <div class="flex-1 min-w-0">
+                <p class="text-[11px] text-emerald-400 font-semibold">Đã gắn ảnh pinout ✓</p>
+                <p id="pinoutMiniUrl" class="text-[9px] text-slate-500 truncate"></p>
+              </div>
+              <button type="button" onclick="clearPinout()" class="text-slate-500 hover:text-rose-400 shrink-0">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <label class="text-xs text-slate-400">Link Datasheet PDF</label>
+              <button type="button" onclick="searchGoogle('datasheet')" class="text-[11px] text-sky-400 hover:underline">Tìm PDF</button>
+            </div>
+            <input id="partDatasheet" type="url" placeholder="https://.../datasheet.pdf" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400">Link đặt mua (Hshop, IC Đệ Nhất, Shopee...) để tiện mua lại</label>
+          <input id="partBuyUrl" type="url" placeholder="https://..." class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs">
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400">Ghi chú kỹ thuật (Chân nguồn, áp hoạt động, IC tương đương...)</label>
+          <textarea id="partNotes" rows="2" placeholder="VD: VCC chân 16, GND chân 8. Có thể thay thế bằng..." class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs"></textarea>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+          <button type="button" id="btnDeletePart" onclick="deleteCurrentPart()" class="hidden text-rose-400 hover:text-rose-300 text-xs flex items-center gap-1">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Xóa linh kiện
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" onclick="closePartModal()" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs">Hủy</button>
+            <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs">Lưu Linh Kiện</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 3: XEM PINOUT & DATASHEET ================= -->
+  <div id="pinoutModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <div>
+          <h3 id="pinoutTitle" class="font-bold text-lg text-emerald-400"></h3>
+          <p id="pinoutSub" class="text-xs text-slate-400"></p>
+        </div>
+        <button onclick="closePinoutModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-4 flex flex-col gap-3 max-h-[80vh] overflow-y-auto">
+        <div id="pinoutImgContainer" class="bg-white rounded-xl p-2 flex items-center justify-center min-h-[200px]">
+          <img id="pinoutImg" referrerpolicy="no-referrer" src="" alt="Pinout" class="max-h-[360px] object-contain rounded" onerror="handlePinoutImgError(this)">
+          <div id="pinoutImgFallback" class="hidden text-center p-3 text-slate-800 text-xs">
+            <p class="text-rose-600 font-semibold mb-1">✕ Link ảnh bị lỗi hoặc máy chủ ảnh chặn hiển thị.</p>
+            <div class="flex gap-2 justify-center mt-2">
+              <a id="pinoutDirectLink" href="#" target="_blank" class="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-medium hover:bg-slate-800 flex items-center gap-1">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Mở ảnh trong tab mới
+              </a>
+              <button type="button" id="pinoutEditBtn" class="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-medium hover:bg-emerald-500">
+                Đổi ảnh khác
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="pinoutNoImg" class="hidden bg-slate-800/60 border border-dashed border-slate-700 rounded-xl p-6 text-center text-slate-400 text-xs">
+          Chưa gắn link ảnh sơ đồ chân cho linh kiện này.
+          <div class="mt-2">
+            <a id="googlePinoutLink" href="#" target="_blank" class="inline-flex items-center gap-1 text-emerald-400 hover:underline">
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i> Xem ngay Pinout trên Google Images
+            </a>
+          </div>
+        </div>
+        <div class="bg-slate-800/80 rounded-xl p-3 border border-slate-700/70">
+          <p class="text-[11px] font-semibold text-slate-400 uppercase mb-1">Ghi chú kỹ thuật:</p>
+          <p id="pinoutNotes" class="text-xs text-slate-200 whitespace-pre-line leading-relaxed"></p>
+        </div>
+        <div class="flex gap-2" id="pinoutActionLinks"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL 4: CÀI ĐẶT CLOUD & BACKUP PI 5 ================= -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <h3 class="font-bold text-base flex items-center gap-2">
+          <i data-lucide="cloud" class="w-5 h-5 text-emerald-400"></i> Đồng Bộ Cloud & Chuyển Nhà Pi 5
+        </h3>
+        <button onclick="closeSettingsModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-4 flex flex-col gap-4 text-sm">
+        <div class="bg-slate-800/70 border border-slate-700 rounded-xl p-3">
+          <p class="font-semibold text-emerald-400 mb-1">1. Đồng bộ giữa PC & Điện thoại (Firebase / Pi 5 API)</p>
+          <p class="text-xs text-slate-400 mb-2">Lưu đồng thời cả <b>Danh sách Linh kiện</b> lẫn <b>Sơ đồ các Hộp nhựa</b> của bạn:</p>
+          <input id="cloudUrlInput" type="url" placeholder="https://ten-project-default-rtdb.asia-southeast1.firebasedatabase.app/lab.json" 
+            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none mb-2">
+          <div class="flex gap-2">
+            <button onclick="saveCloudConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-medium text-xs">Lưu & Đồng Bộ</button>
+            <button onclick="pullFromCloud()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg text-xs">Tải từ Cloud về</button>
+          </div>
+        </div>
+
+                <!-- Google Custom Search API config -->
+                <!-- Server Cào Ảnh Pinout (Laptop / Pi 5) -->
+        <div class="bg-slate-800/70 border border-emerald-500/30 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <p class="font-semibold text-emerald-400 flex items-center gap-1.5">
+              <i data-lucide="server" class="w-4 h-4"></i> 2. Server Cào Ảnh Pinout (Laptop / Pi 5)
+            </p>
+            <span class="text-[10px] text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30 font-medium">0 Cần API Key</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-2">Chạy file <code>run_server.bat</code> trên Laptop (hoặc <code>pinout_server.py</code> trên Pi 5) để cào ảnh DuckDuckGo/Google không giới hạn:</p>
+          <div class="mb-2">
+            <label class="text-[11px] text-slate-400">Địa chỉ Server Pinout:</label>
+            <input id="pinoutServerUrlInput" type="text" placeholder="http://localhost:5000" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono">
+          </div>
+          <div class="flex gap-2">
+            <button onclick="savePinoutServerConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-1.5 rounded-lg text-xs transition">Lưu Địa Chỉ Server</button>
+            <button onclick="testPinoutServerConnection()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs transition">Kiểm tra kết nối</button>
+          </div>
+          <p id="pinoutServerStatus" class="text-[11px] text-center mt-1.5 text-slate-400 font-medium"></p>
+        </div>
+
+        <div class="bg-slate-800/70 border border-slate-700 rounded-xl p-3">
+          <p class="font-semibold text-amber-400 mb-1">2. Xuất / Nhập File (Đem về Home Assistant Pi 5)</p>
+          <p class="text-xs text-slate-400 mb-3">Toàn bộ sơ đồ hộp và linh kiện được đóng gói trong 1 file JSON duy nhất.</p>
+          <div class="flex gap-2">
+            <button onclick="exportJSON()" class="flex-1 flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-xs font-medium">
+              <i data-lucide="download" class="w-4 h-4"></i> Xuất file .JSON
+            </button>
+            <label class="flex-1 flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-xs font-medium cursor-pointer">
+              <i data-lucide="upload" class="w-4 h-4"></i> Nhập file .JSON
+              <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. DỮ LIỆU MẪU KHỞI TẠO (HỘP NHỰA + LINH KIỆN)
+    const DEFAULT_BOXES = [
+      { id: 'box_logic', name: 'Hộp IC Số & Vi Điều Khiển', rows: 4, cols: 6, note: 'Hộp nhựa 24 ngăn nắp trong (Ngăn trên cùng)' },
+      { id: 'box_analog', name: 'Hộp Analog & Công Suất', rows: 3, cols: 5, note: 'Hộp nhựa 15 ngăn (Để cạnh máy hiện sóng)' },
+      { id: 'box_sensor', name: 'Kệ Module & Cảm Biến', rows: 3, cols: 4, note: 'Kệ ngăn kéo 12 hộc' }
+    ];
+
+    const DEFAULT_PARTS = [
+      {
+        id: 'p1',
+        name: '74HC595N',
+        category: 'Logic IC',
+        package: 'DIP-16',
+        boxId: 'box_logic',
+        cell: 'A1',
+        location: 'Hộp IC Số & Vi Điều Khiển • A1',
+        qty: 6,
+        inUse: 2,
+        minQty: 3,
+        project: 'Mạch LED Matrix / Breadboard số 1',
+        desc: 'Thanh ghi dịch 8-bit (Shift Register)',
+        pinout: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/74HC595_pinout.svg/500px-74HC595_pinout.svg.png',
+        datasheet: 'https://www.ti.com/lit/ds/symlink/sn74hc595.pdf',
+        buyUrl: '',
+        notes: 'VCC: Chân 16 | GND: Chân 8\nDS (Data): 14 | SHCP (Clock): 11 | STCP (Latch): 12'
+      },
+      {
+        id: 'p2',
+        name: 'AT28C64B',
+        category: 'Logic IC',
+        package: 'DIP-28',
+        boxId: 'box_logic',
+        cell: 'A2',
+        location: 'Hộp IC Số & Vi Điều Khiển • A2',
+        qty: 1,
+        inUse: 1,
+        minQty: 2,
+        project: 'Breadboard Game Logic',
+        desc: '64K (8K x 8) Parallel EEPROM',
+        pinout: '',
+        datasheet: 'https://ww1.microchip.com/downloads/en/DeviceDoc/doc0270.pdf',
+        buyUrl: '',
+        notes: 'Nhớ mở khóa SDP nếu bật chống ghi. Thời gian ghi trang ~5-10ms.'
+      },
+      {
+        id: 'p3',
+        name: 'MCP602-I/P',
+        category: 'Analog / Op-Amp',
+        package: 'DIP-8',
+        boxId: 'box_analog',
+        cell: 'A1',
+        location: 'Hộp Analog & Công Suất • A1',
+        qty: 4,
+        inUse: 2,
+        minQty: 2,
+        project: 'Mạch tính tích phân Analog',
+        desc: 'Dual Op-Amp Rail-to-Rail (2.7V - 6.0V)',
+        pinout: '',
+        datasheet: 'https://ww1.microchip.com/downloads/en/DeviceDoc/21314g.pdf',
+        buyUrl: '',
+        notes: 'CẢNH BÁO: Áp tối đa 6V (Không cấp 12V!).\nChân 8: VDD | Chân 4: VSS | Out A: 1 | Out B: 7.'
+      },
+      {
+        id: 'p4',
+        name: 'IRLB3034PBF',
+        category: 'Công suất',
+        package: 'TO-220',
+        boxId: 'box_analog',
+        cell: 'B3',
+        location: 'Hộp Analog & Công Suất • B3',
+        qty: 1,
+        inUse: 0,
+        minQty: 2,
+        project: '',
+        desc: 'MOSFET kênh N Logic-Level (Kích mở trực tiếp 3.3V/5V)',
+        pinout: '',
+        datasheet: 'https://www.infineon.com/dgdl/irlb3034pbf.pdf?fileId=5546d462533600a40153566027b22585',
+        buyUrl: '',
+        notes: 'Thứ tự chân nhìn mặt chữ: 1. Gate - 2. Drain - 3. Source. Rds(on) siêu thấp.'
+      }
+    ];
+
+    const CATEGORIES = ['Tất cả', 'Logic IC', 'Analog / Op-Amp', 'MCU / Board', 'Cảm biến / Module', 'Công suất', 'Thụ động / Khác'];
+    let currentCategory = 'Tất cả';
+    let currentViewMode = 'all'; // 'all' | 'inuse' | 'shopping'
+    let activePreviewBoxId = null;
+    let activeHighlightCell = null;
+
+    // Load dữ liệu (Tương thích ngược với cả bản v1.0)
+    let boxes = JSON.parse(localStorage.getItem('ee_inventory_boxes')) || DEFAULT_BOXES;
+    let parts = JSON.parse(localStorage.getItem('ee_inventory_parts')) || DEFAULT_PARTS;
+    let cloudUrl = localStorage.getItem('ee_inventory_cloud_url') || '';
+
+    function init() {
+      // Đảm bảo dữ liệu cũ từ v1 lên v2 có đủ trường
+      parts = parts.map(p => ({ pinout: p.pinout ? p.pinout.trim().replace(/ /g, '%20') : '',
+        inUse: Number(p.inUse || 0),
+        minQty: p.minQty !== undefined ? Number(p.minQty) : 2,
+        project: p.project || '',
+        boxId: p.boxId || '',
+        cell: p.cell || '',
+        datasheet: p.datasheet || '',
+        buyUrl: p.buyUrl || '',
+        ...p
+      }));
+      activePreviewBoxId = boxes[0]?.id || null;
+      setViewMode('all');
+      renderCategories();
+      renderParts();
+      updateSyncBadge();
+      if (cloudUrl) pullFromCloud(true);
+    }
+
+    // CHUYỂN TAB CHẾ ĐỘ XEM
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      ['all', 'inuse', 'shopping'].forEach(m => {
+        const btn = document.getElementById('tabMode_' + m);
+        if (m === mode) {
+          btn.className = 'flex-1 md:flex-initial px-3 py-1.5 rounded-md text-xs font-medium transition bg-emerald-600 text-white shadow flex items-center justify-center gap-1';
+        } else {
+          btn.className = 'flex-1 md:flex-initial px-3 py-1.5 rounded-md text-xs font-medium transition text-slate-400 hover:text-white flex items-center justify-center gap-1';
+        }
+      });
+      renderParts();
+    }
+
+    function renderCategories() {
+      const container = document.getElementById('categoryTabs');
+      container.innerHTML = CATEGORIES.map(cat => {
+        const active = cat === currentCategory 
+          ? 'bg-slate-200 text-slate-900 border-white font-semibold' 
+          : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:text-slate-200';
+        return `<button onclick="setCategory('${cat}')" class="whitespace-nowrap px-3 py-1 rounded-lg text-xs border transition ${active}">${cat}</button>`;
+      }).join('');
+    }
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      renderCategories();
+      renderParts();
+    }
+
+    // RENDER DANH SÁCH LINH KIỆN
+    function renderParts() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const grid = document.getElementById('partsGrid');
+
+      // Cập nhật thống kê
+      const totalInBox = parts.reduce((s, p) => s + Number(p.qty || 0), 0);
+      const totalInUse = parts.reduce((s, p) => s + Number(p.inUse || 0), 0);
+      const inUseItemsCount = parts.filter(p => Number(p.inUse) > 0).length;
+      const shoppingCount = parts.filter(p => (Number(p.qty) + Number(p.inUse || 0)) <= Number(p.minQty ?? 2)).length;
+
+      document.getElementById('statTotalTypes').innerText = parts.length;
+      document.getElementById('statInBox').innerText = totalInBox;
+      document.getElementById('statInUse').innerText = totalInUse;
+      document.getElementById('statBoxes').innerText = boxes.length;
+      document.getElementById('badgeInUse').innerText = inUseItemsCount;
+      document.getElementById('badgeShopping').innerText = shoppingCount;
+
+      const filtered = parts.filter(p => {
+        const matchCat = currentCategory === 'Tất cả' || p.category === currentCategory;
+        const matchMode = currentViewMode === 'all' ? true
+                        : currentViewMode === 'inuse' ? Number(p.inUse) > 0
+                        : (Number(p.qty) + Number(p.inUse || 0)) <= Number(p.minQty ?? 2);
+        const matchSearch = p.name.toLowerCase().includes(query) ||
+                            (p.desc && p.desc.toLowerCase().includes(query)) ||
+                            (p.location && p.location.toLowerCase().includes(query)) ||
+                            (p.project && p.project.toLowerCase().includes(query)) ||
+                            (p.package && p.package.toLowerCase().includes(query));
+        return matchCat && matchMode && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-sm bg-slate-900/40 rounded-2xl border border-slate-800/80">
+          Không có linh kiện nào trong mục này.
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(p => {
+        const total = Number(p.qty) + Number(p.inUse || 0);
+        const needBuy = total <= Number(p.minQty ?? 2);
+        const isOutBox = Number(p.qty) === 0;
+        const qtyBadge = isOutBox ? 'text-rose-400 bg-rose-500/10 border-rose-500/30'
+                       : needBuy ? 'text-amber-300 bg-amber-500/10 border-amber-500/30'
+                       : 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+
+        return `
+        <div class="bg-slate-800/75 border ${needBuy ? 'border-rose-500/40' : 'border-slate-700/80'} rounded-2xl p-3.5 flex flex-col justify-between gap-3 hover:border-slate-600 transition">
+          <div>
+            <!-- Hàng tên & nút sửa -->
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h3 class="font-bold text-base text-white tracking-wide">${p.name}</h3>
+                  ${p.package ? `<span class="text-[10px] px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono">${p.package}</span>` : ''}
+                  ${needBuy ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">Sắp hết</span>` : ''}
+                </div>
+                <p class="text-xs text-slate-400 mt-0.5 line-clamp-1">${p.desc || p.category}</p>
+              </div>
+              <button onclick="openPartModal('${p.id}')" class="text-slate-400 hover:text-white p-1" title="Chỉnh sửa">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Nút bấm mở Sơ Đồ Hộp Nhựa -->
+            <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <button onclick="locateInBox('${p.boxId}', '${p.cell}')" class="flex items-center gap-1.5 text-xs text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 px-2.5 py-1 rounded-lg transition" title="Bấm để xem vị trí ô trên sơ đồ hộp">
+                <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+                <span>${p.location}</span>
+              </button>
+              ${p.datasheet ? `<a href="${p.datasheet}" target="_blank" class="text-[11px] px-2 py-1 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-sky-300 flex items-center gap-1"><i data-lucide="file-text" class="w-3 h-3"></i>PDF</a>` : ''}
+              ${p.buyUrl ? `<a href="${p.buyUrl}" target="_blank" class="text-[11px] px-2 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 flex items-center gap-1"><i data-lucide="shopping-bag" class="w-3 h-3"></i>Mua</a>` : ''}
+            </div>
+
+            <!-- Trạng thái Đang cắm trên mạch (Breadboard) -->
+            <div class="mt-2.5 bg-slate-900/70 border border-slate-800 rounded-xl p-2 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <i data-lucide="zap" class="w-3.5 h-3.5 ${p.inUse > 0 ? 'text-sky-400' : 'text-slate-600'} shrink-0"></i>
+                <div class="truncate">
+                  <span class="${p.inUse > 0 ? 'text-sky-300 font-medium' : 'text-slate-500'}">Cắm mạch: ${p.inUse || 0}</span>
+                  ${p.project ? `<span class="text-slate-400 text-[11px] block truncate" title="${p.project}">• ${p.project}</span>` : ''}
+                </div>
+              </div>
+              <div class="flex items-center gap-1 shrink-0 ml-2">
+                <button onclick="moveStock('${p.id}', 'to_board')" class="px-2 py-1 rounded bg-sky-500/15 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 text-[11px] font-medium transition" title="Lấy 1 con từ hộp cắm lên mạch">
+                  → Mạch
+                </button>
+                ${p.inUse > 0 ? `
+                <button onclick="moveStock('${p.id}', 'to_box')" class="px-2 py-1 rounded bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 text-[11px] font-medium transition" title="Rút 1 con từ mạch cất lại vào hộp">
+                  ← Hộp
+                </button>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <!-- Cụm nút Pinout & Tăng giảm số lượng Trong Hộp -->
+          <div class="flex items-center justify-between pt-2 border-t border-slate-700/60">
+            <button onclick="openPinoutModal('${p.id}')" class="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-slate-700/70 hover:bg-slate-700 text-slate-200 transition">
+              <i data-lucide="cpu" class="w-3.5 h-3.5 text-emerald-400"></i>
+              Pinout & Note
+            </button>
+
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-slate-400 mr-0.5">Trong hộp:</span>
+              <button onclick="changeQty('${p.id}', -1)" class="w-7 h-7 rounded-lg bg-slate-700 hover:bg-rose-600/80 active:scale-95 text-white font-bold flex items-center justify-center transition">-</button>
+              <span class="min-w-[38px] text-center font-mono font-bold text-sm py-0.5 px-2 rounded-lg border ${qtyBadge}">${p.qty}</span>
+              <button onclick="changeQty('${p.id}', 1)" class="w-7 h-7 rounded-lg bg-slate-700 hover:bg-emerald-600/80 active:scale-95 text-white font-bold flex items-center justify-center transition">+</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    // THAO TÁC SỐ LƯỢNG TRONG HỘP & CẮM MẠCH
+    function changeQty(id, delta) {
+      const p = parts.find(x => x.id === id);
+      if (!p) return;
+      p.qty = Math.max(0, Number(p.qty) + delta);
+      saveData();
+      renderParts();
+    }
+
+    function moveStock(id, direction) {
+      const p = parts.find(x => x.id === id);
+      if (!p) return;
+      if (direction === 'to_board') {
+        if (Number(p.qty) <= 0) return alert('Trong hộp đã hết linh kiện này để lấy ra cắm mạch!');
+        if (!p.project) {
+          const proj = prompt('Bạn đang cắm linh kiện này lên mạch / breadboard nào? (Có thể bỏ trống):', '');
+          if (proj !== null) p.project = proj.trim();
+        }
+        p.qty = Number(p.qty) - 1;
+        p.inUse = Number(p.inUse || 0) + 1;
+      } else {
+        if (Number(p.inUse) <= 0) return;
+        p.inUse = Number(p.inUse) - 1;
+        p.qty = Number(p.qty) + 1;
+        if (p.inUse === 0) p.project = '';
+      }
+      saveData();
+      renderParts();
+    }
+
+    // ================= QUẢN LÝ SƠ ĐỒ HỘP NHỰA TỰ DO =================
+    function getRowLabel(rIndex) {
+      return String.fromCharCode(65 + rIndex); // 0 -> A, 1 -> B, 2 -> C...
+    }
+
+    function openBoxesModal(boxId = null, highlightCell = null) {
+      if (boxId) activePreviewBoxId = boxId;
+      else if (!activePreviewBoxId && boxes.length > 0) activePreviewBoxId = boxes[0].id;
+      activeHighlightCell = highlightCell;
+
+      renderBoxesList();
+      renderVisualBoxGrid();
+      document.getElementById('boxesModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeBoxesModal() {
+      activeHighlightCell = null;
+      document.getElementById('boxesModal').classList.add('hidden');
+    }
+
+    function locateInBox(boxId, cell) {
+      if (!boxId || !boxes.find(b => b.id === boxId)) {
+        return alert('Linh kiện này chưa được gán vào sơ đồ hộp nào. Hãy bấm nút Sửa linh kiện -> Chọn Hộp & Ô trên lưới!');
+      }
+      openBoxesModal(boxId, cell);
+    }
+
+    function renderBoxesList() {
+      const list = document.getElementById('boxesList');
+      if (boxes.length === 0) {
+        list.innerHTML = `<p class="text-xs text-slate-500">Chưa có hộp nào. Hãy tạo ở khung bên trên.</p>`;
+        return;
+      }
+      list.innerHTML = boxes.map(b => {
+        const isSelected = b.id === activePreviewBoxId;
+        const countParts = parts.filter(p => p.boxId === b.id).length;
+        return `
+        <div onclick="selectPreviewBox('${b.id}')" class="p-2.5 rounded-xl border cursor-pointer transition flex items-center justify-between ${isSelected ? 'bg-amber-500/15 border-amber-500/50 text-white' : 'bg-slate-800/60 border-slate-700/70 text-slate-300 hover:border-slate-600'}">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-xs">${b.name}</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-900 text-amber-300">${b.rows}×${b.cols} (${b.rows * b.cols} ô)</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">${b.note || 'Đang chứa ' + countParts + ' mã linh kiện'}</p>
+          </div>
+          <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+            <button onclick="editBox('${b.id}')" class="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white" title="Sửa kích thước / tên hộp">
+              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="deleteBox('${b.id}')" class="p-1.5 rounded hover:bg-slate-700 text-rose-400" title="Xóa hộp">
+              <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function selectPreviewBox(boxId) {
+      activePreviewBoxId = boxId;
+      activeHighlightCell = null;
+      renderBoxesList();
+      renderVisualBoxGrid();
+    }
+
+    function renderVisualBoxGrid() {
+      const container = document.getElementById('visualGridContainer');
+      const badge = document.getElementById('previewHighlightBadge');
+      const box = boxes.find(b => b.id === activePreviewBoxId);
+
+      if (!box) {
+        container.innerHTML = `<p class="text-xs text-slate-500">Hãy chọn hoặc tạo một hộp ở cột bên trái.</p>`;
+        return;
+      }
+
+      document.getElementById('previewBoxTitle').innerText = `${box.name} (${box.rows} hàng × ${box.cols} cột)`;
+      document.getElementById('previewBoxSub').innerText = box.note || 'Bấm vào từng ngăn để xem các linh kiện bên trong';
+
+      if (activeHighlightCell) {
+        badge.innerText = `Vị trí cần lấy: Ô ${activeHighlightCell}`;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      let html = `<div class="grid gap-1.5 w-full" style="grid-template-columns: repeat(${box.cols}, minmax(54px, 1fr));">`;
+      for (let r = 0; r < box.rows; r++) {
+        for (let c = 1; c <= box.cols; c++) {
+          const cellCode = `${getRowLabel(r)}${c}`;
+          const cellParts = parts.filter(p => p.boxId === box.id && p.cell.toUpperCase() === cellCode);
+          const isTarget = activeHighlightCell && activeHighlightCell.toUpperCase() === cellCode;
+
+          const cellStyle = isTarget
+            ? 'bg-emerald-500/30 border-2 border-emerald-400 text-white cell-highlight'
+            : cellParts.length > 0
+            ? 'bg-slate-800 hover:bg-slate-700 border border-amber-500/40 text-slate-100'
+            : 'bg-slate-900/70 hover:bg-slate-800 border border-slate-800 text-slate-500';
+
+          const firstPartName = cellParts[0] ? cellParts[0].name : 'Trống';
+          const moreCount = cellParts.length > 1 ? `+${cellParts.length - 1}` : '';
+
+          html += `
+          <button type="button" onclick="inspectCell('${box.id}', '${cellCode}')" class="p-1.5 rounded-lg flex flex-col justify-between items-start text-left min-h-[54px] transition ${cellStyle}">
+            <div class="w-full flex items-center justify-between">
+              <span class="text-[10px] font-mono font-bold ${isTarget ? 'text-emerald-300' : 'text-amber-400/90'}">${cellCode}</span>
+              ${moreCount ? `<span class="text-[9px] px-1 rounded bg-slate-950 text-slate-300">${moreCount}</span>` : ''}
+            </div>
+            <span class="text-[10px] font-medium truncate w-full mt-1 ${cellParts.length ? 'text-white' : 'text-slate-600'}">${firstPartName}</span>
+          </button>`;
+        }
+      }
+      html += `</div>`;
+      container.innerHTML = html;
+
+      if (activeHighlightCell) {
+        inspectCell(box.id, activeHighlightCell.toUpperCase());
+      } else {
+        document.getElementById('cellDetailPanel').innerHTML = `<p class="text-xs text-slate-400">Chạm vào một ô bất kỳ bên trên để xem chi tiết hoặc thêm linh kiện thẳng vào ô đó.</p>`;
+      }
+    }
+
+    function inspectCell(boxId, cellCode) {
+      activeHighlightCell = cellCode;
+      const box = boxes.find(b => b.id === boxId);
+      const cellParts = parts.filter(p => p.boxId === boxId && p.cell.toUpperCase() === cellCode);
+      const panel = document.getElementById('cellDetailPanel');
+
+      const listHtml = cellParts.length === 0
+        ? `<p class="text-xs text-slate-400">Ô <b>${cellCode}</b> hiện đang trống.</p>`
+        : `<div class="flex flex-col gap-1.5 mt-1.5">
+            ${cellParts.map(p => `
+              <div class="flex items-center justify-between bg-slate-800/90 px-2.5 py-1.5 rounded-lg text-xs">
+                <div>
+                  <span class="font-bold text-white">${p.name}</span>
+                  <span class="text-slate-400 ml-1">(${p.desc || p.category})</span>
+                </div>
+                <span class="font-mono font-bold text-emerald-400">Trong hộp: ${p.qty}</span>
+              </div>
+            `).join('')}
+          </div>`;
+
+      panel.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-amber-300">${box.name} — Ngăn ${cellCode}</span>
+          <button onclick="addPartToSpecificCell('${box.id}', '${cellCode}')" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg font-medium">
+            + Bỏ thêm linh kiện vào ô ${cellCode}
+          </button>
+        </div>
+        ${listHtml}
+      `;
+    }
+
+    function addPartToSpecificCell(boxId, cellCode) {
+      closeBoxesModal();
+      openPartModal(null, boxId, cellCode);
+    }
+
+    function saveBox(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editBoxId').value;
+      const newBox = {
+        id: editId || ('box_' + Date.now()),
+        name: document.getElementById('boxName').value.trim(),
+        rows: Math.min(15, Math.max(1, Number(document.getElementById('boxRows').value))),
+        cols: Math.min(15, Math.max(1, Number(document.getElementById('boxCols').value))),
+        note: document.getElementById('boxNote').value.trim()
+      };
+
+      if (editId) {
+        const idx = boxes.findIndex(b => b.id === editId);
+        if (idx > -1) boxes[idx] = newBox;
+        // Cập nhật lại tên hiển thị cho các linh kiện thuộc hộp này
+        parts.forEach(p => {
+          if (p.boxId === editId) p.location = `${newBox.name} • ${p.cell}`;
+        });
+      } else {
+        boxes.push(newBox);
+        activePreviewBoxId = newBox.id;
+      }
+
+      resetBoxForm();
+      saveData();
+      renderBoxesList();
+      renderVisualBoxGrid();
+      renderParts();
+    }
+
+    function editBox(id) {
+      const b = boxes.find(x => x.id === id);
+      if (!b) return;
+      document.getElementById('editBoxId').value = b.id;
+      document.getElementById('boxName').value = b.name;
+      document.getElementById('boxRows').value = b.rows;
+      document.getElementById('boxCols').value = b.cols;
+      document.getElementById('boxNote').value = b.note || '';
+      document.getElementById('boxFormTitle').innerText = 'Sửa Hộp: ' + b.name;
+      document.getElementById('btnCancelEditBox').classList.remove('hidden');
+    }
+
+    function resetBoxForm() {
+      document.getElementById('editBoxId').value = '';
+      document.getElementById('boxName').value = '';
+      document.getElementById('boxRows').value = 4;
+      document.getElementById('boxCols').value = 6;
+      document.getElementById('boxNote').value = '';
+      document.getElementById('boxFormTitle').innerText = 'Tạo Hộp / Kệ Mới';
+      document.getElementById('btnCancelEditBox').classList.add('hidden');
+    }
+
+    function deleteBox(id) {
+      if (!confirm('Xóa sơ đồ hộp này? (Các linh kiện bên trong vẫn được giữ nguyên trong kho)')) return;
+      boxes = boxes.filter(b => b.id !== id);
+      if (activePreviewBoxId === id) activePreviewBoxId = boxes[0]?.id || null;
+      saveData();
+      renderBoxesList();
+      renderVisualBoxGrid();
+      renderParts();
+    }
+
+    // ================= MODAL THÊM / SỬA LINH KIỆN + CHỌN Ô TRỰC QUAN =================
+    function populateBoxSelect(selectedBoxId = '') {
+      const sel = document.getElementById('partBoxId');
+      sel.innerHTML = `<option value="">-- Tự gõ vị trí / Không dùng sơ đồ --</option>` +
+        boxes.map(b => `<option value="${b.id}" ${b.id === selectedBoxId ? 'selected' : ''}>${b.name} (${b.rows}×${b.cols})</option>`).join('');
+    }
+
+    function renderPickerGrid() {
+      const boxId = document.getElementById('partBoxId').value;
+      const wrapper = document.getElementById('pickerGridWrapper');
+      const grid = document.getElementById('pickerGrid');
+      const currentCell = document.getElementById('partCell').value.trim().toUpperCase();
+
+      const box = boxes.find(b => b.id === boxId);
+      if (!box) {
+        wrapper.classList.add('hidden');
+        return;
+      }
+
+      wrapper.classList.remove('hidden');
+      let html = `<div class="grid gap-1" style="grid-template-columns: repeat(${box.cols}, minmax(42px, 1fr));">`;
+      for (let r = 0; r < box.rows; r++) {
+        for (let c = 1; c <= box.cols; c++) {
+          const code = `${getRowLabel(r)}${c}`;
+          const existing = parts.filter(p => p.boxId === box.id && p.cell.toUpperCase() === code);
+          const isSelected = currentCell === code;
+          const cls = isSelected
+            ? 'bg-emerald-600 text-white border-emerald-400 font-bold'
+            : existing.length > 0
+            ? 'bg-slate-800 text-amber-300 border-slate-700 hover:border-amber-400'
+            : 'bg-slate-900 text-slate-400 border-slate-800 hover:bg-slate-800';
+
+          html += `<button type="button" onclick="pickCell('${code}')" class="px-1.5 py-1 rounded border text-[10px] font-mono flex flex-col items-center ${cls}" title="${existing.map(x => x.name).join(', ') || 'Ô trống'}">
+            <span>${code}</span>
+            <span class="text-[8px] opacity-75 truncate max-w-[38px]">${existing[0]?.name || 'Trống'}</span>
+          </button>`;
+        }
+      }
+      html += `</div>`;
+      grid.innerHTML = html;
+      updateLocationTextFromGrid();
+    }
+
+    function pickCell(code) {
+      document.getElementById('partCell').value = code;
+      renderPickerGrid();
+    }
+
+    function updateLocationTextFromGrid() {
+      const boxId = document.getElementById('partBoxId').value;
+      const cell = document.getElementById('partCell').value.trim().toUpperCase();
+      const box = boxes.find(b => b.id === boxId);
+      if (box && cell) {
+        document.getElementById('partLocation').value = `${box.name} • ${cell}`;
+      }
+    }
+
+    function openPartModal(id = null, presetBoxId = null, presetCell = null) {
+      const btnDel = document.getElementById('btnDeletePart');
+      if (id) {
+        const p = parts.find(x => x.id === id);
+        document.getElementById('modalFormTitle').innerText = 'Chỉnh Sửa Linh Kiện';
+        document.getElementById('partId').value = p.id;
+        document.getElementById('partName').value = p.name;
+        document.getElementById('partPackage').value = p.package || '';
+        document.getElementById('partQty').value = p.qty;
+        document.getElementById('partInUse').value = p.inUse || 0;
+        document.getElementById('partMinQty').value = p.minQty ?? 2;
+        document.getElementById('partProject').value = p.project || '';
+        document.getElementById('partCategory').value = p.category;
+        document.getElementById('partDesc').value = p.desc || '';
+        populateBoxSelect(p.boxId || '');
+        document.getElementById('partCell').value = p.cell || '';
+        document.getElementById('partLocation').value = p.location || '';
+        document.getElementById('partPinout').value = p.pinout || '';
+        document.getElementById('partDatasheet').value = p.datasheet || '';
+        document.getElementById('partBuyUrl').value = p.buyUrl || '';
+        document.getElementById('partNotes').value = p.notes || '';
+        btnDel.classList.remove('hidden');
+      } else {
+        document.getElementById('modalFormTitle').innerText = 'Thêm Linh Kiện Mới';
+        document.getElementById('partId').value = '';
+        document.getElementById('partName').value = '';
+        document.getElementById('partPackage').value = '';
+        document.getElementById('partQty').value = 5;
+        document.getElementById('partInUse').value = 0;
+        document.getElementById('partMinQty').value = 2;
+        document.getElementById('partProject').value = '';
+        document.getElementById('partDesc').value = '';
+        const defaultBox = presetBoxId || boxes[0]?.id || '';
+        populateBoxSelect(defaultBox);
+        document.getElementById('partCell').value = presetCell || 'A1';
+        document.getElementById('partPinout').value = '';
+        document.getElementById('partDatasheet').value = '';
+        document.getElementById('partBuyUrl').value = '';
+        document.getElementById('partNotes').value = '';
+        btnDel.classList.add('hidden');
+      }
+      renderPickerGrid();
+      document.getElementById('partModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closePartModal() {
+      document.getElementById('partModal').classList.add('hidden');
+    }
+
+    function savePart(e) {
+      e.preventDefault();
+      const id = document.getElementById('partId').value;
+      const newPart = {
+        id: id || ('p_' + Date.now()),
+        name: document.getElementById('partName').value.trim(),
+        package: document.getElementById('partPackage').value.trim(),
+        qty: Number(document.getElementById('partQty').value),
+        inUse: Number(document.getElementById('partInUse').value || 0),
+        minQty: Number(document.getElementById('partMinQty').value || 0),
+        project: document.getElementById('partProject').value.trim(),
+        category: document.getElementById('partCategory').value,
+        desc: document.getElementById('partDesc').value.trim(),
+        boxId: document.getElementById('partBoxId').value,
+        cell: document.getElementById('partCell').value.trim().toUpperCase(),
+        location: document.getElementById('partLocation').value.trim(),
+        pinout: document.getElementById('partPinout').value.trim(),
+        datasheet: document.getElementById('partDatasheet').value.trim(),
+        buyUrl: document.getElementById('partBuyUrl').value.trim(),
+        notes: document.getElementById('partNotes').value.trim()
+      };
+
+      if (id) {
+        const idx = parts.findIndex(x => x.id === id);
+        if (idx > -1) parts[idx] = newPart;
+      } else {
+        parts.unshift(newPart);
+      }
+
+      saveData();
+      renderParts();
+      closePartModal();
+    }
+
+    function deleteCurrentPart() {
+      const id = document.getElementById('partId').value;
+      if (!confirm('Xóa linh kiện này khỏi kho?')) return;
+      parts = parts.filter(x => x.id !== id);
+      saveData();
+      renderParts();
+      closePartModal();
+    }
+
+    function searchGoogle(type) {
+      const name = document.getElementById('partName').value.trim();
+      if (!name) return alert('Nhập mã linh kiện trước đã bạn ơi!');
+      if (type === 'pinout') {
+        window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(name + ' pinout')}`, '_blank');
+      } else {
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(name + ' datasheet pdf')}`, '_blank');
+      }
+    }
+
+    // ================= MODAL PINOUT & DATASHEET =================
+    function openPinoutModal(id) {
+      const p = parts.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById('pinoutTitle').innerText = p.name;
+      document.getElementById('pinoutSub').innerText = `${p.package || 'N/A'} • ${p.location}`;
+      document.getElementById('pinoutNotes').innerText = p.notes || 'Chưa có ghi chú kỹ thuật cho linh kiện này.';
+
+      const imgContainer = document.getElementById('pinoutImgContainer');
+      const noImg = document.getElementById('pinoutNoImg');
+      const img = document.getElementById('pinoutImg');
+      const fallback = document.getElementById('pinoutImgFallback');
+      if (fallback) fallback.classList.add('hidden');
+      if (img) { img.classList.remove('hidden'); delete img.dataset.retried; }
+
+      if (p.pinout) {
+        const cleanUrl = p.pinout.trim().replace(/ /g, '%20');
+        img.src = cleanUrl;
+        imgContainer.classList.remove('hidden');
+        noImg.classList.add('hidden');
+        const directLink = document.getElementById('pinoutDirectLink');
+        if (directLink) directLink.href = cleanUrl;
+        const editBtn = document.getElementById('pinoutEditBtn');
+        if (editBtn) editBtn.onclick = () => { closePinoutModal(); openPartModal(p.id); };
+      } else {
+        imgContainer.classList.add('hidden');
+        noImg.classList.remove('hidden');
+        document.getElementById('googlePinoutLink').href = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(p.name + ' pinout')}`;
+      }
+
+      const actions = document.getElementById('pinoutActionLinks');
+      actions.innerHTML = `
+        ${p.datasheet ? `<a href="${p.datasheet}" target="_blank" class="flex-1 bg-sky-600/20 hover:bg-sky-600/30 border border-sky-500/40 text-sky-300 py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5"><i data-lucide="file-text" class="w-4 h-4"></i> Mở Datasheet PDF</a>` : ''}
+        <a href="https://www.google.com/search?q=${encodeURIComponent(p.name + ' datasheet pdf')}" target="_blank" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5"><i data-lucide="search" class="w-4 h-4"></i> Tra Google Datasheet</a>
+      `;
+
+      document.getElementById('pinoutModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    async function handlePinoutImgError(img) {
+      if (img.dataset.retried) {
+        img.classList.add('hidden');
+        const fallback = document.getElementById('pinoutImgFallback');
+        if (fallback) fallback.classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        return;
+      }
+      img.dataset.retried = "true";
+
+      const titleEl = document.getElementById('pinoutTitle');
+      const partName = titleEl ? titleEl.innerText.trim() : '';
+      if (partName && pinoutServerUrl) {
+        try {
+          const res = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(partName)}`);
+          if (res.ok) {
+            const items = await res.json();
+            if (Array.isArray(items) && items.length > 0) {
+              const newUrl = items[0].link;
+              img.src = newUrl;
+              const curPart = parts.find(x => x.name.toLowerCase() === partName.toLowerCase());
+              if (curPart) {
+                curPart.pinout = newUrl;
+                saveData();
+              }
+              const directLink = document.getElementById('pinoutDirectLink');
+              if (directLink) directLink.href = newUrl;
+              return;
+            }
+          }
+        } catch (e) {
+          console.log('Self-heal error:', e);
+        }
+      }
+
+      img.classList.add('hidden');
+      const fallback = document.getElementById('pinoutImgFallback');
+      if (fallback) fallback.classList.remove('hidden');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closePinoutModal() {
+      document.getElementById('pinoutModal').classList.add('hidden');
+    }
+
+    // ================= LƯU TRỮ & ĐỒNG BỘ CLOUD / PI 5 =================
+    async function saveData() {
+      localStorage.setItem('ee_inventory_parts', JSON.stringify(parts));
+      localStorage.setItem('ee_inventory_boxes', JSON.stringify(boxes));
+      if (cloudUrl) {
+        try {
+          updateSyncBadge('syncing');
+          const payload = { version: 2, updatedAt: new Date().toISOString(), boxes, parts };
+          await fetch(cloudUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          updateSyncBadge('synced');
+        } catch (e) {
+          updateSyncBadge('error');
+        }
+      }
+    }
+
+    async function pullFromCloud(silent = false) {
+      if (!cloudUrl) return;
+      try {
+        updateSyncBadge('syncing');
+        const res = await fetch(cloudUrl);
+        const data = await res.json();
+        if (data && Array.isArray(data.parts)) {
+          parts = data.parts;
+          if (Array.isArray(data.boxes)) boxes = data.boxes;
+          localStorage.setItem('ee_inventory_parts', JSON.stringify(parts));
+          localStorage.setItem('ee_inventory_boxes', JSON.stringify(boxes));
+          renderParts();
+        } else if (Array.isArray(data)) {
+          // Tương thích dữ liệu từ bản v1.0
+          parts = data;
+          localStorage.setItem('ee_inventory_parts', JSON.stringify(parts));
+          renderParts();
+        } else if (data === null) {
+          await saveData();
+        }
+        updateSyncBadge('synced');
+        if (!silent) closeSettingsModal();
+      } catch (e) {
+        updateSyncBadge('error');
+        if (!silent) alert('Không kết nối được với Cloud URL!');
+      }
+    }
+
+    function updateSyncBadge(state) {
+      const el = document.getElementById('syncStatus');
+      if (!cloudUrl) {
+        el.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Lưu trên máy (Local)`;
+      } else if (state === 'syncing') {
+        el.innerHTML = `<span class="w-2 h-2 rounded-full bg-sky-400 animate-ping inline-block"></span> Đang đồng bộ Cloud...`;
+      } else if (state === 'error') {
+        el.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> Lỗi kết nối Cloud`;
+      } else {
+        el.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> Đã đồng bộ Cloud`;
+      }
+    }
+
+    function openSettingsModal() {
+      document.getElementById('cloudUrlInput').value = cloudUrl;
+      const sInput = document.getElementById('pinoutServerUrlInput');
+      if (sInput) sInput.value = pinoutServerUrl;
+      document.getElementById('settingsModal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.add('hidden');
+    }
+
+    function saveCloudConfig() {
+      let url = document.getElementById('cloudUrlInput').value.trim();
+      if (url && !url.endsWith('.json')) {
+        url = url.replace(/\/$/, '') + '/ee_lab_v2.json';
+      }
+      cloudUrl = url;
+      localStorage.setItem('ee_inventory_cloud_url', cloudUrl);
+      if (cloudUrl) {
+        saveData();
+        alert('Đã lưu và đẩy cả Sơ đồ Hộp + Linh kiện lên Cloud!');
+      } else {
+        updateSyncBadge();
+      }
+      closeSettingsModal();
+    }
+
+    function exportJSON() {
+      const payload = { version: 2, exportedAt: new Date().toISOString(), boxes, parts };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ee-lab-v2-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function importJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (imported && Array.isArray(imported.parts)) {
+            parts = imported.parts;
+            if (Array.isArray(imported.boxes)) boxes = imported.boxes;
+          } else if (Array.isArray(imported)) {
+            parts = imported;
+          } else {
+            return alert('Cấu trúc file JSON không đúng!');
+          }
+          saveData();
+          renderParts();
+          closeSettingsModal();
+          alert(`Đã khôi phục thành công ${boxes.length} sơ đồ hộp và ${parts.length} mã linh kiện!`);
+        } catch (err) {
+          alert('File JSON không hợp lệ!');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+            // ================= SERVER CÀO ẢNH PINOUT (LOCAL / PI 5) =================
+    let pinoutServerUrl = localStorage.getItem('ee_pinout_server_url') || 'http://localhost:5000';
+
+    function savePinoutServerConfig() {
+      let url = document.getElementById('pinoutServerUrlInput').value.trim();
+      if (!url) url = 'http://localhost:5000';
+      url = url.replace(/\/$/, '');
+      pinoutServerUrl = url;
+      localStorage.setItem('ee_pinout_server_url', pinoutServerUrl);
+      testPinoutServerConnection();
+    }
+
+    async function testPinoutServerConnection() {
+      const statusEl = document.getElementById('pinoutServerStatus');
+      statusEl.textContent = 'Đang kiểm tra kết nối tới ' + pinoutServerUrl + '...';
+      statusEl.className = 'text-[11px] text-center mt-1.5 text-sky-400 font-medium';
+      try {
+        const res = await fetch(pinoutServerUrl + '/health', { method: 'GET' });
+        if (res.ok) {
+          statusEl.textContent = '✓ Kết nối thành công! Server đang hoạt động tốt.';
+          statusEl.className = 'text-[11px] text-center mt-1.5 text-emerald-400 font-medium';
+        } else {
+          statusEl.textContent = '⚠ Server phản hồi mã lỗi: ' + res.status;
+          statusEl.className = 'text-[11px] text-center mt-1.5 text-amber-400 font-medium';
+        }
+      } catch (err) {
+        statusEl.textContent = '✕ Chưa kết nối được. Hãy chắc chắn đã chạy file run_server.bat trên máy!';
+        statusEl.className = 'text-[11px] text-center mt-1.5 text-rose-400 font-medium';
+      }
+    }
+
+    async function autoFetchPinout() {
+      const name = document.getElementById('partName').value.trim();
+      const pkg = document.getElementById('partPackage').value.trim();
+      if (!name) {
+        alert('Nhập mã linh kiện trước đã bạn ơi!');
+        document.getElementById('partName').focus();
+        return;
+      }
+
+      const btn = document.getElementById('btnAutoPinout');
+      const resultsBox = document.getElementById('pinoutAutoResults');
+      const thumbsList = document.getElementById('pinoutThumbsList');
+      const statusEl = document.getElementById('pinoutResultStatus');
+
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Đang tìm...';
+      btn.disabled = true;
+      resultsBox.classList.remove('hidden');
+      thumbsList.innerHTML = '<p class="col-span-4 text-[11px] text-slate-400 text-center py-3 flex items-center justify-center gap-1.5"><i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin text-amber-400"></i> Đang cào ảnh pinout...</p>';
+      statusEl.textContent = '';
+      lucide.createIcons();
+
+      let items = [];
+      let sourceName = '';
+
+      // 1. Thử gọi Python Local Server (Laptop / Pi 5)
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            items = data;
+            sourceName = 'Local Server (Toàn mạng)';
+          }
+        }
+      } catch (e) {
+        console.log('Local Server offline, chuyển sang Wikimedia...');
+      }
+
+      // 2. Fallback sang Wikimedia Commons nếu server chưa bật
+      if (items.length === 0) {
+        try {
+          const wikiUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(name + ' pinout')}&gsrlimit=6&prop=imageinfo&iiprop=url|thumburl&iiurlwidth=400&format=json&origin=*`;
+          const res = await fetch(wikiUrl);
+          const data = await res.json();
+          if (data && data.query && data.query.pages) {
+            for (const pageId in data.query.pages) {
+              const p = data.query.pages[pageId];
+              if (p.imageinfo && p.imageinfo[0]) {
+                items.push({
+                  link: p.imageinfo[0].url,
+                  thumb: p.imageinfo[0].thumburl || p.imageinfo[0].url,
+                  title: p.title
+                });
+              }
+            }
+            if (items.length > 0) sourceName = 'Wikimedia Commons';
+          }
+        } catch (e) {
+          console.log('Wikimedia error:', e);
+        }
+      }
+
+      // 3. Hiển thị ảnh
+      if (items.length > 0) {
+        statusEl.innerHTML = `<span class="text-emerald-400 font-medium">✓ Tìm thấy ${items.length} ảnh (${sourceName}):</span>`;
+        thumbsList.innerHTML = items.map((item, idx) => `
+          <button type="button" onclick="selectPinoutThumb(${JSON.stringify(item.link).replace(/"/g, '&quot;')})"
+            class="relative group rounded-lg overflow-hidden border-2 border-slate-700 hover:border-amber-400 transition bg-white"
+            title="${item.title || 'Pinout'}">
+            <img src="${item.thumb || item.link}" alt="pinout ${idx+1}"
+              class="w-full h-16 object-contain"
+              onerror="this.parentElement.style.display='none'">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+              <span class="text-[10px] text-white font-bold">Chọn</span>
+            </div>
+          </button>
+        `).join('');
+
+        if (!document.getElementById('partPinout').value) {
+          selectPinoutThumb(items[0].link);
+        }
+      } else {
+        statusEl.innerHTML = `<span class="text-amber-400">Chưa tìm thấy ảnh tự động:</span>`;
+        thumbsList.innerHTML = `<div class="col-span-4 p-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-300 text-xs leading-relaxed">
+          <p class="font-bold text-amber-300 mb-1 flex items-center gap-1">💡 Mẹo cào ảnh cực nhạy:</p>
+          1. <b>Bật server local:</b> Nhấp đúp vào file <code>run_server.bat</code> trong thư mục để cào ảnh DuckDuckGo/Google không giới hạn.<br>
+          2. <b>Dán trực tiếp (Ctrl + V):</b> Bấm nút <i>"Google"</i> kế bên để xem ảnh &rarr; Chuột phải <i>"Sao chép hình ảnh"</i> &rarr; Bấm vào ô Pinout rồi ấn <b>Ctrl + V</b> là ảnh tự dán vào luôn!
+        </div>`;
+      }
+
+      btn.innerHTML = '<i data-lucide="sparkles" class="w-3 h-3"></i> Auto tìm ảnh';
+      btn.disabled = false;
+      lucide.createIcons();
+    }
+
+    function selectPinoutThumb(imgUrl) {
+      const cleanUrl = imgUrl ? imgUrl.trim().replace(/ /g, '%20') : '';
+      document.getElementById('partPinout').value = cleanUrl;
+      document.getElementById('pinoutAutoResults').classList.add('hidden');
+      showPinoutPreview(imgUrl);
+    }
+
+    function onPinoutInputChange() {
+      const val = document.getElementById('partPinout').value.trim();
+      document.getElementById('pinoutAutoResults').classList.add('hidden');
+      if (val) showPinoutPreview(val);
+      else hidePinoutPreview();
+    }
+
+    function showPinoutPreview(url) {
+      const preview = document.getElementById('pinoutMiniPreview');
+      document.getElementById('pinoutMiniImg').src = url;
+      document.getElementById('pinoutMiniUrl').textContent = url;
+      preview.classList.remove('hidden');
+    }
+
+    function hidePinoutPreview() {
+      document.getElementById('pinoutMiniPreview').classList.add('hidden');
+    }
+
+    function clearPinout() {
+      document.getElementById('partPinout').value = '';
+      hidePinoutPreview();
+      document.getElementById('pinoutAutoResults').classList.add('hidden');
+    }
+
+    // Hỗ trợ Ctrl + V dán ảnh trực tiếp từ clipboard vào ô Pinout
+    function setupPinoutClipboardPaste() {
+      const pinoutInput = document.getElementById('partPinout');
+      if (!pinoutInput) return;
+      pinoutInput.addEventListener('paste', (e) => {
+        const items = (e.clipboardData || window.clipboardData)?.items;
+        if (!items) return;
+        for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+            e.preventDefault();
+            const blob = item.getAsFile();
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const base64Url = event.target.result;
+              pinoutInput.value = base64Url;
+              showPinoutPreview(base64Url);
+              document.getElementById('pinoutAutoResults').classList.add('hidden');
+            };
+            reader.readAsDataURL(blob);
+            break;
+          }
+        }
+      });
+    }
+
+    init();
+    setupPinoutClipboardPaste();
+  </script>
+</body>
+</html>
