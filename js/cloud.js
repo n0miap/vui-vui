@@ -136,11 +136,51 @@
       }
     }
 
-    function openSettingsModal() {
+    function switchSettingsTab(tab = 'cloud') {
+      const tabs = ['cloud', 'server', 'backup'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('settingsTabBtn_' + t);
+        const pane = document.getElementById('settingsTabPane_' + t);
+        if (!btn || !pane) return;
+        if (t === tab) {
+          btn.className = 'px-3 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 border-emerald-500 text-emerald-400 bg-slate-900 flex items-center gap-1.5 shrink-0';
+          pane.classList.remove('hidden');
+        } else {
+          btn.className = 'px-3 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 shrink-0';
+          pane.classList.add('hidden');
+        }
+      });
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function openSettingsModal(tab = 'cloud') {
       document.getElementById('cloudUrlInput').value = cloudUrl;
       const sInput = document.getElementById('pinoutServerUrlInput');
       if (sInput) sInput.value = pinoutServerUrl;
+      
+      const badge = document.getElementById('currentServerTypeBadge');
+      if (badge) {
+        if (!pinoutServerUrl) {
+          badge.textContent = 'Chưa thiết lập';
+          badge.className = 'text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono';
+        } else if (pinoutServerUrl.includes('localhost') || pinoutServerUrl.includes('127.0.0.1')) {
+          badge.textContent = 'Laptop (Local)';
+          badge.className = 'text-[10px] text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded font-mono';
+        } else if (pinoutServerUrl.includes('trycloudflare.com')) {
+          badge.textContent = 'Cloudflare HTTPS';
+          badge.className = 'text-[10px] text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded font-mono';
+        } else if (pinoutServerUrl.includes('ngrok')) {
+          badge.textContent = 'Ngrok Static Domain';
+          badge.className = 'text-[10px] text-sky-300 bg-sky-500/20 px-1.5 py-0.5 rounded font-mono';
+        } else {
+          badge.textContent = 'Custom URL';
+          badge.className = 'text-[10px] text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded font-mono';
+        }
+      }
+
+      switchSettingsTab(tab);
       document.getElementById('settingsModal').classList.remove('hidden');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function closeSettingsModal() {

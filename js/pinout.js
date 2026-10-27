@@ -316,32 +316,32 @@
       return null;
     }
 
-    async function refreshTunnelUrlFromFirebase() {
-      if (!cloudUrl) return null;
-      try {
-        const res = await fetch(cloudUrl, { cache: 'no-store' });
-        const data = await res.json();
-        if (data && data.tunnelUrl && typeof data.tunnelUrl === 'string' && data.tunnelUrl.startsWith('https://')) {
-          const newUrl = data.tunnelUrl.trim();
-          if (newUrl !== pinoutServerUrl) {
-            console.log(`[Auto-Tunnel] Cập nhật lại Tunnel URL từ Cloud: ${newUrl}`);
-            pinoutServerUrl = newUrl;
-            localStorage.setItem('ee_pinout_server_url', pinoutServerUrl);
-            const sInput = document.getElementById('pinoutServerUrlInput');
-            if (sInput) sInput.value = pinoutServerUrl;
-            return newUrl;
-          }
-        }
-      } catch(e) {}
-      return null;
-    }
-
-    function savePinoutServerConfig() {
+    async function savePinoutServerConfig() {
       let url = document.getElementById('pinoutServerUrlInput').value.trim();
       if (!url) url = 'http://localhost:5000';
       url = url.replace(/\/$/, '');
       pinoutServerUrl = url;
       localStorage.setItem('ee_pinout_server_url', pinoutServerUrl);
+
+      if (url.startsWith('https://')) {
+        if (cloudUrl) {
+          try {
+            await fetch(cloudUrl, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ tunnelUrl: url, tunnelUpdatedAt: new Date().toISOString() })
+            });
+          } catch(e) {}
+        }
+        try {
+          await fetch('http://localhost:5000/api/tunnel/config', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fixedUrl: url })
+          });
+        } catch(e) {}
+      }
+
       testPinoutServerConnection();
     }
 

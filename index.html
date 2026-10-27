@@ -524,8 +524,8 @@
   </div>
 
   <!-- ================= MODAL 3: XEM PINOUT & DATASHEET ================= -->
-  <div id="pinoutModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+  <div id="pinoutModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
       <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
         <div>
           <h3 id="pinoutTitle" class="font-bold text-lg text-emerald-400"></h3>
@@ -567,75 +567,113 @@
     </div>
   </div>
 
-  <!-- ================= MODAL 4: CÀI ĐẶT CLOUD & BACKUP PI 5 ================= -->
-  <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full overflow-hidden shadow-2xl">
-      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-        <h3 class="font-bold text-base flex items-center gap-2">
-          <i data-lucide="cloud" class="w-5 h-5 text-emerald-400"></i> Đồng Bộ Cloud & Chuyển Nhà Pi 5
+  <!-- ================= MODAL 4: CÀI ĐẶT CLOUD & SERVER ================= -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[88vh]">
+      <!-- Header cố định -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950/60 shrink-0">
+        <h3 class="font-bold text-base flex items-center gap-2 text-white">
+          <i data-lucide="cloud-cog" class="w-5 h-5 text-emerald-400"></i> Cài Đặt & Đồng Bộ
         </h3>
-        <button onclick="closeSettingsModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white">
+        <button onclick="closeSettingsModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
-      <div class="p-4 flex flex-col gap-4 text-sm">
-        <div class="bg-slate-800/70 border border-slate-700 rounded-xl p-3">
-          <p class="font-semibold text-emerald-400 mb-1">1. Đồng bộ giữa PC & Điện thoại (Firebase / Pi 5 API)</p>
-          <p class="text-xs text-slate-400 mb-2">Lưu đồng thời cả <b>Danh sách Linh kiện</b> lẫn <b>Sơ đồ các Hộp nhựa</b> của bạn:</p>
-          <input id="cloudUrlInput" type="url" placeholder="https://ten-project-default-rtdb.asia-southeast1.firebasedatabase.app/lab.json" 
-            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none mb-2">
-          <div class="flex gap-2 flex-wrap sm:flex-nowrap">
-            <button onclick="saveCloudConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-medium text-xs">Lưu & Đồng Bộ</button>
-            <button onclick="pullFromCloud()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg text-xs">Tải từ Cloud về</button>
-            <button type="button" onclick="copyCloudUrl()" class="px-3 py-2 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 text-xs font-medium flex items-center justify-center gap-1 shrink-0" title="Sao chép link này để gửi qua điện thoại">
-              <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy link
-            </button>
-          </div>
-          <button type="button" onclick="restoreAutoBackup()" class="w-full mt-2 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition">
-            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Khôi phục bản lưu trước đó (Chống mất dữ liệu)
-          </button>
-        </div>
 
-                <!-- Google Custom Search API config -->
-                <!-- Server Cào Ảnh Pinout (Laptop / Pi 5) -->
-        <div class="bg-slate-800/70 border border-emerald-500/30 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-1">
-            <p class="font-semibold text-emerald-400 flex items-center gap-1.5">
-              <i data-lucide="server" class="w-4 h-4"></i> 2. Server Cào Ảnh Pinout & Giá Shop (Laptop / Pi 5)
+      <!-- Tab bar bên trong Modal Cài đặt: 3 tab tiện lợi -->
+      <div class="flex border-b border-slate-800 bg-slate-950/40 px-3 pt-2 gap-1.5 shrink-0 overflow-x-auto no-scrollbar">
+        <button type="button" onclick="switchSettingsTab('cloud')" id="settingsTabBtn_cloud" class="px-3 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 border-emerald-500 text-emerald-400 bg-slate-900 flex items-center gap-1.5 shrink-0">
+          <i data-lucide="cloud" class="w-4 h-4"></i> 1. Đồng Bộ Cloud
+        </button>
+        <button type="button" onclick="switchSettingsTab('server')" id="settingsTabBtn_server" class="px-3 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 shrink-0">
+          <i data-lucide="server" class="w-4 h-4"></i> 2. Server & ĐT
+        </button>
+        <button type="button" onclick="switchSettingsTab('backup')" id="settingsTabBtn_backup" class="px-3 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 shrink-0">
+          <i data-lucide="database" class="w-4 h-4"></i> 3. Sao Lưu File
+        </button>
+      </div>
+
+      <!-- Nội dung các Tab cuộn mượt mà -->
+      <div class="p-4 overflow-y-auto flex-1 flex flex-col gap-3 text-sm">
+        <!-- TAB 1: ĐỒNG BỘ CLOUD -->
+        <div id="settingsTabPane_cloud" class="flex flex-col gap-3">
+          <div class="bg-slate-800/70 border border-slate-700 rounded-xl p-3">
+            <p class="font-semibold text-emerald-400 mb-1 flex items-center gap-1.5">
+              <i data-lucide="cloud" class="w-4 h-4"></i> Đồng bộ PC & Điện thoại (Firebase Realtime DB)
             </p>
-            <span class="text-[10px] text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30 font-medium">0 Cần API Key</span>
-          </div>
-          <p class="text-xs text-slate-400 mb-2">Chạy <code>run_server.bat</code> trên Laptop để cào ảnh HD và giá shop không giới hạn:</p>
-          <div class="mb-2">
-            <label class="text-[11px] text-slate-400 flex items-center justify-between">
-              <span>Địa chỉ Server Pinout:</span>
-              <span class="text-[10px] text-slate-500 font-mono">(Laptop hoặc Link HTTPS cho ĐT)</span>
-            </label>
-            <input id="pinoutServerUrlInput" type="text" placeholder="http://localhost:5000 hoặc https://...trycloudflare.com" class="w-full mt-0.5 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono">
-          </div>
-          <div class="flex gap-2">
-            <button onclick="savePinoutServerConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-1.5 rounded-lg text-xs transition">Lưu Địa Chỉ Server</button>
-            <button onclick="testPinoutServerConnection()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs transition">Kiểm tra kết nối</button>
-          </div>
-          <p id="pinoutServerStatus" class="text-[11px] text-center mt-1.5 text-slate-400 font-medium"></p>
-          <div class="mt-2.5 pt-2 border-t border-slate-700/60 text-[11px] text-slate-400 flex flex-col gap-1">
-            <p class="text-emerald-300 font-medium">📱 Cách kết nối điện thoại với Laptop:</p>
-            <p>• <b>Cùng Wi-Fi:</b> Mở trực tiếp link <code>http://&lt;IP-Laptop&gt;:5000</code> trên điện thoại (xem IP hiện trên cửa sổ server).</p>
-            <p>• <b>Web GitHub Pages / 4G:</b> Chạy file <code>tao_link_https_dien_thoai.bat</code> trên Laptop, copy link HTTPS dán vào ô trên rồi bấm Lưu!</p>
+            <p class="text-xs text-slate-400 mb-2">Lưu tự động toàn bộ <b>Danh sách Linh kiện</b> và <b>Sơ đồ Hộp nhựa</b> lên đám mây:</p>
+            <input id="cloudUrlInput" type="url" placeholder="https://ten-project-default-rtdb.asia-southeast1.firebasedatabase.app/ee_lab_v2.json" 
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none mb-2 font-mono">
+            <div class="flex gap-2 flex-wrap sm:flex-nowrap">
+              <button onclick="saveCloudConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg font-medium text-xs transition">Lưu & Đồng Bộ</button>
+              <button onclick="pullFromCloud()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg text-xs transition">Tải từ Cloud về</button>
+              <button type="button" onclick="copyCloudUrl()" class="px-3 py-2 rounded-lg bg-indigo-600/25 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 text-xs font-medium flex items-center justify-center gap-1 shrink-0 transition" title="Sao chép link này">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy link
+              </button>
+            </div>
+            <button type="button" onclick="restoreAutoBackup()" class="w-full mt-2.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Khôi phục bản lưu trước đó (Chống mất dữ liệu)
+            </button>
           </div>
         </div>
 
-        <div class="bg-slate-800/70 border border-slate-700 rounded-xl p-3">
-          <p class="font-semibold text-amber-400 mb-1">2. Xuất / Nhập File (Đem về Home Assistant Pi 5)</p>
-          <p class="text-xs text-slate-400 mb-3">Toàn bộ sơ đồ hộp và linh kiện được đóng gói trong 1 file JSON duy nhất.</p>
-          <div class="flex gap-2">
-            <button onclick="exportJSON()" class="flex-1 flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-xs font-medium">
-              <i data-lucide="download" class="w-4 h-4"></i> Xuất file .JSON
-            </button>
-            <label class="flex-1 flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-600 py-2 rounded-lg text-xs font-medium cursor-pointer">
-              <i data-lucide="upload" class="w-4 h-4"></i> Nhập file .JSON
-              <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
-            </label>
+        <!-- TAB 2: SERVER CÀO ẢNH & ĐIỆN THOẠI -->
+        <div id="settingsTabPane_server" class="hidden flex flex-col gap-3">
+          <!-- Hộp thông báo Auto-Handshake -->
+          <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                <i data-lucide="zap" class="w-4 h-4"></i> Tự Động Bắt Tay Cloud (Không Cần Copy Link!)
+              </span>
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-mono font-medium">Auto 100%</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              ⚡ <b>Bạn không cần copy hay dán link thủ công mỗi ngày nữa!</b> Mỗi khi mở máy tính, Server sẽ tự động đẩy link HTTPS mới lên Firebase. Điện thoại mở trang web lên sẽ <b>tự nhận diện và kết nối thẳng</b> vào Laptop.
+            </p>
+          </div>
+
+          <!-- Ô cấu hình địa chỉ Server -->
+          <div class="bg-slate-800/70 border border-emerald-500/30 rounded-xl p-3 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                <i data-lucide="server" class="w-4 h-4"></i> Địa Chỉ Server Cào Ảnh:
+              </label>
+              <span id="currentServerTypeBadge" class="text-[10px] text-sky-300 bg-sky-500/20 px-1.5 py-0.5 rounded font-mono">Tự động nhận</span>
+            </div>
+            <input id="pinoutServerUrlInput" type="text" placeholder="http://localhost:5000 hoặc https://...trycloudflare.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono">
+            <div class="flex gap-2">
+              <button onclick="savePinoutServerConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-1.5 rounded-lg text-xs transition">Lưu Địa Chỉ</button>
+              <button onclick="testPinoutServerConnection()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs transition">Kiểm tra kết nối</button>
+            </div>
+            <p id="pinoutServerStatus" class="text-[11px] text-center text-slate-400 font-medium"></p>
+          </div>
+
+          <!-- Mẹo cố định link nếu muốn -->
+          <div class="bg-slate-800/50 border border-slate-700/60 rounded-xl p-3 text-xs text-slate-400 flex flex-col gap-1.5">
+            <p class="text-amber-400 font-semibold flex items-center gap-1">
+              <i data-lucide="pin" class="w-3.5 h-3.5"></i> Bạn muốn 1 link cố định vĩnh viễn 100% không bao giờ đổi?
+            </p>
+            <p>• <b>Cách 1: Dùng Ngrok Static Domain (Miễn phí 100%):</b> Tạo tài khoản miễn phí tại <code>ngrok.com</code>, nhận 1 static domain vĩnh viễn (VD: <code>https://ten-ban.ngrok-free.app</code>). Dán vào ô trên là cố định mãi mãi.</p>
+            <p>• <b>Cách 2: Wi-Fi nội bộ:</b> Khi điện thoại và Laptop chung Wi-Fi, chỉ cần mở link <code>http://&lt;IP-Laptop&gt;:5000</code>.</p>
+          </div>
+        </div>
+
+        <!-- TAB 3: SAO LƯU FILE JSON -->
+        <div id="settingsTabPane_backup" class="hidden flex flex-col gap-3">
+          <div class="bg-slate-800/70 border border-slate-700 rounded-xl p-3 flex flex-col gap-2">
+            <p class="font-semibold text-amber-400 flex items-center gap-1.5">
+              <i data-lucide="hard-drive-download" class="w-4 h-4"></i> Xuất / Nhập File Toàn Bộ Kho
+            </p>
+            <p class="text-xs text-slate-400">Đóng gói toàn bộ sơ đồ hộp nhựa, ngăn kéo, danh sách linh kiện và dự án thành 1 file JSON duy nhất để lưu trữ offline:</p>
+            <div class="flex gap-2 mt-1">
+              <button onclick="exportJSON()" class="flex-1 flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-600 py-2.5 rounded-lg text-xs font-medium text-white transition">
+                <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i> Xuất file .JSON
+              </button>
+              <label class="flex-1 flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-600 py-2.5 rounded-lg text-xs font-medium text-white cursor-pointer transition">
+                <i data-lucide="upload" class="w-4 h-4 text-sky-400"></i> Nhập file .JSON
+                <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -1252,13 +1290,13 @@
   </div>
 
     <!-- ================= CÁC THƯ VIỆN & MODULE CODE (GIỐNG #INCLUDE TRONG ARDUINO/ESP32) ================= -->
-  <script src="js/data.js?v=2.1.3"></script>
-  <script src="js/cloud.js?v=2.1.3"></script>
-  <script src="js/pinout.js?v=2.1.3"></script>
-  <script src="js/boxes.js?v=2.1.3"></script>
-  <script src="js/projects.js?v=2.1.3"></script>
-  <script src="js/batch_scan.js?v=2.1.3"></script>
-  <script src="js/achievement74.js?v=2.1.3"></script>
-  <script src="js/app.js?v=2.1.3"></script>
+  <script src="js/data.js?v=2.1.4"></script>
+  <script src="js/cloud.js?v=2.1.4"></script>
+  <script src="js/pinout.js?v=2.1.4"></script>
+  <script src="js/boxes.js?v=2.1.4"></script>
+  <script src="js/projects.js?v=2.1.4"></script>
+  <script src="js/batch_scan.js?v=2.1.4"></script>
+  <script src="js/achievement74.js?v=2.1.4"></script>
+  <script src="js/app.js?v=2.1.4"></script>
 </body>
 </html>

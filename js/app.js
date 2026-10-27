@@ -71,6 +71,18 @@
       renderParts();
       updateSyncBadge();
       if (cloudUrl) pullFromCloud(true);
+
+      // Ho tro cuon chuot ngang cho cac thanh tab tren PC
+      setTimeout(() => {
+        document.querySelectorAll('.overflow-x-auto').forEach(el => {
+          el.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
+              e.preventDefault();
+              el.scrollLeft += e.deltaY;
+            }
+          }, { passive: false });
+        });
+      }, 500);
     }
 
     // CHUYỂN TAB CHẾ ĐỘ XEM (TẤT CẢ / ĐÃ GHIM / ĐANG CẮM MẠCH / CẦN MUA)

@@ -94,8 +94,31 @@ def cleanup_tunnel():
 
 atexit.register(cleanup_tunnel)
 
+TUNNEL_CONFIG_FILE = os.path.join(SCRIPT_DIR, 'tunnel_config.json')
+
+def load_tunnel_config():
+    if os.path.exists(TUNNEL_CONFIG_FILE):
+        try:
+            with open(TUNNEL_CONFIG_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
 def run_tunnel_worker():
     global CURRENT_TUNNEL_URL, tunnel_process
+    
+    cfg = load_tunnel_config()
+    fixed_url = cfg.get('fixedUrl', '').strip()
+    cf_token = cfg.get('cloudflareToken', '').strip()
+
+    if fixed_url and not cf_token:
+        CURRENT_TUNNEL_URL = fixed_url
+        print(f"[+] Su dung Fixed URL da cau hinh: {fixed_url}")
+        sync_tunnel_to_firebase(fixed_url)
+        update_tray_menu()
+        return
+
     if not os.path.exists(CLOUDFLARED_BIN):
         print(f"[!] Khong tim thay cloudflared.exe tai: {CLOUDFLARED_BIN}")
         return
@@ -107,11 +130,13 @@ def run_tunnel_worker():
     if sys.platform == 'win32':
         creationflags = getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000)
 
+    cmd = [CLOUDFLARED_BIN, 'tunnel', 'run', '--token', cf_token] if cf_token else [CLOUDFLARED_BIN, 'tunnel', '--url', 'http://127.0.0.1:5000']
+
     while True:
         try:
             print("[+] Dang khoi dong Cloudflare Tunnel chay ngam...")
             tunnel_process = subprocess.Popen(
-                [CLOUDFLARED_BIN, 'tunnel', '--url', 'http://127.0.0.1:5000'],
+                cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -252,6 +277,24 @@ def get_tunnel():
         'localIp': get_local_ip(),
         'port': 5000
     })
+
+@app.route('/api/tunnel/config', methods=['GET', 'POST'])
+def handle_tunnel_config():
+    global CURRENT_TUNNEL_URL
+    if request.method == 'POST':
+        data = request.get_json() or {}
+        try:
+            with open(TUNNEL_CONFIG_FILE, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2)
+            if data.get('fixedUrl'):
+                CURRENT_TUNNEL_URL = data['fixedUrl'].strip()
+                sync_tunnel_to_firebase(CURRENT_TUNNEL_URL)
+                update_tray_menu()
+            return jsonify({'status': 'ok', 'config': data})
+        except Exception as e:
+            return jsonify({'status': 'error', 'message': str(e)}), 500
+    else:
+        return jsonify(load_tunnel_config())
 
 @app.route('/api/pinout')
 def get_pinout():
