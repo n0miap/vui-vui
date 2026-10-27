@@ -13,7 +13,7 @@
           updateSyncBadge('syncing');
           const payload = { version: 2, updatedAt: new Date().toISOString(), boxes, parts, categories, projects };
           await fetch(cloudUrl, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
@@ -30,6 +30,19 @@
         updateSyncBadge('syncing');
         const res = await fetch(cloudUrl);
         const data = await res.json();
+        if (data && data.tunnelUrl && typeof data.tunnelUrl === 'string' && data.tunnelUrl.startsWith('https://')) {
+          const cloudTunnel = data.tunnelUrl.trim();
+          const isRemote = window.location.protocol === 'https:' || !window.location.hostname.match(/^(localhost|127\.0\.0\.1)$/);
+          if (isRemote || !pinoutServerUrl || pinoutServerUrl.includes('trycloudflare.com')) {
+            if (pinoutServerUrl !== cloudTunnel) {
+              console.log(`[Auto-Tunnel] Cập nhật Server Cào Ảnh từ Firebase: ${cloudTunnel}`);
+              pinoutServerUrl = cloudTunnel;
+              localStorage.setItem('ee_pinout_server_url', pinoutServerUrl);
+              const sInput = document.getElementById('pinoutServerUrlInput');
+              if (sInput) sInput.value = pinoutServerUrl;
+            }
+          }
+        }
         if (data && Array.isArray(data.parts)) {
           // Bảo vệ chống mất dữ liệu: Nếu kho máy đang có nhiều hơn 5 món mà Cloud chỉ có ít hơn (ví dụ 4 món default)
           if (silent && parts.length > 5 && data.parts.length < parts.length) {

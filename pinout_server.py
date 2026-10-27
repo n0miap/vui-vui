@@ -1,6 +1,16 @@
 import os
 import sys
+
+try:
+    if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if sys.stderr and hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
+
 import threading
+import subprocess
 import webbrowser
 import urllib.request
 import urllib.parse
@@ -9,6 +19,9 @@ import html
 import json
 import logging
 import socket
+import atexit
+import time
+from datetime import datetime, timezone
 from PIL import Image, ImageDraw
 
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
@@ -25,6 +38,12 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 INDEX_HTML = os.path.join(SCRIPT_DIR, 'index.html')
 STARTUP_DIR = os.path.join(os.environ.get('APPDATA', ''), r'Microsoft\Windows\Start Menu\Programs\Startup')
 VBS_STARTUP_PATH = os.path.join(STARTUP_DIR, 'ee_lab_pinout_server.vbs')
+CLOUDFLARED_BIN = os.path.join(SCRIPT_DIR, 'cloudflared.exe')
+FIREBASE_URL = "https://nomiap-fe6e5-default-rtdb.asia-southeast1.firebasedatabase.app/ee_lab_v2.json"
+
+CURRENT_TUNNEL_URL = ''
+tunnel_process = None
+tray_icon_ref = None
 
 def get_local_ip():
     try:
@@ -35,6 +54,88 @@ def get_local_ip():
         return ip
     except Exception:
         return '127.0.0.1'
+
+def sync_tunnel_to_firebase(url):
+    try:
+        payload = json.dumps({
+            "tunnelUrl": url,
+            "tunnelUpdatedAt": datetime.now(timezone.utc).isoformat()
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            FIREBASE_URL,
+            data=payload,
+            headers={'Content-Type': 'application/json'},
+            method='PATCH'
+        )
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            print(f"[+] Da cap nhat link HTTPS len Cloud: {url}")
+    except Exception as e:
+        print(f"[!] Khong the dong bo link HTTPS len Cloud: {e}")
+
+def kill_existing_cloudflared():
+    try:
+        subprocess.run(['taskkill', '/F', '/IM', 'cloudflared.exe'],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception:
+        pass
+
+def cleanup_tunnel():
+    global tunnel_process
+    if tunnel_process:
+        try:
+            tunnel_process.terminate()
+            tunnel_process.wait(timeout=2)
+        except Exception:
+            try:
+                tunnel_process.kill()
+            except Exception:
+                pass
+        tunnel_process = None
+
+atexit.register(cleanup_tunnel)
+
+def run_tunnel_worker():
+    global CURRENT_TUNNEL_URL, tunnel_process
+    if not os.path.exists(CLOUDFLARED_BIN):
+        print(f"[!] Khong tim thay cloudflared.exe tai: {CLOUDFLARED_BIN}")
+        return
+
+    kill_existing_cloudflared()
+    url_regex = re.compile(r'https://[a-zA-Z0-9\-]+\.trycloudflare\.com')
+
+    creationflags = 0
+    if sys.platform == 'win32':
+        creationflags = getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000)
+
+    while True:
+        try:
+            print("[+] Dang khoi dong Cloudflare Tunnel chay ngam...")
+            tunnel_process = subprocess.Popen(
+                [CLOUDFLARED_BIN, 'tunnel', '--url', 'http://127.0.0.1:5000'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding='utf-8',
+                errors='ignore',
+                creationflags=creationflags
+            )
+
+            for line in iter(tunnel_process.stdout.readline, ''):
+                if not line:
+                    break
+                m = url_regex.search(line)
+                if m:
+                    url = m.group(0).strip()
+                    CURRENT_TUNNEL_URL = url
+                    print(f"\n[CLOUDFLARE HTTPS SAN SANG]: {url}\n")
+                    sync_tunnel_to_firebase(url)
+                    update_tray_menu()
+
+            tunnel_process.wait()
+        except Exception as e:
+            print(f"[!] Tunnel worker gap loi: {e}")
+
+        time.sleep(5)
 
 @app.route('/')
 def serve_index():
@@ -138,6 +239,17 @@ def health():
     return jsonify({
         'status': 'ok',
         'message': 'EE Lab Pinout Server is running',
+        'port': 5000,
+        'tunnelUrl': CURRENT_TUNNEL_URL,
+        'localIp': get_local_ip()
+    })
+
+@app.route('/api/tunnel')
+def get_tunnel():
+    return jsonify({
+        'status': 'ok',
+        'tunnelUrl': CURRENT_TUNNEL_URL,
+        'localIp': get_local_ip(),
         'port': 5000
     })
 
@@ -427,33 +539,23 @@ def toggle_startup(icon, item):
         except Exception as e:
             print(f"[!] Khong the tao startup vbs: {e}")
 
-def open_web(icon, item):
-    if os.path.exists(INDEX_HTML):
-        webbrowser.open(INDEX_HTML)
-    else:
-        webbrowser.open('http://localhost:5000/health')
+def copy_tunnel_url_to_clipboard(icon, item):
+    if CURRENT_TUNNEL_URL:
+        try:
+            subprocess.run('clip', input=CURRENT_TUNNEL_URL.encode('utf-16le'), check=True)
+            print(f"[+] Da copy link HTTPS vao Clipboard: {CURRENT_TUNNEL_URL}")
+        except Exception as e:
+            print(f"[!] Loi copy: {e}")
 
-def quit_server(icon, item):
-    icon.stop()
-    os._exit(0)
-
-def main():
+def build_tray_menu():
     local_ip = get_local_ip()
-    print("=" * 60)
-    print("  EE LAB PINOUT & INVENTORY SERVER (ĐANG CHẠY)")
-    print("=" * 60)
-    print(f"  [+] Máy tính Laptop:    http://localhost:5000")
-    print(f"  [+] Điện thoại (Wi-Fi): http://{local_ip}:5000")
-    print("  (Mở link trên trên trình duyệt điện thoại để cào ảnh trực tiếp)")
-    print("=" * 60)
+    tunnel_display = f"🌐 HTTPS ĐT: {CURRENT_TUNNEL_URL}" if CURRENT_TUNNEL_URL else "🌐 HTTPS ĐT: Đang tạo link..."
 
-    flask_thread = threading.Thread(target=start_flask, daemon=True)
-    flask_thread.start()
-
-    icon_image = create_chip_icon()
-    menu = Menu(
+    return Menu(
         item('🟢 EE Lab Server (Port 5000)', lambda: None, enabled=False),
         item(f'📱 ĐT Wi-Fi: http://{local_ip}:5000', lambda: None, enabled=False),
+        item(tunnel_display, lambda: None, enabled=False),
+        item('📋 Copy link HTTPS cho ĐT', copy_tunnel_url_to_clipboard, enabled=bool(CURRENT_TUNNEL_URL)),
         Menu.SEPARATOR,
         item('🌐 Mở Kho Linh Kiện (Web)', open_web, default=True),
         item('🚀 Tự chạy khi bật máy (Startup)', toggle_startup, checked=lambda item: is_startup_enabled()),
@@ -461,14 +563,53 @@ def main():
         item('❌ Thoát Server', quit_server)
     )
 
-    tray_icon = pystray.Icon(
+def update_tray_menu():
+    global tray_icon_ref
+    if tray_icon_ref:
+        try:
+            tray_icon_ref.menu = build_tray_menu()
+            if CURRENT_TUNNEL_URL:
+                tray_icon_ref.title = f"EE Lab Server | HTTPS: {CURRENT_TUNNEL_URL}"
+        except Exception:
+            pass
+
+def open_web(icon, item):
+    webbrowser.open('http://localhost:5000')
+
+def quit_server(icon, item):
+    cleanup_tunnel()
+    icon.stop()
+    os._exit(0)
+
+def main():
+    global tray_icon_ref
+    local_ip = get_local_ip()
+    print("=" * 60)
+    print("  EE LAB PINOUT & INVENTORY SERVER (DANG CHAY)")
+    print("=" * 60)
+    print(f"  [+] May tinh Laptop:    http://localhost:5000")
+    print(f"  [+] Dien thoai (Wi-Fi): http://{local_ip}:5000")
+    print("  (Server & Cloudflare Tunnel tu dong chay ngam cung Windows)")
+    print("=" * 60)
+
+    # 1. Chạy Flask Server trên port 5000
+    flask_thread = threading.Thread(target=start_flask, daemon=True)
+    flask_thread.start()
+
+    # 2. Khởi động Cloudflare Tunnel ngầm và tự đẩy link lên Cloud
+    tunnel_thread = threading.Thread(target=run_tunnel_worker, daemon=True)
+    tunnel_thread.start()
+
+    # 3. Tạo icon khay hệ thống (System Tray)
+    icon_image = create_chip_icon()
+    tray_icon_ref = pystray.Icon(
         "EELabPinoutServer",
         icon_image,
-        f"EE Lab Server (Laptop: 5000 | Wi-Fi: {local_ip}:5000)",
-        menu
+        f"EE Lab Server (Port 5000 | Wi-Fi: {local_ip}:5000)",
+        build_tray_menu()
     )
 
-    tray_icon.run()
+    tray_icon_ref.run()
 
 if __name__ == '__main__':
     main()

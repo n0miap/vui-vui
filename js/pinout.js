@@ -274,6 +274,26 @@
     }
     let pinoutServerUrl = localStorage.getItem('ee_pinout_server_url') || defaultServerUrl;
 
+    async function refreshTunnelUrlFromFirebase() {
+      if (!cloudUrl) return null;
+      try {
+        const res = await fetch(cloudUrl, { cache: 'no-store' });
+        const data = await res.json();
+        if (data && data.tunnelUrl && typeof data.tunnelUrl === 'string' && data.tunnelUrl.startsWith('https://')) {
+          const newUrl = data.tunnelUrl.trim();
+          if (newUrl !== pinoutServerUrl) {
+            console.log('[Auto-Tunnel] Cap nhat Tunnel URL tu Cloud: ' + newUrl);
+            pinoutServerUrl = newUrl;
+            localStorage.setItem('ee_pinout_server_url', pinoutServerUrl);
+            const sInput = document.getElementById('pinoutServerUrlInput');
+            if (sInput) sInput.value = pinoutServerUrl;
+            return newUrl;
+          }
+        }
+      } catch(e) {}
+      return null;
+    }
+
     function savePinoutServerConfig() {
       let url = document.getElementById('pinoutServerUrlInput').value.trim();
       if (!url) url = 'http://localhost:5000';
@@ -297,7 +317,18 @@
           statusEl.className = 'text-[11px] text-center mt-1.5 text-amber-400 font-medium';
         }
       } catch (err) {
-        statusEl.textContent = '✕ Chưa kết nối được. Hãy chắc chắn đã chạy file run_server.bat trên máy!';
+        const refUrl = await refreshTunnelUrlFromFirebase();
+        if (refUrl) {
+          try {
+            const res2 = await fetch(pinoutServerUrl + '/health', { method: 'GET' });
+            if (res2.ok) {
+              statusEl.textContent = '✓ Đã tự động kết nối qua Cloudflare: ' + refUrl;
+              statusEl.className = 'text-[11px] text-center mt-1.5 text-emerald-400 font-medium';
+              return;
+            }
+          } catch(e2) {}
+        }
+        statusEl.textContent = '✕ Chưa kết nối được. Hãy chắc chắn Server đang bật trên máy tính!';
         statusEl.className = 'text-[11px] text-center mt-1.5 text-rose-400 font-medium';
       }
     }

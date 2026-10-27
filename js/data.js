@@ -120,7 +120,8 @@
     // Load dữ liệu (Tương thích ngược với cả bản v1.0 & v2.0)
     let boxes = JSON.parse(localStorage.getItem('ee_inventory_boxes')) || DEFAULT_BOXES;
     let parts = JSON.parse(localStorage.getItem('ee_inventory_parts')) || DEFAULT_PARTS;
-    let cloudUrl = localStorage.getItem('ee_inventory_cloud_url') || '';
+    const DEFAULT_CLOUD_URL = 'https://nomiap-fe6e5-default-rtdb.asia-southeast1.firebasedatabase.app/ee_lab_v2.json';
+    let cloudUrl = localStorage.getItem('ee_inventory_cloud_url') || DEFAULT_CLOUD_URL;
 
     // KIỂM TRA PHÂN LOẠI CÓ PHẢI NHÓM LOGIC IC KHÔNG (Hỗ trợ cả tên tùy chỉnh như 'Logic IC (74HC, CD40...)')
     function isLogicCategory(cat) {

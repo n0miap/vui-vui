@@ -8,6 +8,7 @@ echo.
 
 set "STARTUP_FOLDER=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"
 set "VBS_TARGET=%STARTUP_FOLDER%\ee_lab_pinout_server.vbs"
+set "SERVER_SCRIPT=%~dp0pinout_server.py"
 set "PYTHONW_BIN=pythonw"
 if exist "%LOCALAPPDATA%\Python\pythoncore-3.14-64\pythonw.exe" (
     set "PYTHONW_BIN=%LOCALAPPDATA%\Python\pythoncore-3.14-64\pythonw.exe"
@@ -20,11 +21,12 @@ echo Dang tao file khoi dong tu dong trong thu muc Startup...
 ) > "%VBS_TARGET%"
 
 echo [OK] Da cai dat thanh cong!
-echo Tu gio moi khi mo may tinh, Server se tu dong chay ngam.
+echo Tu gio moi khi mo may tinh, Server va Cloudflare Tunnel se tu dong chay ngam 100%%.
 echo Chi xuat hien icon vi mach nho o goc phai man hinh (canh dong ho).
+echo Dien thoai se tu dong ket noi toi Laptop qua Cloud ma khong can copy link!
 echo.
 echo Dang khoi dong server ngay bay gio...
 wscript "%VBS_TARGET%"
 echo [XONG] Server da khoi dong ngam!
-timeout /t 3 >nul
+ping 127.0.0.1 -n 3 >nul
 

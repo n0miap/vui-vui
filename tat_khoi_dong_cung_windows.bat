@@ -9,5 +9,5 @@ if exist "%VBS_TARGET%" (
 ) else (
     echo [i] Server hien khong cai khoi dong cung Windows.
 )
-timeout /t 3 >nul
+ping 127.0.0.1 -n 3 >nul
 
