@@ -130,7 +130,18 @@
               const sData = await sRes.json();
               if (sData && sData.desc) foundDesc = sData.desc;
             }
-          } catch(e) {}
+          } catch(e) {
+          const refUrl = await refreshTunnelUrlFromFirebase();
+          if (refUrl) {
+            try {
+              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
+              if (res2.ok) {
+                const data2 = await res2.json();
+                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
+              }
+            } catch(e2) {}
+          }
+        }
         }
 
         if (!foundDesc) {
@@ -148,7 +159,18 @@
                   }
                 }
               }
-            } catch(e) {}
+            } catch(e) {
+          const refUrl = await refreshTunnelUrlFromFirebase();
+          if (refUrl) {
+            try {
+              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
+              if (res2.ok) {
+                const data2 = await res2.json();
+                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
+              }
+            } catch(e2) {}
+          }
+        }
           }
         }
 
@@ -294,6 +316,26 @@
       return null;
     }
 
+    async function refreshTunnelUrlFromFirebase() {
+      if (!cloudUrl) return null;
+      try {
+        const res = await fetch(cloudUrl, { cache: 'no-store' });
+        const data = await res.json();
+        if (data && data.tunnelUrl && typeof data.tunnelUrl === 'string' && data.tunnelUrl.startsWith('https://')) {
+          const newUrl = data.tunnelUrl.trim();
+          if (newUrl !== pinoutServerUrl) {
+            console.log(`[Auto-Tunnel] Cập nhật lại Tunnel URL từ Cloud: ${newUrl}`);
+            pinoutServerUrl = newUrl;
+            localStorage.setItem('ee_pinout_server_url', pinoutServerUrl);
+            const sInput = document.getElementById('pinoutServerUrlInput');
+            if (sInput) sInput.value = pinoutServerUrl;
+            return newUrl;
+          }
+        }
+      } catch(e) {}
+      return null;
+    }
+
     function savePinoutServerConfig() {
       let url = document.getElementById('pinoutServerUrlInput').value.trim();
       if (!url) url = 'http://localhost:5000';
@@ -347,7 +389,18 @@
               return data[0].link;
             }
           }
-        } catch(e) {}
+        } catch(e) {
+          const refUrl = await refreshTunnelUrlFromFirebase();
+          if (refUrl) {
+            try {
+              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
+              if (res2.ok) {
+                const data2 = await res2.json();
+                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
+              }
+            } catch(e2) {}
+          }
+        }
       }
 
       try {
@@ -379,7 +432,18 @@
             const sData = await sRes.json();
             if (sData && sData.desc) return { desc: sData.desc, pkg: '', cat: '' };
           }
-        } catch(e) {}
+        } catch(e) {
+          const refUrl = await refreshTunnelUrlFromFirebase();
+          if (refUrl) {
+            try {
+              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
+              if (res2.ok) {
+                const data2 = await res2.json();
+                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
+              }
+            } catch(e2) {}
+          }
+        }
       }
 
       const wikiQueries = [name, `${name} integrated circuit`, name.replace(/([0-9]+)/, ' $1')];
@@ -393,7 +457,18 @@
               if (s && s.length < 160) return { desc: s, pkg: '', cat: '' };
             }
           }
-        } catch(e) {}
+        } catch(e) {
+          const refUrl = await refreshTunnelUrlFromFirebase();
+          if (refUrl) {
+            try {
+              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
+              if (res2.ok) {
+                const data2 = await res2.json();
+                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
+              }
+            } catch(e2) {}
+          }
+        }
       }
       return null;
     }
