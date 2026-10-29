@@ -258,6 +258,126 @@ def search_pinout_images(name, pkg=''):
 
     return []
 
+# ================= 1.5 TRA CUU WIKIPEDIA TIENG VIET LOAT 7400 =================
+WIKI_7400_CACHE_FILE = os.path.join(SCRIPT_DIR, 'wiki_7400_cache.json')
+WIKI_7400_DATA = {}
+
+def fetch_wiki_7400_from_web():
+    """Cao bang danh sach IC loat 7400 truc tiep tu https://vi.wikipedia.org/wiki/Danh_sách_loạt_7400"""
+    global WIKI_7400_DATA
+    url = 'https://vi.wikipedia.org/wiki/Danh_s%C3%A1ch_lo%E1%BA%A1t_7400'
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'vi,en-US;q=0.9,en;q=0.8'
+    }
+    try:
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            html_text = resp.read().decode('utf-8', errors='ignore')
+        
+        pos = html_text.rfind('Danh_sách_IC')
+        if pos == -1:
+            pos = html_text.find('wikitable')
+        if pos != -1:
+            table_end = html_text.find('</table>', pos)
+            table_html = html_text[pos:table_end] if table_end != -1 else html_text[pos:]
+            rows = re.findall(r'<tr[^>]*>(.*?)</tr>', table_html, re.DOTALL)
+            parsed = {}
+            for r in rows:
+                tds = re.findall(r'<td[^>]*>(.*?)</td>', r, re.DOTALL)
+                if len(tds) >= 3:
+                    code_raw = re.sub(r'<[^>]+>', '', tds[0]).strip()
+                    count_raw = re.sub(r'<[^>]+>', '', tds[1]).strip()
+                    desc_raw = re.sub(r'<[^>]+>', '', tds[2]).strip()
+                    desc_clean = re.sub(r'\s+', ' ', desc_raw).strip()
+                    ds_link = ''
+                    if len(tds) >= 4:
+                        m = re.search(r'href="(https?://[^"]+)"', tds[3])
+                        if m:
+                            ds_link = m.group(1)
+                    if code_raw:
+                        parsed[code_raw] = {
+                            'desc': desc_clean,
+                            'count': count_raw,
+                            'datasheet': ds_link
+                        }
+            if parsed:
+                WIKI_7400_DATA = parsed
+                try:
+                    with open(WIKI_7400_CACHE_FILE, 'w', encoding='utf-8') as f:
+                        json.dump(parsed, f, ensure_ascii=False, indent=2)
+                    print(f"[+] Da cap nhat thanh cong {len(parsed)} IC tu Wikipedia Loat 7400 Tieng Viet")
+                except Exception as e:
+                    print(f"[!] Loi luu cache wiki 7400: {e}")
+                return parsed
+    except Exception as e:
+        print(f"[!] Khong the cao Wikipedia Loat 7400 tu web: {e}")
+    return WIKI_7400_DATA
+
+def load_wiki_7400_cache():
+    global WIKI_7400_DATA
+    if os.path.exists(WIKI_7400_CACHE_FILE):
+        try:
+            with open(WIKI_7400_CACHE_FILE, 'r', encoding='utf-8') as f:
+                WIKI_7400_DATA = json.load(f)
+            print(f"[+] Da tai {len(WIKI_7400_DATA)} IC tu cache Wikipedia Loat 7400")
+            return
+        except Exception:
+            pass
+    fetch_wiki_7400_from_web()
+
+def normalize_74_candidates(raw_name):
+    """
+    Trich xuat cac ma ung vien tra cuu tren Wikipedia loat 7400 tu ten IC hoac so duoi
+    VD: '74HC595' -> ['74595', '595']
+        'SN74LS138N' -> ['74138', '138']
+        '74HC04' -> ['7404', '04', '4']
+        '595' -> ['74595', '595']
+    """
+    if not raw_name:
+        return []
+    clean = str(raw_name).strip().upper()
+    clean = re.sub(r'\(.*?\)|\[.*?\]', '', clean)
+    clean = re.sub(r'\b(DIP|SOP|SOIC|TSSOP|QFP|PDIP|CDIP)[\s\-_0-9]*\b', '', clean, flags=re.I)
+    clean = re.sub(r'[\s\-_]', '', clean)
+    stripped = re.sub(r'^(SN|MC|HD|DM|TC|HCF|HEF|MM|TI|GD|KS|UT|CD)', '', clean)
+
+    candidates = []
+    m = re.match(r'^(?:74|54)([A-Z]{0,4})?(\d{1,2}[A-Z]{1,2}\d{2,4}|\d{2,4})([A-Z]*)$', stripped)
+    if m:
+        num_part = m.group(2)
+        candidates.append(f"74{num_part}")
+        candidates.append(num_part)
+        if len(num_part) == 1:
+            candidates.append(f"740{num_part}")
+        elif len(num_part) >= 3 and num_part.startswith('0'):
+            candidates.append(f"74{num_part.lstrip('0')}")
+
+    candidates.append(stripped)
+    if not stripped.startswith('74'):
+        candidates.append(f"74{stripped}")
+        if len(stripped) == 1:
+            candidates.append(f"740{stripped}")
+
+    unique = []
+    for c in candidates:
+        if c and c not in unique:
+            unique.append(c)
+    return unique
+
+def lookup_wiki_7400(name):
+    if not WIKI_7400_DATA:
+        load_wiki_7400_cache()
+    candidates = normalize_74_candidates(name)
+    for cand in candidates:
+        if cand in WIKI_7400_DATA:
+            res = dict(WIKI_7400_DATA[cand])
+            res['code'] = cand
+            return res
+    return None
+
+load_wiki_7400_cache()
+
 # ================= 2. FLASK API ENDPOINTS =================
 @app.route('/health')
 def health():
@@ -306,12 +426,37 @@ def get_pinout():
     results = search_pinout_images(name, pkg)
     return jsonify(results)
 
+@app.route('/api/wiki74')
+def api_wiki_7400():
+    q = request.args.get('name', '') or request.args.get('code', '')
+    refresh = request.args.get('refresh', '') == '1'
+    if refresh:
+        data = fetch_wiki_7400_from_web()
+        return jsonify({'status': 'ok', 'count': len(data)})
+    if not q:
+        return jsonify({'total': len(WIKI_7400_DATA), 'items': list(WIKI_7400_DATA.keys())[:50]})
+    res = lookup_wiki_7400(q)
+    if res:
+        return jsonify({'found': True, **res})
+    return jsonify({'found': False, 'message': 'Not found in Wikipedia 7400 list'})
+
 @app.route('/api/desc')
 def get_desc():
     name = request.args.get('name', '').strip()
     if not name:
         return jsonify({'desc': ''})
     
+    # 0. TẦNG ƯU TIÊN 1: Tra cứu trực tiếp Wikipedia Tiếng Việt Loạt 7400 theo số đuôi (https://vi.wikipedia.org/wiki/Danh_sách_loạt_7400)
+    w74 = lookup_wiki_7400(name)
+    if w74 and w74.get('desc'):
+        return jsonify({
+            'desc': w74['desc'],
+            'source': 'wiki_vi_7400',
+            'code': w74.get('code', ''),
+            'datasheet': w74.get('datasheet', ''),
+            'count': w74.get('count', '')
+        })
+
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }

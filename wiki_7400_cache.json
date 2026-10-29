@@ -1,0 +1,3157 @@
+{
+  "7400": {
+    "desc": "quad 2-input cổng NAND",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT00.pdf"
+  },
+  "741G00": {
+    "desc": "single 2-input cổng NAND",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT1G00.pdf"
+  },
+  "7401": {
+    "desc": "quad 2-input NAND gate with open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "741G01": {
+    "desc": "single 2-input NAND gate với ngõ vào open drain",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7402": {
+    "desc": "quad 2-input NOR gate",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT02.pdf"
+  },
+  "741G02": {
+    "desc": "single 2-input NOR gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7403": {
+    "desc": "quad 2-input NAND gate with open collector outputs",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT03_CNV.pdf"
+  },
+  "741G03": {
+    "desc": "single 2-input NAND gate with open drain output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7404": {
+    "desc": "hex inverter",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT04.pdf"
+  },
+  "741G04": {
+    "desc": "single inverter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7405": {
+    "desc": "hex inverter with open collector outputs",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC05.pdf"
+  },
+  "741G05": {
+    "desc": "single inverter with open drain output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7406": {
+    "desc": "hex inverter buffer/driver with 30 V open collector outputs",
+    "count": "6",
+    "datasheet": ""
+  },
+  "741G06": {
+    "desc": "single inverting buffer/driver with open drain output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7407": {
+    "desc": "hex buffer/driver with 30 V open collector outputs",
+    "count": "6",
+    "datasheet": ""
+  },
+  "741G07": {
+    "desc": "single non-inverting buffer/driver with open drain output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7408": {
+    "desc": "quad 2-input AND gate",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT08.pdf"
+  },
+  "741G08": {
+    "desc": "single 2-input AND gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7409": {
+    "desc": "quad 2-input AND gate with open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "741G09": {
+    "desc": "single 2-input AND gate with open drain output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7410": {
+    "desc": "triple 3-input NAND gate",
+    "count": "3",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT10_CNV.pdf"
+  },
+  "7411": {
+    "desc": "triple 3-input AND gate",
+    "count": "3",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT11.pdf"
+  },
+  "7412": {
+    "desc": "triple 3-input NAND gate with open collector outputs",
+    "count": "3",
+    "datasheet": ""
+  },
+  "7413": {
+    "desc": "dual Schmitt trigger 4-input NAND gate",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7414": {
+    "desc": "hex Schmitt trigger inverter",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT14.pdf"
+  },
+  "741G14": {
+    "desc": "single Schmitt trigger inverter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7415": {
+    "desc": "triple 3-input AND gate with open collector outputs",
+    "count": "3",
+    "datasheet": ""
+  },
+  "7416": {
+    "desc": "hex inverter buffer/driver with 15 V open collector outputs",
+    "count": "6",
+    "datasheet": ""
+  },
+  "7417": {
+    "desc": "hex buffer/driver with 15 V open collector outputs",
+    "count": "6",
+    "datasheet": ""
+  },
+  "741G17": {
+    "desc": "single Schmitt-trigger buffer",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7418": {
+    "desc": "dual 4-input NAND gate with Schmitt trigger inputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7419": {
+    "desc": "hex Schmitt trigger inverter",
+    "count": "6",
+    "datasheet": ""
+  },
+  "7420": {
+    "desc": "dual 4-input NAND gate",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT20.pdf"
+  },
+  "7421": {
+    "desc": "dual 4-input AND gate",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC21.pdf"
+  },
+  "7422": {
+    "desc": "dual 4-input NAND gate with open collector outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7423": {
+    "desc": "expandable dual 4-input NOR gate with strobe",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7424": {
+    "desc": "quad 2-input NAND gate gates with Schmitt trigger line-receiver inputs.",
+    "count": "4",
+    "datasheet": ""
+  },
+  "7425": {
+    "desc": "dual 4-input NOR gate with strobe",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7426": {
+    "desc": "quad 2-input NAND gate with 15 V open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "7427": {
+    "desc": "triple 3-input NOR gate",
+    "count": "3",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT27.pdf"
+  },
+  "741G27": {
+    "desc": "single 3-input NOR gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7428": {
+    "desc": "quad 2-input NOR buffer",
+    "count": "4",
+    "datasheet": ""
+  },
+  "7430": {
+    "desc": "8-input NAND gate",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT30.pdf"
+  },
+  "7431": {
+    "desc": "hex delay elements",
+    "count": "6",
+    "datasheet": ""
+  },
+  "7432": {
+    "desc": "quad 2-input OR gate",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT32.pdf"
+  },
+  "741G32": {
+    "desc": "single 2-input OR gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7433": {
+    "desc": "quad 2-input NOR buffer with open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "7434": {
+    "desc": "hex noninverters",
+    "count": "6",
+    "datasheet": ""
+  },
+  "7435": {
+    "desc": "hex noninverters with open-collector outputs",
+    "count": "6",
+    "datasheet": ""
+  },
+  "7436": {
+    "desc": "quad 2-input NOR gate (different pinout than 7402)",
+    "count": "4",
+    "datasheet": ""
+  },
+  "7437": {
+    "desc": "quad 2-input NAND buffer",
+    "count": "4",
+    "datasheet": ""
+  },
+  "7438": {
+    "desc": "quad 2-input NAND buffer with open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "7439": {
+    "desc": "quad 2-input NAND buffer with open collector outputs, input and output terminals flipped, otherwise functionally identical to 7438",
+    "count": "4",
+    "datasheet": ""
+  },
+  "7440": {
+    "desc": "dual 4-input NAND buffer",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7441": {
+    "desc": "BCD to decimal decoder/Nixie tube driver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7442": {
+    "desc": "BCD to decimal decoder",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT42_CNV.pdf"
+  },
+  "7443": {
+    "desc": "excess-3 to decimal decoder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7444": {
+    "desc": "excess-3-Gray code to decimal decoder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7445": {
+    "desc": "BCD to decimal decoder/driver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7446": {
+    "desc": "BCD to 7-segment display decoder/driver with 30 V open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7447": {
+    "desc": "BCD to 7-segment decoder/driver with 15 V open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7448": {
+    "desc": "BCD to 7-segment decoder/driver with internal pullups",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7449": {
+    "desc": "BCD to 7-segment decoder/driver with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7450": {
+    "desc": "dual 2-wide 2-input AND-OR-invert gate (one gate expandable)",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7451": {
+    "desc": "dual 2-wide 2-input AND-OR-invert gate",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7452": {
+    "desc": "expandable 4-wide 2-input AND-OR gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7453": {
+    "desc": "expandable 4-wide 2-input AND-OR-invert gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7454": {
+    "desc": "3-2-2-3-input AND-OR-invert gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7455": {
+    "desc": "2-wide 4-input AND-OR-invert gate (74H version is expandable)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7456": {
+    "desc": "50:1 frequency divider",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7457": {
+    "desc": "60:1 frequency divider",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7458": {
+    "desc": "2-input &amp; 3-input AND-OR gate",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC58_CNV.pdf"
+  },
+  "7459": {
+    "desc": "2-input &amp; 3-input AND-OR-invert gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7460": {
+    "desc": "dual 4-input expander",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7461": {
+    "desc": "triple 3-input expander",
+    "count": "3",
+    "datasheet": ""
+  },
+  "7462": {
+    "desc": "3-2-2-3-input AND-OR expander",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7463": {
+    "desc": "hex current sensing interface gates",
+    "count": "6",
+    "datasheet": ""
+  },
+  "7464": {
+    "desc": "4-2-3-2-input AND-OR-invert gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7465": {
+    "desc": "4-2-3-2 input AND-OR-invert gate with open collector output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7468": {
+    "desc": "dual 4-bit decade counters",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7469": {
+    "desc": "dual 4-bit binary counters",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7470": {
+    "desc": "AND-gated positive edge triggered J-K flip-flop with preset and clear",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74H71": {
+    "desc": "AND-or-gated J-K master-slave flip-flop with preset",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74L71": {
+    "desc": "AND-gated R-S master-slave flip-flop with preset and clear",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7472": {
+    "desc": "AND gated J-K master-slave flip-flop with preset and clear",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7473": {
+    "desc": "dual J-K flip-flop with clear",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC73.pdf"
+  },
+  "7474": {
+    "desc": "dual D positive edge triggered flip-flop with preset and clear",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT74.pdf"
+  },
+  "7475": {
+    "desc": "4-bit bistable latch",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC75.pdf"
+  },
+  "7476": {
+    "desc": "dual J-K flip-flop with preset and clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7477": {
+    "desc": "4-bit bistable latch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74H78": {
+    "desc": "dual positive pulse triggered J-K flip-flop with preset, common clock, and common clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74L78": {
+    "desc": "dual positive pulse triggered J-K flip-flop with preset, common clock, and common clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74LS78": {
+    "desc": "dual negative edge triggered J-K flip-flop with preset, common clock, and common clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "7479": {
+    "desc": "dual D flip-flop",
+    "count": "2",
+    "datasheet": ""
+  },
+  "741G79": {
+    "desc": "single D-type flip-flop positive edge trigger non-inverting output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7480": {
+    "desc": "gated full adder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "741G80": {
+    "desc": "single D-type flip-flop positive edge trigger inverting output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7481": {
+    "desc": "16-bit random access memory",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7482": {
+    "desc": "2-bit binary full adder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7483": {
+    "desc": "4-bit binary full adder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7484": {
+    "desc": "16-bit random access memory",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7485": {
+    "desc": "4-bit magnitude comparator",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT85_CNV.pdf"
+  },
+  "7486": {
+    "desc": "quad 2-input XOR gate",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT86.pdf"
+  },
+  "741G86": {
+    "desc": "single 2-input exclusive-OR gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7487": {
+    "desc": "4-bit true/complement/zero/one element",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7488": {
+    "desc": "256-bit read-only memory",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7489": {
+    "desc": "64-bit random access memory",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7490": {
+    "desc": "decade counter (separate divide-by-2 and divide-by-5 sections)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7491": {
+    "desc": "8-bit shift register, serial In, serial out, gated input",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7492": {
+    "desc": "divide-by-12 counter (separate divide-by-2 and divide-by-6 sections)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7493": {
+    "desc": "4-bit binary counter (separate divide-by-2 and divide-by-8 sections)",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT93_CNV.pdf"
+  },
+  "7494": {
+    "desc": "4-bit shift register, dual asynchronous presets",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7495": {
+    "desc": "4-bit shift register, parallel in, parallel out, serial input",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7496": {
+    "desc": "5-bit parallel-in/parallel-out shift register, asynchronous preset",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7497": {
+    "desc": "synchronous 6-bit binary rate multiplier",
+    "count": "1",
+    "datasheet": ""
+  },
+  "741G97": {
+    "desc": "configurable multiple-function gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7498": {
+    "desc": "4-bit data selector/storage register",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7499": {
+    "desc": "4-bit bidirectional universal shift register",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74100": {
+    "desc": "dual 4-bit bistable latch",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74101": {
+    "desc": "AND-OR-gated J-K negative-edge-triggered flip-flop with preset",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74102": {
+    "desc": "AND-gated J-K negative-edge-triggered flip-flop with preset and clear",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74103": {
+    "desc": "dual J-K negative-edge-triggered flip-flop with clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74104": {
+    "desc": "J-K master-slave flip-flop",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74105": {
+    "desc": "J-K master-slave flip-flop",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74106": {
+    "desc": "dual J-K negative-edge-triggered flip-flop with preset and clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74107": {
+    "desc": "dual J-K flip-flop with clear",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT107.pdf"
+  },
+  "74107a": {
+    "desc": "dual J-K negative-edge-triggered flip-flop with clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74108": {
+    "desc": "dual J-K negative-edge-triggered flip-flop with preset, common clear, and common clock",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74109": {
+    "desc": "dual J-Not-K positive-edge-triggered flip-flop with clear and preset",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT109_CNV.pdf"
+  },
+  "74110": {
+    "desc": "AND-gated J-K master-slave flip-flop with data lockout",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74111": {
+    "desc": "dual J-K master-slave flip-flop with data lockout",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74112": {
+    "desc": "dual J-K negative-edge-triggered flip-flop with clear and preset",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT112_CNV.pdf"
+  },
+  "74113": {
+    "desc": "dual J-K negative-edge-triggered flip-flop with preset",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74114": {
+    "desc": "dual J-K negative-edge-triggered flip-flop with preset, common clock and clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74116": {
+    "desc": "dual 4-bit latch with clear",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74118": {
+    "desc": "hex set/reset latch",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74119": {
+    "desc": "hex set/reset latch",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74120": {
+    "desc": "dual pulse synchronizer/drivers",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74121": {
+    "desc": "monostable multivibrator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74122": {
+    "desc": "retriggerable monostable multivibrator with clear",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT123.pdf"
+  },
+  "74123": {
+    "desc": "dual retriggerable monostable multivibrator with clear",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT123.pdf"
+  },
+  "741G123": {
+    "desc": "single retriggerable monostable multivibrator with clear",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74124": {
+    "desc": "dual voltage-controlled oscillator",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74125": {
+    "desc": "quad bus buffer with three-state outputs, negative enable",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT125.pdf"
+  },
+  "741G125": {
+    "desc": "buffer/line driver, three-state output with active low output enable",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74126": {
+    "desc": "quad bus buffer with three-state outputs, positive enable",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT126_CNV.pdf"
+  },
+  "741G126": {
+    "desc": "buffer/line driver, three-state output with active high output enable",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74128": {
+    "desc": "quad 2-input NOR line driver",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74130": {
+    "desc": "quad 2-input AND gate buffer with 30 V open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74131": {
+    "desc": "quad 2-input AND gate buffer with 15 V open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74132": {
+    "desc": "quad 2-input NAND Schmitt trigger",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT132.pdf"
+  },
+  "74133": {
+    "desc": "13-input NAND gate",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74134": {
+    "desc": "12-input NAND gate with three-state output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74135": {
+    "desc": "quad exclusive-or/NOR gate",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74136": {
+    "desc": "quad 2-input XOR gate with open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74137": {
+    "desc": "3 to 8-line decoder/demultiplexer with address latch",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC137.pdf"
+  },
+  "74138": {
+    "desc": "3 to 8-line decoder/demultiplexer",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT138.pdf"
+  },
+  "74139": {
+    "desc": "dual 2 to 4-line decoder/demultiplexer",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT139_CNV.pdf"
+  },
+  "74140": {
+    "desc": "dual 4-input NAND line driver",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74141": {
+    "desc": "BCD to decimal decoder/driver for cold-cathode indicator/Nixie tube",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74142": {
+    "desc": "decade counter/latch/decoder/driver for Nixie tubes",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74143": {
+    "desc": "decade counter/latch/decoder/7-segment driver, 15 ma constant current",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74144": {
+    "desc": "decade counter/latch/decoder/7-segment driver, 15 V open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74145": {
+    "desc": "BCD to decimal decoder/driver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74147": {
+    "desc": "10-line to 4-line priority encoder",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT147_CNV.pdf"
+  },
+  "74148": {
+    "desc": "8-line to 3-line priority encoder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74150": {
+    "desc": "16-line to 1-line data selector/multiplexer",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74151": {
+    "desc": "8-line to 1-line data selector/multiplexer",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT151.pdf"
+  },
+  "74152": {
+    "desc": "8-line to 1-line data selector/multiplexer",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74153": {
+    "desc": "dual 4-line to 1-line data selector/multiplexer",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT153_CNV.pdf"
+  },
+  "74154": {
+    "desc": "4-line to 16-line decoder/demultiplexer",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT154.pdf"
+  },
+  "74155": {
+    "desc": "dual 2-line to 4-line decoder/demultiplexer",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74156": {
+    "desc": "dual 2-line to 4-line decoder/demultiplexer with open collector outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74157": {
+    "desc": "quad 2-line to 1-line data selector/multiplexer, noninverting",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT157.pdf"
+  },
+  "74158": {
+    "desc": "quad 2-line to 1-line data selector/multiplexer, inverting",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC158.pdf"
+  },
+  "74159": {
+    "desc": "4-line to 16-line decoder/demultiplexer with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74160": {
+    "desc": "synchronous 4-bit decade counter with asynchronous clear",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT160_CNV.pdf"
+  },
+  "74161": {
+    "desc": "synchronous 4-bit binary counter with asynchronous clear",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT161_CNV.pdf"
+  },
+  "74162": {
+    "desc": "synchronous 4-bit decade counter with synchronous clear",
+    "count": "1",
+    "datasheet": "http://www.datasheetcatalog.org/datasheet/philips/74HC162.pdf"
+  },
+  "74163": {
+    "desc": "synchronous 4-bit binary counter with synchronous clear",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT163.pdf"
+  },
+  "74164": {
+    "desc": "8-bit parallel-out serial shift register with asynchronous clear",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT164.pdf"
+  },
+  "74165": {
+    "desc": "8-bit serial shift register, parallel Load, complementary outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT165.pdf"
+  },
+  "74166": {
+    "desc": "parallel-Load 8-bit shift register",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT166.pdf"
+  },
+  "74167": {
+    "desc": "synchronous decade rate multiplier",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74168": {
+    "desc": "synchronous 4-bit up/down decade counter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74169": {
+    "desc": "synchronous 4-bit up/down binary counter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74170": {
+    "desc": "4 by 4 register file with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74171": {
+    "desc": "quad D-type flip-flops with clear",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74172": {
+    "desc": "16-bit multiple port register file with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74173": {
+    "desc": "quad D flip-flop with three-state outputs",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT173_CNV.pdf"
+  },
+  "74174": {
+    "desc": "hex D flip-flop with common clear",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT174_CNV.pdf"
+  },
+  "74175": {
+    "desc": "quad D edge-triggered flip-flop with complementary outputs and asynchronous clear",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT175.pdf"
+  },
+  "74176": {
+    "desc": "presettable decade (bi-quinary) counter/latch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74177": {
+    "desc": "presettable binary counter/latch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74178": {
+    "desc": "4-bit parallel-access shift register",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74179": {
+    "desc": "4-bit parallel-access shift register with asynchronous clear and complementary Qd outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74180": {
+    "desc": "9-bit odd/even parity bit generator and checker",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74181": {
+    "desc": "4-bit arithmetic logic unit and function generator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74182": {
+    "desc": "lookahead carry generator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74183": {
+    "desc": "dual carry-save full adder",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74184": {
+    "desc": "BCD to binary converter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74185": {
+    "desc": "6-bit binary to BCD converter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74186": {
+    "desc": "512-bit (64x8) read-only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74187": {
+    "desc": "1024-bit (256x4) read only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74188": {
+    "desc": "256-bit (32x8) programmable read-only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74189": {
+    "desc": "64-bit (16x4) RAM with inverting three-state outputs",
+    "count": "1",
+    "datasheet": "http://ltodi.est.ips.pt/lab-dee-et/datasheets/TTL/74189.pdf"
+  },
+  "74190": {
+    "desc": "synchronous up/down decade counter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74191": {
+    "desc": "synchronous up/down binary counter",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT191_CNV.pdf"
+  },
+  "74192": {
+    "desc": "synchronous up/down decade counter with clear",
+    "count": "1",
+    "datasheet": "http://www.ti.com/lit/ds/symlink/cd54hc192.pdf"
+  },
+  "74193": {
+    "desc": "synchronous up/down 4-bit binary counter with clear",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT193.pdf"
+  },
+  "74194": {
+    "desc": "4-bit bidirectional universal shift register",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT194_CNV.pdf"
+  },
+  "74195": {
+    "desc": "4-bit parallel-access shift register",
+    "count": "1",
+    "datasheet": "http://www.ti.com.cn/cn/lit/ds/symlink/cd74hc195.pdf"
+  },
+  "74196": {
+    "desc": "presettable decade counter/latch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74197": {
+    "desc": "presettable binary counter/latch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74198": {
+    "desc": "8-bit bidirectional universal shift register",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74199": {
+    "desc": "8-bit bidirectional universal shift register with J-Not-K serial inputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74200": {
+    "desc": "256-bit ram with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74201": {
+    "desc": "256-bit (256x1) ram with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74206": {
+    "desc": "256-bit ram with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74209": {
+    "desc": "1024-bit (1024x1) ram with three-state output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74210": {
+    "desc": "octal buffer",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74219": {
+    "desc": "64-bit (16x4) RAM with noninverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74221": {
+    "desc": "dual monostable multivibrator with Schmitt trigger input",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT221_CNV.pdf"
+  },
+  "74222": {
+    "desc": "16 by 4 synchronous FIFO memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74224": {
+    "desc": "16 by 4 synchronous FIFO memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74225": {
+    "desc": "asynchronous 16x5 FIFO memory",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74226": {
+    "desc": "4-bit parallel latched bus transceiver with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74227": {
+    "desc": "64-bit fifo memories 16x4",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74228": {
+    "desc": "64-bit fifo memories 16x4 open-collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74230": {
+    "desc": "octal buffer/driver with three-state outputs, true and complementary inputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74231": {
+    "desc": "octal buffer and line driver with three-state outputs, G and /G complementary inputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74232": {
+    "desc": "quad NOR Schmitt trigger",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74237": {
+    "desc": "3-of-8 decoder/demultiplexer with address latch, active high outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC237.pdf"
+  },
+  "74238": {
+    "desc": "3-of-8 decoder/demultiplexer, active high outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT238.pdf"
+  },
+  "74239": {
+    "desc": "dual 2-of-4 decoder/demultiplexer, active high outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74240": {
+    "desc": "octal buffer with Inverted three-state outputs",
+    "count": "8",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT240.pdf"
+  },
+  "74241": {
+    "desc": "octal buffer with noninverted three-state outputs",
+    "count": "8",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT241_CNV.pdf"
+  },
+  "74242": {
+    "desc": "quad bus transceiver with inverted three-state outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74243": {
+    "desc": "quad bus transceiver with noninverted three-state outputs",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC243.pdf"
+  },
+  "74244": {
+    "desc": "octal buffer with noninverted three-state outputs",
+    "count": "8",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT244.pdf"
+  },
+  "74245": {
+    "desc": "octal bus transceiver with noninverted three-state outputs",
+    "count": "8",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT245.pdf"
+  },
+  "74246": {
+    "desc": "BCD to 7-segment decoder/driver with 30 V open collector outputs",
+    "count": "1",
+    "datasheet": "http://www.ralphselectronics.com/ProductImages/SEMI-SN74247N.PDF"
+  },
+  "74247": {
+    "desc": "BCD to 7-segment decoder/driver with 15 V open collector outputs",
+    "count": "1",
+    "datasheet": "http://www.ralphselectronics.com/ProductImages/SEMI-SN74247N.PDF"
+  },
+  "74248": {
+    "desc": "BCD to 7-segment decoder/driver with Internal Pull-up outputs",
+    "count": "1",
+    "datasheet": "http://www.ralphselectronics.com/ProductImages/SEMI-SN74247N.PDF"
+  },
+  "74249": {
+    "desc": "BCD to 7-segment decoder/driver with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74250": {
+    "desc": "1 of 16 data selectors/multiplexers",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74251": {
+    "desc": "8-line to 1-line data selector/multiplexer with complementary three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT251_CNV.pdf"
+  },
+  "74253": {
+    "desc": "dual 4-line to 1-line data selector/multiplexer with three-state outputs",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT253.pdf"
+  },
+  "74255": {
+    "desc": "dual 4-bit addressable latch",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74256": {
+    "desc": "dual 4-bit addressable latch",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74257": {
+    "desc": "quad 2-line to 1-line data selector/multiplexer with noninverted three-state outputs",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT257.pdf"
+  },
+  "74258": {
+    "desc": "quad 2-line to 1-line data selector/multiplexer with Inverted three-state outputs",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC258.pdf"
+  },
+  "74259": {
+    "desc": "8-bit addressable latch",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT259.pdf"
+  },
+  "74260": {
+    "desc": "dual 5-input NOR gate",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74261": {
+    "desc": "2-bit by 4-bit parallel binary multiplier",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74264": {
+    "desc": "look ahead carry generator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74265": {
+    "desc": "quad complementary output elements",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74266": {
+    "desc": "quad 2-input XNOR gate with open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74268": {
+    "desc": "hex d-type latches three-state outputs, common output control, common enable",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74270": {
+    "desc": "2048-bit (512x4) read only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74271": {
+    "desc": "2048-bit (256x8) read only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74273": {
+    "desc": "8-bit register with reset",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT273.pdf"
+  },
+  "74274": {
+    "desc": "4-bit by 4-bit binary multiplier",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74275": {
+    "desc": "7-bit slice Wallace tree",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74276": {
+    "desc": "quad J-Not-K edge-triggered flip-flops with separate clocks, common preset and clear",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74278": {
+    "desc": "4-bit cascadeable priority registers with latched data inputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74279": {
+    "desc": "quad set-reset latch",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74280": {
+    "desc": "9-bit odd/even parity bit generator/checker",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT280_CNV.pdf"
+  },
+  "74281": {
+    "desc": "4-bit parallel binary accumulator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74282": {
+    "desc": "look-ahead carry generator with selectable carry inputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74283": {
+    "desc": "4-bit binary full adder",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC283.pdf"
+  },
+  "74284": {
+    "desc": "4-bit by 4-bit parallel binary multiplier (low order 4 bits of product)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74285": {
+    "desc": "4-bit by 4-bit parallel binary multiplier (high order 4 bits of product)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74286": {
+    "desc": "9-bit parity generator/checker with bus driver parity I/O port",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74287": {
+    "desc": "1024-bit (256x4) programmable read-only memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74288": {
+    "desc": "256-bit (32x8) programmable read-only memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74289": {
+    "desc": "64-bit (16x4) RAM with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74290": {
+    "desc": "decade counter (separate divide-by-2 and divide-by-5 sections)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74291": {
+    "desc": "4-bit universal shift register, binary up/down counter, synchronous",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74292": {
+    "desc": "programmable frequency divider/digital timer",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74293": {
+    "desc": "4-bit binary counter (separate divide-by-2 and divide-by-8 sections)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74294": {
+    "desc": "programmable frequency divider/digital timer",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74295": {
+    "desc": "4-bit bidirectional register with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74297": {
+    "desc": "digital phase-locked loop filter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74298": {
+    "desc": "quad 2-input multiplexer with storage",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74299": {
+    "desc": "8-bit bidirectional universal shift/storage register with three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT299.pdf"
+  },
+  "74301": {
+    "desc": "256-bit (256x1) random access memory with open collector output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74309": {
+    "desc": "1024-bit (1024x1) random access memory with open collector output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74310": {
+    "desc": "octal buffer with Schmitt trigger inputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74314": {
+    "desc": "1024-bit random access memory",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74319": {
+    "desc": "64-bit random access memories 16x4 open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74320": {
+    "desc": "crystal-controlled oscillator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74321": {
+    "desc": "crystal-controlled oscillators with F/2 and F/4 count-down outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74322": {
+    "desc": "8-bit shift register with sign extend, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74323": {
+    "desc": "8-bit bidirectional universal shift/storage register with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74324": {
+    "desc": "voltage-controlled oscillator (or crystal controlled)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74340": {
+    "desc": "octal buffer with Schmitt trigger inputs and three-state inverted outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74341": {
+    "desc": "octal buffer with Schmitt trigger inputs and three-state noninverted outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74344": {
+    "desc": "octal buffer with Schmitt trigger inputs and three-state noninverted outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74347": {
+    "desc": "BCD-to-7 segment decoders/drivers open collector outputs, low voltage version of 7447",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74348": {
+    "desc": "8 to 3-line priority encoder with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74350": {
+    "desc": "4-bit shifter with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74351": {
+    "desc": "dual 8-line to 1-line data selectors/multiplexers with three-state outputs and 4 common data inputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74352": {
+    "desc": "dual 4-line to 1-line data selectors/multiplexers with inverting outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74353": {
+    "desc": "dual 4-line to 1-line data selectors/multiplexers with inverting three-state outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74354": {
+    "desc": "8 to 1-line data selector/multiplexer with transparent latch, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74355": {
+    "desc": "8-line to 1-line data selector/multiplexer with transparent registers, open-collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74356": {
+    "desc": "8 to 1-line data selector/multiplexer with edge-triggered register, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74357": {
+    "desc": "8-line to 1-line data selectors/multiplexers/edge-triggered registers, open-collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74361": {
+    "desc": "bubble memory function timing generator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74362": {
+    "desc": "four-phase clock generator/driver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74363": {
+    "desc": "octal three-state D-latches",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74365": {
+    "desc": "hex buffer with noninverted three-state outputs",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT365.pdf"
+  },
+  "74366": {
+    "desc": "hex buffer with inverted three-state outputs",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT366.pdf"
+  },
+  "74367": {
+    "desc": "hex buffer with noninverted three-state outputs",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT367_CNV.pdf"
+  },
+  "74368": {
+    "desc": "hex buffer with Inverted three-state outputs",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT368_CNV.pdf"
+  },
+  "74370": {
+    "desc": "2048-bit (512x4) read-only memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74371": {
+    "desc": "2048-bit (256x8) read-only memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74373": {
+    "desc": "octal transparent latch with three-state outputs",
+    "count": "8",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT373.pdf"
+  },
+  "741G373": {
+    "desc": "single transparent latch with three-state output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74374": {
+    "desc": "octal register with three-state outputs",
+    "count": "8",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT374_CNV.pdf"
+  },
+  "741G374": {
+    "desc": "single D-type flip-flop with three-state output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74375": {
+    "desc": "quad bistable latch",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74376": {
+    "desc": "quad J-Not-K flip-flop with common clock and common clear",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74377": {
+    "desc": "8-bit register with clock enable",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT377.pdf"
+  },
+  "74378": {
+    "desc": "6-bit register with clock enable",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74379": {
+    "desc": "4-bit register with clock enable and complementary outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74380": {
+    "desc": "8-bit multifunction register",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74381": {
+    "desc": "4-bit arithmetic logic unit/function generator with generate and propagate outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74382": {
+    "desc": "4-bit arithmetic logic unit/function generator with ripple carry and overflow outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74384": {
+    "desc": "8-bit by 1-bit two's complement multipliers",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74385": {
+    "desc": "quad 4-bit adder/subtractor",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74386": {
+    "desc": "quad 2-input XOR gate",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74387": {
+    "desc": "1024-bit (256x4) programmable read-only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74388": {
+    "desc": "4-bit register with standard and three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74390": {
+    "desc": "dual 4-bit decade counter",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT390_CNV.pdf"
+  },
+  "74393": {
+    "desc": "dual 4-bit binary counter",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT393.pdf"
+  },
+  "74395": {
+    "desc": "4-bit universal shift register with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74396": {
+    "desc": "octal storage registers, parallel access",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74398": {
+    "desc": "quad 2-input multiplexers with storage and complementary outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74399": {
+    "desc": "quad 2-input multiplexer with storage",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74405": {
+    "desc": "1 to 8 decoder, equivalent to Intel 8205, only found as UCY74S405 so might be non-TI number",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74408": {
+    "desc": "8-bit parity tree",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74412": {
+    "desc": "multi-mode buffered 8-bit latches with three-state outputs and clear",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74422": {
+    "desc": "re-triggerable mono-stable multivibrators, two inputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74423": {
+    "desc": "dual retriggerable monostable multivibrator",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT423.pdf"
+  },
+  "74424": {
+    "desc": "two-phase clock generator/driver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74425": {
+    "desc": "quad gates with three-state outputs and active low enables",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74426": {
+    "desc": "quad gates with three-state outputs and active high enables",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74428": {
+    "desc": "system controller for 8080a",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74436": {
+    "desc": "line driver/memory driver circuits - mos memory interface, damping output resistor",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74437": {
+    "desc": "line driver/memory driver circuits - mos memory interface",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74438": {
+    "desc": "system controller for 8080a",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74440": {
+    "desc": "quad tridirectional bus transceiver with noninverted open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74441": {
+    "desc": "quad tridirectional bus transceiver with Inverted open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74442": {
+    "desc": "quad tridirectional bus transceiver with noninverted three-state outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74443": {
+    "desc": "quad tridirectional bus transceiver with Inverted three-state outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74444": {
+    "desc": "quad tridirectional bus transceiver with Inverted and noninverted three-state outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74445": {
+    "desc": "BCD-to-decimal decoders/drivers",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74446": {
+    "desc": "quad bus transceivers with direction controls",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74447": {
+    "desc": "BCD-to-7-segment decoders/drivers, low voltage version of 74247",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74448": {
+    "desc": "quad tridirectional bus transceiver with inverted and noninverted open collector outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74449": {
+    "desc": "quad bus transceivers with direction controls, true outputs",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74450": {
+    "desc": "16-to-1 multiplexer with complementary outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74451": {
+    "desc": "dual 8-to-1 multiplexer",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74452": {
+    "desc": "dual decade counter, synchronous",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74453": {
+    "desc": "quad 4-to-1 multiplexer",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74454": {
+    "desc": "dual decade up/down counter, synchronous, preset input",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74455": {
+    "desc": "dual binary up/down counter, synchronous, preset input",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74456": {
+    "desc": "NBCD (Natural binary coded decimal) adder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74460": {
+    "desc": "bus transfer switch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74461": {
+    "desc": "8-bit presettable binary counter with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74462": {
+    "desc": "fiber-optic link transmitter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74463": {
+    "desc": "fiber-optic link receiver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74465": {
+    "desc": "octal buffer with three-state true outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74466": {
+    "desc": "octal buffers with three-state inverted outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74467": {
+    "desc": "octal buffers with three-state true outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74468": {
+    "desc": "octal buffers with three-state inverted outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74469": {
+    "desc": "8-bit synchronous up/down counter with parallel load and hold capability",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74470": {
+    "desc": "2048-bit (256x8) programmable read-only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74471": {
+    "desc": "2048-bit (256x8) programmable read-only memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74472": {
+    "desc": "programmable read-only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74473": {
+    "desc": "programmable read-only memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74474": {
+    "desc": "programmable read-only memory with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74475": {
+    "desc": "programmable read-only memory with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74481": {
+    "desc": "4-bit slice cascadable processor elements",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74482": {
+    "desc": "4-bit slice expandable control elements",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74484": {
+    "desc": "BCD-to-binary converter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74485": {
+    "desc": "binary-to-BCD converter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74490": {
+    "desc": "dual decade counter",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74491": {
+    "desc": "10-bit binary up/down counter with limited preset and three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74498": {
+    "desc": "8-bit bidirectional shift register with parallel inputs and three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74508": {
+    "desc": "8-bit multiplier/divider",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74518": {
+    "desc": "8-bit comparator with open collector output, input pull-up resistor",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74519": {
+    "desc": "8-bit comparator with open collector output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74520": {
+    "desc": "8-bit comparator with inverted totem-pole output, input pull-up resistor",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74521": {
+    "desc": "8-bit comparator with inverted totem-pole output",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74522": {
+    "desc": "8-bit comparator with inverted open-collector output, input pull-up resistor",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74526": {
+    "desc": "fuse programmable identity comparator, 16-bit",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74527": {
+    "desc": "fuse programmable identity comparator, 8-bit + 4-bit conventional Identity comparator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74528": {
+    "desc": "fuse programmable Identity comparator, 12-bit",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74531": {
+    "desc": "octal transparent latch with 32 ma three-state outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74532": {
+    "desc": "octal register with 32 ma three-state outputs",
+    "count": "8",
+    "datasheet": ""
+  },
+  "74533": {
+    "desc": "octal transparent latch with inverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74534": {
+    "desc": "octal register with inverting three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HCT534.pdf"
+  },
+  "74535": {
+    "desc": "octal transparent latch with inverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74536": {
+    "desc": "octal register with inverting 32 ma three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74537": {
+    "desc": "BCD to decimal decoder with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74538": {
+    "desc": "1 of 8 decoder with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74539": {
+    "desc": "dual 1 of 4 decoder with three-state outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74540": {
+    "desc": "inverting octal buffer with three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT540_CNV.pdf"
+  },
+  "74541": {
+    "desc": "non-inverting octal buffer with three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT541.pdf"
+  },
+  "74544": {
+    "desc": "non-inverting octal registered transceiver with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74558": {
+    "desc": "8-bit by 8-bit multiplier with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74560": {
+    "desc": "4-bit decade counter with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74561": {
+    "desc": "4-bit binary counter with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74563": {
+    "desc": "8-bit D-type transparent latch with inverting three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT563_CNV.pdf"
+  },
+  "74564": {
+    "desc": "8-bit D-type edge-triggered register with inverting three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC564.pdf"
+  },
+  "74568": {
+    "desc": "decade up/down counter with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74569": {
+    "desc": "binary up/down counter with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74573": {
+    "desc": "octal D-type transparent latch with three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT573.pdf"
+  },
+  "74574": {
+    "desc": "octal D-type edge-triggered flip-flop with three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT574.pdf"
+  },
+  "74575": {
+    "desc": "octal D-type flip-flop with synchronous clear, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74576": {
+    "desc": "octal D-type flip-flop with inverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74577": {
+    "desc": "octal D-type flip-flop with synchronous clear, inverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74580": {
+    "desc": "octal transceiver/latch with inverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74589": {
+    "desc": "8-bit shift register with input latch, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74590": {
+    "desc": "8-bit binary counter with output registers and three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC590.pdf"
+  },
+  "74591": {
+    "desc": "8-bit binary counters with output registers, open-collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74592": {
+    "desc": "8-bit binary counter with input registers",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74593": {
+    "desc": "8-bit binary counter with input registers and three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74594": {
+    "desc": "8-bit shift registers with output latches",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT594.pdf"
+  },
+  "74595": {
+    "desc": "8-bit shift registers with output latches, three-state parallel outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT595.pdf"
+  },
+  "74596": {
+    "desc": "8-bit shift registers with output latches, open-collector parallel outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74597": {
+    "desc": "8-bit shift registers with input latches",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT597.pdf"
+  },
+  "74598": {
+    "desc": "8-bit shift register with input latches",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74599": {
+    "desc": "8-bit shift registers with output latches, open-collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74600": {
+    "desc": "dynamic memory refresh controller, transparent and burst modes, for 4K or 16K drams",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74601": {
+    "desc": "dynamic memory refresh controller, transparent and burst modes, for 64K drams",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74602": {
+    "desc": "dynamic memory refresh controller, cycle steal and burst modes, for 4K or 16K drams",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74603": {
+    "desc": "dynamic memory refresh controller, cycle steal and burst modes, for 64K drams",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74604": {
+    "desc": "octal 2-input multiplexer with latch, high-speed, with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74605": {
+    "desc": "latch, high-speed, with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74606": {
+    "desc": "octal 2-input multiplexer with latch, glitch-free, with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74607": {
+    "desc": "octal 2-input multiplexer with latch, glitch-free, with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74608": {
+    "desc": "memory cycle controller",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74610": {
+    "desc": "memory mapper, latched, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74611": {
+    "desc": "memory mapper, latched, open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74612": {
+    "desc": "memory mapper, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74613": {
+    "desc": "memory mapper, open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74618": {
+    "desc": "Schmitt trigger positive-nand gates with totem-pole outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74619": {
+    "desc": "Schmitt trigger inverters with totem-pole outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74620": {
+    "desc": "octal bus transceiver, inverting, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74621": {
+    "desc": "octal bus transceiver, noninverting, open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74622": {
+    "desc": "octal bus transceiver, inverting, open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74623": {
+    "desc": "octal bus transceiver, noninverting, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74624": {
+    "desc": "voltage-controlled oscillator with enable control, range control, two-phase outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74625": {
+    "desc": "dual voltage-controlled oscillator with two-phase outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74626": {
+    "desc": "dual voltage-controlled oscillator with enable control, two-phase outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74627": {
+    "desc": "dual voltage-controlled oscillator",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74628": {
+    "desc": "voltage-controlled oscillator with enable control, range control, external temperature compensation, and two-phase outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74629": {
+    "desc": "dual voltage-controlled oscillator with enable control, range control",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74630": {
+    "desc": "16-bit error detection and correction (EDAC) with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74631": {
+    "desc": "16-bit error detection and correction with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74632": {
+    "desc": "32-bit parallel error detection and correction, three-state outputs, byte-write",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74633": {
+    "desc": "32-bit parallel error detection and correction, open-collector outputs, byte-write",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74634": {
+    "desc": "32-bit parallel error detection and correction, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74635": {
+    "desc": "32-bit parallel error detection and correction, open-collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74638": {
+    "desc": "octal bus transceiver with inverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74639": {
+    "desc": "octal bus transceiver with noninverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74640": {
+    "desc": "octal bus transceiver with inverting three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT640_CNV.pdf"
+  },
+  "74641": {
+    "desc": "octal bus transceiver with noninverting open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74642": {
+    "desc": "octal bus transceiver with inverting open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74643": {
+    "desc": "octal bus transceiver with mix of inverting and noninverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74644": {
+    "desc": "octal bus transceiver with mix of inverting and noninverting open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74645": {
+    "desc": "octal bus transceiver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74646": {
+    "desc": "octal bus transceiver/latch/multiplexer with noninverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74647": {
+    "desc": "octal bus transceiver/latch/multiplexer with noninverting open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74648": {
+    "desc": "octal bus transceiver/latch/multiplexer with inverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74649": {
+    "desc": "octal bus transceiver/latch/multiplexer with inverting open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74651": {
+    "desc": "octal bus transceiver/register with inverting three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74652": {
+    "desc": "octal bus transceiver/register with noninverting three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT652_CNV.pdf"
+  },
+  "74653": {
+    "desc": "octal bus transceiver/register with inverting three-state and open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74654": {
+    "desc": "octal bus transceiver/register with noninverting three-state and open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74658": {
+    "desc": "octal bus transceiver with parity, inverting",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74659": {
+    "desc": "octal bus transceiver with parity, noninverting",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74664": {
+    "desc": "octal bus transceiver with parity, inverting",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74665": {
+    "desc": "octal bus transceiver with parity, noninverting",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74668": {
+    "desc": "synchronous 4-bit decade up/down counter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74669": {
+    "desc": "synchronous 4-bit binary up/down counter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74670": {
+    "desc": "4 by 4 register file with three-state outputs",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT670_CNV.pdf"
+  },
+  "74671": {
+    "desc": "4-bit bidirectional shift register/latch/multiplexer with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74672": {
+    "desc": "4-bit bidirectional shift register/latch/multiplexer with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74673": {
+    "desc": "16-bit serial-in serial-out shift register with output storage registers, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74674": {
+    "desc": "16-bit parallel-in serial-out shift register with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74677": {
+    "desc": "16-bit address comparator with enable",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74678": {
+    "desc": "16-bit address comparator with latch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74679": {
+    "desc": "12-bit address comparator with latch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74680": {
+    "desc": "12-bit address comparator with enable",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74681": {
+    "desc": "4-bit parallel binary accumulator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74682": {
+    "desc": "8-bit magnitude comparator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74683": {
+    "desc": "8-bit magnitude comparator with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74684": {
+    "desc": "8-bit magnitude comparator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74685": {
+    "desc": "8-bit magnitude comparator with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74686": {
+    "desc": "8-bit magnitude comparator with enable",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74687": {
+    "desc": "8-bit magnitude comparator with enable",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74688": {
+    "desc": "8-bit equality comparator",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT688_CNV.pdf"
+  },
+  "74689": {
+    "desc": "8-bit magnitude comparator with open collector outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74690": {
+    "desc": "4-bit decimal counter/latch/multiplexer with asynchronous reset, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74691": {
+    "desc": "4-bit binary counter/latch/multiplexer with asynchronous reset, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74692": {
+    "desc": "4-bit decimal counter/latch/multiplexer with synchronous reset, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74693": {
+    "desc": "4-bit binary counter/latch/multiplexer with synchronous reset, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74694": {
+    "desc": "4-bit decimal counter/latch/multiplexer with synchronous and asynchronous resets, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74695": {
+    "desc": "4-bit binary counter/latch/multiplexer with synchronous and asynchronous resets, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74696": {
+    "desc": "4-bit decimal counter/register/multiplexer with asynchronous reset, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74697": {
+    "desc": "4-bit binary counter/register/multiplexer with asynchronous reset, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74698": {
+    "desc": "4-bit decimal counter/register/multiplexer with synchronous reset, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74699": {
+    "desc": "4-bit binary counter/register/multiplexer with synchronous reset, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74716": {
+    "desc": "programmable decade counter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74718": {
+    "desc": "programmable binary counter",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74724": {
+    "desc": "voltage-controlled multivibrator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74740": {
+    "desc": "octal buffer/Line driver, inverting, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74741": {
+    "desc": "octal buffer/line driver, noninverting, three-state outputs, mixed enable polarity",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74744": {
+    "desc": "octal buffer/line driver, noninverting, three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74748": {
+    "desc": "8 to 3-line priority encoder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74779": {
+    "desc": "8-bit bidirectional binary counter (three-state)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74783": {
+    "desc": "synchronous address multiplexer",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74790": {
+    "desc": "error detection and correction (EDAC)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74794": {
+    "desc": "8-bit register with readback",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74795": {
+    "desc": "octal buffer with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74796": {
+    "desc": "octal buffer with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74797": {
+    "desc": "octal buffer with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74798": {
+    "desc": "octal buffer with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74804": {
+    "desc": "hex 2-input NAND drivers",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74805": {
+    "desc": "hex 2-input NOR drivers",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74808": {
+    "desc": "hex 2-input AND drivers",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74822": {
+    "desc": "10-bit bus interface flip-flop with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74832": {
+    "desc": "hex 2-input OR drivers",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74848": {
+    "desc": "8 to 3-line priority encoder with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74857": {
+    "desc": "hex 2-line to 1-line multiplexer with three-state outputs",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74873": {
+    "desc": "octal transparent latch",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74874": {
+    "desc": "octal D-type flip-flop",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74876": {
+    "desc": "octal D-type flip-flop with inverting outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74878": {
+    "desc": "dual 4-bit D-type flip-flop with synchronous clear, noninverting three-state outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74879": {
+    "desc": "dual 4-bit D-type flip-flop with synchronous clear, inverting three-state outputs",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74880": {
+    "desc": "octal transparent latch with inverting outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74881": {
+    "desc": "arithmetic logic unit",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74882": {
+    "desc": "32-bit lookahead carry generator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74888": {
+    "desc": "8-bit slice processor",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74901": {
+    "desc": "hex inverting TTL buffer",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74902": {
+    "desc": "hex non-inverting TTL buffer",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74903": {
+    "desc": "hex inverting CMOS buffer",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74904": {
+    "desc": "hex non-inverting CMOS buffer",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74905": {
+    "desc": "12-bit successive approximation register",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74906": {
+    "desc": "hex open drain n-channel buffers",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74907": {
+    "desc": "hex open drain p-channel buffers",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74908": {
+    "desc": "dual CMOS 30 V relay driver",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74909": {
+    "desc": "quad voltage comparator",
+    "count": "4",
+    "datasheet": ""
+  },
+  "74910": {
+    "desc": "256x1 CMOS static RAM",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74911": {
+    "desc": "4-digit expandable display controller",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74912": {
+    "desc": "6-digit BCD display controller and driver",
+    "count": "1",
+    "datasheet": "http://pdf.datasheetcatalog.com/datasheet/nationalsemiconductor/DS005916.PDF"
+  },
+  "74914": {
+    "desc": "hex Schmitt trigger with extended input voltage",
+    "count": "6",
+    "datasheet": ""
+  },
+  "74915": {
+    "desc": "7-segment to BCD decoder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74917": {
+    "desc": "6-digit hex display controller and driver",
+    "count": "1",
+    "datasheet": "https://www.logre.eu/mediawiki/images/d/d5/MM74C912_C917_NationalSemiconductor.pdf"
+  },
+  "74918": {
+    "desc": "dual CMOS 30 V relay driver",
+    "count": "2",
+    "datasheet": ""
+  },
+  "74920": {
+    "desc": "256x4 CMOS static RAM",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74921": {
+    "desc": "256x4 CMOS static RAM",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74922": {
+    "desc": "16-key encoder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74923": {
+    "desc": "20-key encoder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74925": {
+    "desc": "4-digit counter/display driver",
+    "count": "1",
+    "datasheet": "https://www.fairchildsemi.com/datasheets/MM/MM74C926.pdf"
+  },
+  "74926": {
+    "desc": "4-digit decade counter/display driver with carry out and latch (up to 9999)",
+    "count": "1",
+    "datasheet": "https://www.fairchildsemi.com/datasheets/MM/MM74C926.pdf"
+  },
+  "74927": {
+    "desc": "4-digit timer counter/display driver (up to 9599, intended as time elapsed)",
+    "count": "1",
+    "datasheet": "http://skory.z-net.hu/alkatresz/74c926_.pdf"
+  },
+  "74928": {
+    "desc": "4-digit counter/display driver (up to 1999)",
+    "count": "1",
+    "datasheet": "http://skory.z-net.hu/alkatresz/74c926_.pdf"
+  },
+  "74929": {
+    "desc": "1024x1 CMOS static RAM",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74930": {
+    "desc": "1024x1 CMOS static RAM",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74932": {
+    "desc": "phase comparator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74933": {
+    "desc": "address bus comparator",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74934": {
+    "desc": "=ADC0829 ADC, see corresponding NSC datasheet",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74935": {
+    "desc": "3.5-digit digital voltmeter (DVM) support chip for multiplexed 7-segment displays",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74936": {
+    "desc": "3.75-digit digital voltmeter (DVM) support chip for multiplexed 7-segment displays",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74937": {
+    "desc": "=ADC3511 ADC, see corresponding NSC datasheet",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74938": {
+    "desc": "=ADC3711 ADC, see corresponding NSC datasheet",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74941": {
+    "desc": "octal bus/line drivers/line receivers",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74945": {
+    "desc": "4-digit up/down counter with decoder and driver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74947": {
+    "desc": "4-digit up/down counter with decoder and driver",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74948": {
+    "desc": "=ADC0816 ADC, see corresponding NSC datasheet",
+    "count": "1",
+    "datasheet": ""
+  },
+  "74949": {
+    "desc": "=ADC0808 ADC, see corresponding NSC datasheet",
+    "count": "1",
+    "datasheet": ""
+  },
+  "741005": {
+    "desc": "hex inverting buffer with open-collector output",
+    "count": "6",
+    "datasheet": ""
+  },
+  "741035": {
+    "desc": "hex noninverting buffers with open-collector outputs",
+    "count": "6",
+    "datasheet": ""
+  },
+  "742960": {
+    "desc": "error detection and correction (EDAC)",
+    "count": "1",
+    "datasheet": ""
+  },
+  "742961": {
+    "desc": "edac bus buffer, inverting",
+    "count": "1",
+    "datasheet": ""
+  },
+  "742962": {
+    "desc": "edac bus buffer, noninverting",
+    "count": "1",
+    "datasheet": ""
+  },
+  "742968": {
+    "desc": "dynamic memory controller",
+    "count": "1",
+    "datasheet": ""
+  },
+  "742969": {
+    "desc": "memory timing controller for use with EDAC",
+    "count": "1",
+    "datasheet": ""
+  },
+  "742970": {
+    "desc": "memory timing controller for use without EDAC",
+    "count": "1",
+    "datasheet": ""
+  },
+  "741G3208": {
+    "desc": "single 3-input OR-AND gate;",
+    "count": "1",
+    "datasheet": ""
+  },
+  "744002": {
+    "desc": "dual 4-input NOR gate",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4002.pdf"
+  },
+  "744015": {
+    "desc": "dual 4-bit shift registers",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4015_CNV.pdf"
+  },
+  "744016": {
+    "desc": "quad bilateral switch",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4016_CNV.pdf"
+  },
+  "744017": {
+    "desc": "5-stage ÷10 Johnson counter",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4017.pdf"
+  },
+  "744020": {
+    "desc": "14-stage binary counter",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4020.pdf"
+  },
+  "744024": {
+    "desc": "7-stage ripple carry binary counter",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC4024.pdf"
+  },
+  "744028": {
+    "desc": "BCD to decimal decoder",
+    "count": "1",
+    "datasheet": ""
+  },
+  "744040": {
+    "desc": "12-stage binary ripple counter",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4040.pdf"
+  },
+  "744046": {
+    "desc": "phase-locked loop and voltage-controlled oscillator",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4046A_CNV.pdf"
+  },
+  "744049": {
+    "desc": "hex inverting buffer",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC4049.pdf"
+  },
+  "744050": {
+    "desc": "hex buffer/converter (non-inverting)",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC4050_CNV.pdf"
+  },
+  "744051": {
+    "desc": "high-speed CMOS 8-channel analog multiplexer/demultiplexer",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4051.pdf"
+  },
+  "744052": {
+    "desc": "dual 4-channel analog multiplexer/demultiplexers",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4052.pdf"
+  },
+  "744053": {
+    "desc": "triple 2-channel analog multiplexer/demultiplexers",
+    "count": "3",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4053.pdf"
+  },
+  "744059": {
+    "desc": "programmable divide-by-N counter",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4059_CNV.pdf"
+  },
+  "744060": {
+    "desc": "14-stage binary ripple counter with oscillator",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4060.pdf"
+  },
+  "744066": {
+    "desc": "quad bilateral switches",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4066.pdf"
+  },
+  "744067": {
+    "desc": "16-channel analog multiplexer/demultiplexer",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4067.pdf"
+  },
+  "744075": {
+    "desc": "triple 3-input OR gate",
+    "count": "3",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4075_CNV.pdf"
+  },
+  "744078": {
+    "desc": "8-input OR/NOR gate",
+    "count": "1",
+    "datasheet": "http://www.ti.com/lit/ds/symlink/sn74hc4078a.pdf"
+  },
+  "744094": {
+    "desc": "8-bit three-state shift register/latch",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4094.pdf"
+  },
+  "744316": {
+    "desc": "quad analog switch",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4316_CNV.pdf"
+  },
+  "744351": {
+    "desc": "8-channel analog multiplexer/demultiplexer with latch",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4351_CNV.pdf"
+  },
+  "744353": {
+    "desc": "triple 2-channel analog multiplexer/demultiplexer with latch",
+    "count": "3",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4353_CNV.pdf"
+  },
+  "744511": {
+    "desc": "BCD to 7-segment decoder",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4511_CNV.pdf"
+  },
+  "744514": {
+    "desc": "4-to-16 line decoder/demultiplexer with input latches",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4514_CNV.pdf"
+  },
+  "744520": {
+    "desc": "dual 4-bit synchronous binary counter",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4520_CNV.pdf"
+  },
+  "744538": {
+    "desc": "dual retriggerable precision monostable multivibrator",
+    "count": "2",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT4538.pdf"
+  },
+  "747007": {
+    "desc": "hex buffer",
+    "count": "6",
+    "datasheet": ""
+  },
+  "747014": {
+    "desc": "hex Schmitt trigger non-inverting buffer",
+    "count": "6",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC7014.pdf"
+  },
+  "747266": {
+    "desc": "quad 2-input XNOR gate",
+    "count": "4",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC7266_CNV.pdf"
+  },
+  "7411244": {
+    "desc": "octal buffer/driver with 3-state outputs",
+    "count": "6",
+    "datasheet": "http://www.ti.com/lit/ds/symlink/74ac11244.pdf"
+  },
+  "7429841": {
+    "desc": "10-bit bus-interface D-type latch with three-state outputs",
+    "count": "1",
+    "datasheet": ""
+  },
+  "7440103": {
+    "desc": "presettable 8-bit synchronous down counter",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC40103.pdf"
+  },
+  "7440105": {
+    "desc": "4-bit by 16-word FIFO register",
+    "count": "1",
+    "datasheet": "http://www.nxp.com/documents/data_sheet/74HC_HCT40105_CNV.pdf"
+  }
+}

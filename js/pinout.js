@@ -71,6 +71,36 @@
       }
     }
 
+        function normalize74Candidates(rawName) {
+      if (!rawName) return [];
+      let clean = String(rawName).trim().toUpperCase();
+      clean = clean.replace(/\(.*?\)|\[.*?\]/g, '');
+      clean = clean.replace(/\b(DIP|SOP|SOIC|TSSOP|QFP|PDIP|CDIP)[\s\-_0-9]*\b/gi, '');
+      clean = clean.replace(/[\s\-_]/g, '');
+      const stripped = clean.replace(/^(SN|MC|HD|DM|TC|HCF|HEF|MM|TI|GD|KS|UT|CD)/i, '');
+
+      const candidates = [];
+      const m = stripped.match(/^(?:74|54)([A-Z]{0,4})?(\d{1,2}[A-Z]{1,2}\d{2,4}|\d{2,4})([A-Z]*)$/i);
+      if (m) {
+        const numPart = m[2];
+        candidates.push(`74${numPart}`);
+        candidates.push(numPart);
+        if (numPart.length === 1) {
+          candidates.push(`740${numPart}`);
+        } else if (numPart.length >= 3 && numPart.startsWith('0')) {
+          candidates.push(`74${numPart.replace(/^0+/, '')}`);
+        }
+      }
+
+      candidates.push(stripped);
+      if (!stripped.startsWith('74')) {
+        candidates.push(`74${stripped}`);
+        if (stripped.length === 1) candidates.push(`740${stripped}`);
+      }
+
+      return Array.from(new Set(candidates.filter(Boolean)));
+    }
+
     async function autoSuggestDesc(manualClick = false) {
       const nameInput = document.getElementById('partName');
       const descInput = document.getElementById('partDesc');
@@ -123,25 +153,46 @@
 
       try {
         let foundDesc = '';
+        let foundSource = '';
+        let foundDatasheet = '';
+        let foundCode = '';
+
         if (pinoutServerUrl) {
           try {
             const sRes = await fetch(`${pinoutServerUrl}/api/desc?name=${encodeURIComponent(rawName)}`, { signal: AbortSignal.timeout(2500) });
             if (sRes.ok) {
               const sData = await sRes.json();
-              if (sData && sData.desc) foundDesc = sData.desc;
-            }
-          } catch(e) {
-          const refUrl = await refreshTunnelUrlFromFirebase();
-          if (refUrl) {
-            try {
-              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
-              if (res2.ok) {
-                const data2 = await res2.json();
-                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
+              if (sData && sData.desc) {
+                foundDesc = sData.desc;
+                foundSource = sData.source || '';
+                foundDatasheet = sData.datasheet || '';
+                foundCode = sData.code || '';
               }
-            } catch(e2) {}
-          }
+            }
+          } catch(e) {}
         }
+
+        // TẦNG DỰ PHÒNG TRỰC TIẾP TỪ CACHE WIKI 7400 TIẾNG VIỆT (Nếu Server Python không phản hồi)
+        if (!foundDesc) {
+          try {
+            if (!window.__wiki74Cache) {
+              const cRes = await fetch('wiki_7400_cache.json', { signal: AbortSignal.timeout(2000) });
+              if (cRes.ok) window.__wiki74Cache = await cRes.json();
+            }
+            if (window.__wiki74Cache) {
+              const cands = normalize74Candidates(rawName);
+              for (const cand of cands) {
+                if (window.__wiki74Cache[cand]) {
+                  const it = window.__wiki74Cache[cand];
+                  foundDesc = it.desc;
+                  foundDatasheet = it.datasheet || '';
+                  foundCode = cand;
+                  foundSource = 'wiki_vi_7400';
+                  break;
+                }
+              }
+            }
+          } catch(e) {}
         }
 
         if (!foundDesc) {
@@ -155,48 +206,61 @@
                   const s = wData.extract.split('. ')[0].trim();
                   if (s && s.length < 160) {
                     foundDesc = s;
+                    foundSource = 'wikipedia_en';
                     break;
                   }
                 }
               }
-            } catch(e) {
-          const refUrl = await refreshTunnelUrlFromFirebase();
-          if (refUrl) {
-            try {
-              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
-              if (res2.ok) {
-                const data2 = await res2.json();
-                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
-              }
-            } catch(e2) {}
-          }
-        }
+            } catch(e) {}
           }
         }
 
         if (foundDesc) {
           descInput.value = foundDesc;
+
+          const datasheetInput = document.getElementById('partDatasheet');
+          if (datasheetInput && !datasheetInput.value.trim() && foundDatasheet) {
+            datasheetInput.value = foundDatasheet;
+          }
+
+          if (foundSource === 'wiki_vi_7400') {
+            const catSelect = document.getElementById('partCategory');
+            if (catSelect && (!catSelect.value || catSelect.value === 'Tất cả')) {
+              const matchedCat = findCategoryMatch('Logic IC');
+              if (matchedCat) catSelect.value = matchedCat;
+            }
+          }
+
           if (isLogicCategory(document.getElementById('partCategory')?.value)) {
             const autoSub = determineLogicSubcategory(rawName, foundDesc);
             const subSelect = document.getElementById('partSubCategory');
             if (subSelect && autoSub && !subSelect.value) subSelect.value = autoSub;
           }
+
           if (badge) {
-            badge.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Đã tìm thấy mô tả từ Wikipedia</span>`;
+            if (foundSource === 'wiki_vi_7400') {
+              badge.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Wiki 7400 (VN) <b>${foundCode || rawName}</b>: ${foundDesc}${foundDatasheet ? ' • Đã kèm Datasheet ✓' : ''}</span>`;
+            } else {
+              badge.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Đã tìm thấy mô tả từ Wikipedia</span>`;
+            }
+            badge.classList.remove('hidden');
             lucide.createIcons();
           }
+
           if (pinoutInput && !pinoutInput.value.trim()) {
             autoFetchPinout(true);
           }
         } else if (manualClick) {
           if (badge) {
             badge.innerHTML = `<i data-lucide="info" class="w-3.5 h-3.5 text-amber-400"></i> <span>Chưa tìm thấy mô tả tự động, bạn có thể tự nhập ngắn gọn nhé</span>`;
+            badge.classList.remove('hidden');
             lucide.createIcons();
           }
         }
       } catch (err) {
         if (badge && manualClick) badge.classList.add('hidden');
       }
+    }
     }
 
     // TOGGLE FAVORITE / GHIM LINH KIỆN
@@ -423,28 +487,34 @@
     async function fetchDescForPart(name) {
       if (!name) return null;
       const local = lookupComponentKnowledge(name);
-      if (local && local.desc) return { desc: local.desc, pkg: local.pkg, cat: local.cat };
+      if (local && local.desc) return { desc: local.desc, pkg: local.pkg, cat: local.cat, datasheet: local.datasheet || '' };
 
       if (pinoutServerUrl) {
         try {
           const sRes = await fetch(`${pinoutServerUrl}/api/desc?name=${encodeURIComponent(name)}`, { signal: AbortSignal.timeout(2500) });
           if (sRes.ok) {
             const sData = await sRes.json();
-            if (sData && sData.desc) return { desc: sData.desc, pkg: '', cat: '' };
+            if (sData && sData.desc) return { desc: sData.desc, pkg: '', cat: sData.source === 'wiki_vi_7400' ? 'Logic IC' : '', datasheet: sData.datasheet || '' };
           }
-        } catch(e) {
-          const refUrl = await refreshTunnelUrlFromFirebase();
-          if (refUrl) {
-            try {
-              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
-              if (res2.ok) {
-                const data2 = await res2.json();
-                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
-              }
-            } catch(e2) {}
+        } catch(e) {}
+      }
+
+      // Fallback cache 7400
+      try {
+        if (!window.__wiki74Cache) {
+          const cRes = await fetch('wiki_7400_cache.json', { signal: AbortSignal.timeout(2000) });
+          if (cRes.ok) window.__wiki74Cache = await cRes.json();
+        }
+        if (window.__wiki74Cache) {
+          const cands = normalize74Candidates(name);
+          for (const cand of cands) {
+            if (window.__wiki74Cache[cand]) {
+              const it = window.__wiki74Cache[cand];
+              return { desc: it.desc, pkg: '', cat: 'Logic IC', datasheet: it.datasheet || '' };
+            }
           }
         }
-      }
+      } catch(e) {}
 
       const wikiQueries = [name, `${name} integrated circuit`, name.replace(/([0-9]+)/, ' $1')];
       for (const q of wikiQueries) {
@@ -457,19 +527,9 @@
               if (s && s.length < 160) return { desc: s, pkg: '', cat: '' };
             }
           }
-        } catch(e) {
-          const refUrl = await refreshTunnelUrlFromFirebase();
-          if (refUrl) {
-            try {
-              const res2 = await fetch(`${pinoutServerUrl}/api/pinout?name=${encodeURIComponent(name)}&pkg=${encodeURIComponent(pkg)}`, { signal: AbortSignal.timeout(3000) });
-              if (res2.ok) {
-                const data2 = await res2.json();
-                if (Array.isArray(data2) && data2.length > 0 && data2[0].link) return data2[0].link;
-              }
-            } catch(e2) {}
-          }
-        }
+        } catch(e) {}
       }
+
       return null;
     }
 
