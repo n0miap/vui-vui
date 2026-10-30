@@ -70,7 +70,7 @@
         const needPinout = doPinout && (!p.pinout || !p.pinout.trim());
         const needPkg = doPkg && (!p.package || !p.package.trim());
         const needBuy = doBuy && (!p.buyUrl && (!p.buyShops || Object.keys(p.buyShops).length === 0));
-        const needSubCat = doSubCat && (isLogicCategory(p.category) && !p.subCategory);
+        const needSubCat = doSubCat && ((isLogicCategory(p.category) || isAnalogCategory(p.category)) && !p.subCategory);
         return needDesc || needPinout || needPkg || needBuy || needSubCat;
       });
 
@@ -168,9 +168,14 @@
           } catch(e) {}
         }
 
-        // 4. PHÂN LOẠI SÂU SUB-CATALOG CHO LOGIC IC
-        if (doSubCat && isLogicCategory(p.category) && !p.subCategory) {
-          const sub = determineLogicSubcategory(p.name, p.desc);
+        // 4. PHÂN LOẠI SÂU SUB-CATALOG CHO LOGIC & ANALOG IC
+        if (doSubCat && !p.subCategory) {
+          let sub = '';
+          if (isLogicCategory(p.category)) {
+            sub = determineLogicSubcategory(p.name, p.desc);
+          } else if (isAnalogCategory(p.category)) {
+            sub = determineAnalogSubcategory(p.name, p.desc);
+          }
           if (sub) {
             p.subCategory = sub;
             updatedSubCat++;
@@ -203,7 +208,7 @@
       btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Hoàn tất';
       btn.className = 'px-4 py-2 rounded-lg bg-emerald-600 text-white font-bold text-xs transition flex items-center gap-1.5';
       currentItemText.innerHTML = `<span class="text-emerald-400 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-4 h-4"></i> Quét hoàn tất!</span>`;
-      summaryNotice.innerHTML = `Đã bổ sung: <b class="text-emerald-400">${updatedDesc}</b> mô tả • <b class="text-sky-400">${updatedPinout}</b> ảnh pinout • <b class="text-amber-400">${updatedPkg}</b> kiểu chân • <b class="text-rose-400">${updatedBuy}</b> 4 shop • <b class="text-indigo-400">${updatedSubCat}</b> sub-catalog Logic. Các dữ liệu cũ của bạn được giữ nguyên 100%.`;
+      summaryNotice.innerHTML = `Đã bổ sung: <b class="text-emerald-400">${updatedDesc}</b> mô tả • <b class="text-sky-400">${updatedPinout}</b> ảnh pinout • <b class="text-amber-400">${updatedPkg}</b> kiểu chân • <b class="text-rose-400">${updatedBuy}</b> 4 shop • <b class="text-indigo-400">${updatedSubCat}</b> sub-catalog Logic & Analog. Các dữ liệu cũ của bạn được giữ nguyên 100%.`;
 
       saveData();
       renderParts();

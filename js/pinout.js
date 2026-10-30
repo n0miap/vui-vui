@@ -30,8 +30,13 @@
           }
         }
         handleCategoryChange();
-        if (isLogicCategory(document.getElementById('partCategory')?.value)) {
-          const autoSub = determineLogicSubcategory(rawName, descInput.value);
+        const currentCatVal = document.getElementById('partCategory')?.value;
+        if (isLogicCategory(currentCatVal)) {
+          const autoSub = (local && local.subCat) || determineLogicSubcategory(rawName, descInput.value);
+          const subSelect = document.getElementById('partSubCategory');
+          if (subSelect && autoSub) subSelect.value = autoSub;
+        } else if (isAnalogCategory(currentCatVal)) {
+          const autoSub = (local && local.subCat) || determineAnalogSubcategory(rawName, descInput.value);
           const subSelect = document.getElementById('partSubCategory');
           if (subSelect && autoSub) subSelect.value = autoSub;
         }
@@ -125,8 +130,13 @@
           }
         }
         handleCategoryChange();
-        if (isLogicCategory(document.getElementById('partCategory')?.value)) {
-          const autoSub = determineLogicSubcategory(rawName, descInput.value);
+        const currentCatVal = document.getElementById('partCategory')?.value;
+        if (isLogicCategory(currentCatVal)) {
+          const autoSub = (local && local.subCat) || determineLogicSubcategory(rawName, descInput.value);
+          const subSelect = document.getElementById('partSubCategory');
+          if (subSelect && autoSub) subSelect.value = autoSub;
+        } else if (isAnalogCategory(currentCatVal)) {
+          const autoSub = (local && local.subCat) || determineAnalogSubcategory(rawName, descInput.value);
           const subSelect = document.getElementById('partSubCategory');
           if (subSelect && autoSub) subSelect.value = autoSub;
         }
@@ -231,8 +241,13 @@
             }
           }
 
-          if (isLogicCategory(document.getElementById('partCategory')?.value)) {
+          const fetchedCatVal = document.getElementById('partCategory')?.value;
+          if (isLogicCategory(fetchedCatVal)) {
             const autoSub = determineLogicSubcategory(rawName, foundDesc);
+            const subSelect = document.getElementById('partSubCategory');
+            if (subSelect && autoSub && !subSelect.value) subSelect.value = autoSub;
+          } else if (isAnalogCategory(fetchedCatVal)) {
+            const autoSub = determineAnalogSubcategory(rawName, foundDesc);
             const subSelect = document.getElementById('partSubCategory');
             if (subSelect && autoSub && !subSelect.value) subSelect.value = autoSub;
           }

@@ -108,45 +108,85 @@
       const bar = document.getElementById('logicSubCategoryBar');
       if (!bar) return;
 
-      if (!isLogicCategory(currentCategory)) {
+      const isLogic = isLogicCategory(currentCategory);
+      const isAnalog = isAnalogCategory(currentCategory);
+
+      if (!isLogic && !isAnalog) {
         bar.classList.add('hidden');
         return;
       }
 
       bar.classList.remove('hidden');
 
-      const logicParts = parts.filter(p => isLogicCategory(p.category));
-      const isAllActive = currentLogicSubCategory === 'Tất cả';
+      if (isLogic) {
+        // --- SUB-CATALOG CHO LOGIC IC (CHỦ ĐỀ INDIGO) ---
+        const logicParts = parts.filter(p => isLogicCategory(p.category));
+        const isAllActive = currentLogicSubCategory === 'Tất cả';
 
-      let html = `
-        <button type="button" onclick="setLogicSubCategory('Tất cả')" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${isAllActive ? 'bg-indigo-600 text-white shadow-sm font-semibold' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/80'}">
-          <span>Tất cả Logic IC</span>
-          <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isAllActive ? 'bg-indigo-800 text-white' : 'bg-slate-900 text-indigo-300'} font-mono">${logicParts.length}</span>
-        </button>
-      `;
-
-      LOGIC_SUBCAT_LIST.forEach(sub => {
-        const count = logicParts.filter(p => (p.subCategory || determineLogicSubcategory(p.name, p.desc)) === sub.id).length;
-        const isActive = currentLogicSubCategory === sub.id;
-        const escSub = sub.id.replace(/'/g, "\\'");
-
-        html += `
-          <button type="button" onclick="setLogicSubCategory('${escSub}')" title="${sub.desc}" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${isActive ? 'bg-indigo-600 text-white shadow-sm font-semibold' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/80'}">
-            <span>${sub.label}</span>
-            <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-indigo-800 text-white' : 'bg-slate-900 text-indigo-300'} font-mono">${count}</span>
+        let html = `
+          <button type="button" onclick="setLogicSubCategory('Tất cả')" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${isAllActive ? 'bg-indigo-600 text-white shadow-sm font-semibold' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/80'}">
+            <span>Tất cả Logic IC</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isAllActive ? 'bg-indigo-800 text-white' : 'bg-slate-900 text-indigo-300'} font-mono">${logicParts.length}</span>
           </button>
         `;
-      });
 
-      html += `
-        <button type="button" onclick="open74AchievementModal()" class="shrink-0 ml-auto px-2.5 py-1 rounded-lg text-xs bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 font-medium transition flex items-center gap-1" title="Xem bảng thành tích & tiến độ sưu tầm 74xx">
-          <i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span>Thành Tích 74xx</span>
-        </button>
-      `;
+        LOGIC_SUBCAT_LIST.forEach(sub => {
+          const count = logicParts.filter(p => (p.subCategory || determineLogicSubcategory(p.name, p.desc)) === sub.id).length;
+          const isActive = currentLogicSubCategory === sub.id;
+          const escSub = sub.id.replace(/'/g, "\\'");
 
-      bar.innerHTML = html;
-      lucide.createIcons();
+          html += `
+            <button type="button" onclick="setLogicSubCategory('${escSub}')" title="${sub.desc}" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${isActive ? 'bg-indigo-600 text-white shadow-sm font-semibold' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/80'}">
+              <span>${sub.label}</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-indigo-800 text-white' : 'bg-slate-900 text-indigo-300'} font-mono">${count}</span>
+            </button>
+          `;
+        });
+
+        html += `
+          <button type="button" onclick="open74AchievementModal()" class="shrink-0 ml-auto px-2.5 py-1 rounded-lg text-xs bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 font-medium transition flex items-center gap-1" title="Xem bảng thành tích & tiến độ sưu tầm 74xx">
+            <i data-lucide="award" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Thành Tích 74xx</span>
+          </button>
+        `;
+
+        bar.innerHTML = html;
+      } else if (isAnalog) {
+        // --- SUB-CATALOG CHO ANALOG / OP-AMP (CHỦ ĐỀ CYAN) ---
+        const analogParts = parts.filter(p => isAnalogCategory(p.category));
+        const isAllActive = currentAnalogSubCategory === 'Tất cả';
+
+        let html = `
+          <button type="button" onclick="setAnalogSubCategory('Tất cả')" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${isAllActive ? 'bg-cyan-600 text-white shadow-sm font-semibold' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/80'}">
+            <span>Tất cả Analog / Op-Amp</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isAllActive ? 'bg-cyan-800 text-white' : 'bg-slate-900 text-cyan-300'} font-mono">${analogParts.length}</span>
+          </button>
+        `;
+
+        ANALOG_SUBCAT_LIST.forEach(sub => {
+          const count = analogParts.filter(p => (p.subCategory || determineAnalogSubcategory(p.name, p.desc)) === sub.id).length;
+          const isActive = currentAnalogSubCategory === sub.id;
+          const escSub = sub.id.replace(/'/g, "\\'");
+
+          html += `
+            <button type="button" onclick="setAnalogSubCategory('${escSub}')" title="${sub.desc}" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-medium transition flex items-center gap-1.5 ${isActive ? 'bg-cyan-600 text-white shadow-sm font-semibold' : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700/80'}">
+              <span>${sub.label}</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-cyan-800 text-white' : 'bg-slate-900 text-cyan-300'} font-mono">${count}</span>
+            </button>
+          `;
+        });
+
+        html += `
+          <button type="button" onclick="openAnalogGuideModal()" class="shrink-0 ml-auto px-2.5 py-1 rounded-lg text-xs bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-medium transition flex items-center gap-1" title="Xem cẩm nang & sơ đồ phân loại IC Analog / Op-Amp">
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Cẩm Nang Op-Amp</span>
+          </button>
+        `;
+
+        bar.innerHTML = html;
+      }
+
+      if (window.lucide) lucide.createIcons();
     }
 
     function setLogicSubCategory(subCat) {
@@ -155,22 +195,159 @@
       renderParts();
     }
 
+    function setAnalogSubCategory(subCat) {
+      currentAnalogSubCategory = subCat;
+      renderLogicSubCategoryBar();
+      renderParts();
+    }
+
     function handleCategoryChange(chosenCat = null) {
       const cat = chosenCat || document.getElementById('partCategory')?.value;
       const subGroup = document.getElementById('partSubCategoryGroup');
-      if (!subGroup) return;
+      const subSelect = document.getElementById('partSubCategory');
+      const subLabel = document.getElementById('partSubCategoryLabel');
+      if (!subGroup || !subSelect) return;
+
       if (isLogicCategory(cat)) {
+        subGroup.className = 'bg-indigo-950/30 border border-indigo-500/30 rounded-xl p-3 flex flex-col gap-1.5';
+        if (subLabel) {
+          subLabel.className = 'text-xs font-semibold text-indigo-300 flex items-center gap-1.5';
+          subLabel.innerHTML = '<i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i> Phân loại chức năng sâu (Sub-catalog Logic IC)';
+        }
+        subSelect.className = 'w-full mt-1 bg-slate-900 border border-indigo-500/40 rounded-lg px-3 py-2 text-xs text-indigo-200 focus:border-indigo-400 focus:outline-none';
+
+        const currentVal = subSelect.value;
+        subSelect.innerHTML = `
+          <option value="">-- Tự động theo tên chip --</option>
+          <option value="Cổng Logic">🔲 Cổng Logic (NAND, NOR, AND, OR, NOT, XOR)</option>
+          <option value="Bộ Nhớ & Chốt">💾 Bộ Nhớ & Chốt (Flip-Flop, Latch, Register, SRAM, EEPROM)</option>
+          <option value="Bộ Đếm & Chia Tần">⏱️ Bộ Đếm & Chia Tần (Binary/Decade Counter, Divider)</option>
+          <option value="Thanh Ghi Dịch">🔄 Thanh Ghi Dịch (Shift Register: 74595, 74164, 74165...)</option>
+          <option value="Bộ Chọn & Giải Mã">🔀 Bộ Chọn & Giải Mã (MUX, DEMUX, 3-to-8 Decoder, 7447...)</option>
+          <option value="Bộ Đệm & Bus">🚦 Bộ Đệm & Bus (Buffer, Line Driver, Bus Transceiver: 74244, 74245...)</option>
+          <option value="Số Học & So Sánh">🧮 Số Học & So Sánh (ALU 74181, Full Adder, Magnitude Comparator)</option>
+          <option value="Schmitt & Tạo Xung">⚡ Schmitt & Tạo Xung (Schmitt Trigger 7414, Multivibrator 74123, 555)</option>
+        `;
         subGroup.classList.remove('hidden');
+
         const nameVal = document.getElementById('partName')?.value;
         const descVal = document.getElementById('partDesc')?.value;
-        const subSelect = document.getElementById('partSubCategory');
-        if (subSelect && !subSelect.value && nameVal) {
+        if (currentVal && LOGIC_SUBCAT_LIST.some(s => s.id === currentVal)) {
+          subSelect.value = currentVal;
+        } else if (nameVal) {
           const autoSub = determineLogicSubcategory(nameVal, descVal);
           if (autoSub) subSelect.value = autoSub;
         }
+        if (window.lucide) lucide.createIcons();
+      } else if (isAnalogCategory(cat)) {
+        subGroup.className = 'bg-cyan-950/30 border border-cyan-500/30 rounded-xl p-3 flex flex-col gap-1.5';
+        if (subLabel) {
+          subLabel.className = 'text-xs font-semibold text-cyan-300 flex items-center gap-1.5';
+          subLabel.innerHTML = '<i data-lucide="activity" class="w-3.5 h-3.5 text-cyan-400"></i> Phân loại chức năng sâu (Sub-catalog Analog / Op-Amp)';
+        }
+        subSelect.className = 'w-full mt-1 bg-slate-900 border border-cyan-500/40 rounded-lg px-3 py-2 text-xs text-cyan-200 focus:border-cyan-400 focus:outline-none';
+
+        const currentVal = subSelect.value;
+        subSelect.innerHTML = `
+          <option value="">-- Tự động theo tên chip --</option>
+          <option value="Op-Amp Đa Dụng">📈 Op-Amp Đa Dụng (LM358, LM324, UA741, RC4558, LF353...)</option>
+          <option value="Op-Amp JFET & Âm Thanh">🎵 Op-Amp JFET & Âm Thanh Hi-Fi (TL072, TL082, NE5532, OPA2134...)</option>
+          <option value="Op-Amp Chính Xác & Đo Lường">🎯 Op-Amp Chính Xác & Đo Lường (OP07, AD620, INA128, Zero-Drift...)</option>
+          <option value="Op-Amp Rail-to-Rail & Nguồn Đơn">🔋 Op-Amp Rail-to-Rail & Nguồn Đơn (MCP6002, LMC6482, OPA340...)</option>
+          <option value="Bộ So Sánh Điện Áp">⚖️ Bộ So Sánh Điện Áp (LM393, LM339, LM311, Comparator...)</option>
+          <option value="Định Thời & Tạo Sóng">⏱️ Định Thời & Tạo Sóng (NE555, LM555, NE556, ICL8038, XR2206, CD4046...)</option>
+          <option value="Khuếch Đại Công Suất Âm Thanh">🔊 Khuếch Đại Công Suất Âm Thanh (LM386, TDA2030, TDA7297, PAM8403...)</option>
+          <option value="Tham Chiếu Áp & Mux/Switch Analog">⚡ Tham Chiếu Áp & Mux/Switch Analog (TL431, LM385, CD4051, CD4066...)</option>
+        `;
+        subGroup.classList.remove('hidden');
+
+        const nameVal = document.getElementById('partName')?.value;
+        const descVal = document.getElementById('partDesc')?.value;
+        if (currentVal && ANALOG_SUBCAT_LIST.some(s => s.id === currentVal)) {
+          subSelect.value = currentVal;
+        } else if (nameVal) {
+          const autoSub = determineAnalogSubcategory(nameVal, descVal);
+          if (autoSub) subSelect.value = autoSub;
+        }
+        if (window.lucide) lucide.createIcons();
       } else {
         subGroup.classList.add('hidden');
+        subSelect.value = '';
       }
+    }
+
+    function openAnalogGuideModal() {
+      let modal = document.getElementById('analogGuideModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'analogGuideModal';
+        modal.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+        document.body.appendChild(modal);
+      }
+
+      const analogParts = parts.filter(p => isAnalogCategory(p.category));
+
+      let cardsHtml = '';
+      ANALOG_SUBCAT_LIST.forEach(sub => {
+        const subParts = analogParts.filter(p => (p.subCategory || determineAnalogSubcategory(p.name, p.desc)) === sub.id);
+        const chipPills = subParts.slice(0, 8).map(p => `<span class="px-2 py-0.5 rounded bg-slate-800 text-cyan-300 text-[11px] font-mono font-semibold border border-slate-700">${p.name} (${p.qty})</span>`).join(' ');
+
+        cardsHtml += `
+          <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl p-4 flex flex-col gap-2 hover:border-cyan-400 transition">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-sm">
+                  <i data-lucide="${sub.icon}" class="w-4 h-4"></i>
+                </span>
+                <h4 class="font-bold text-sm text-white">${sub.label}</h4>
+              </div>
+              <button type="button" onclick="setAnalogSubCategory('${sub.id}'); closeAnalogGuideModal();" class="text-xs px-2.5 py-1 rounded-lg bg-cyan-600/30 hover:bg-cyan-600 text-cyan-200 transition font-medium">
+                Lọc (${subParts.length})
+              </button>
+            </div>
+            <p class="text-xs text-slate-300">${sub.desc}</p>
+            <div class="mt-1 flex flex-wrap gap-1.5 items-center">
+              ${chipPills || '<span class="text-[11px] text-slate-500 italic">Chưa có chip nào trong kho</span>'}
+            </div>
+          </div>
+        `;
+      });
+
+      modal.innerHTML = `
+        <div class="bg-slate-900 border border-cyan-500/40 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+          <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-cyan-950/40">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                <i data-lucide="activity" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-base text-white">Cẩm Nang & Phân Loại Analog / Op-Amp</h3>
+                <p class="text-xs text-cyan-300/80">Kho lưu trữ 8 nhóm IC chuyên sâu • Tự động nhận diện 126+ IC Analog</p>
+              </div>
+            </div>
+            <button type="button" onclick="closeAnalogGuideModal()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center hover:bg-slate-700">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="p-4 overflow-y-auto no-scrollbar grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${cardsHtml}
+          </div>
+
+          <div class="p-3 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between text-xs text-slate-400">
+            <span>💡 Bấm <b>Lọc</b> trên từng nhóm để xem ngay các IC thuộc nhóm đó. Bấm <b>ESC</b> để đóng nhanh.</span>
+            <button type="button" onclick="closeAnalogGuideModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium">Đóng</button>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeAnalogGuideModal() {
+      const modal = document.getElementById('analogGuideModal');
+      if (modal) modal.classList.add('hidden');
     }
 
 

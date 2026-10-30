@@ -132,6 +132,9 @@
       if (!isLogicCategory(cat)) {
         currentLogicSubCategory = 'Tất cả';
       }
+      if (!isAnalogCategory(cat)) {
+        currentAnalogSubCategory = 'Tất cả';
+      }
       renderCategories();
       renderParts();
     }
@@ -465,6 +468,9 @@
         if (isLogicCategory(currentCategory) && currentLogicSubCategory && currentLogicSubCategory !== 'Tất cả') {
           const actualSub = p.subCategory || determineLogicSubcategory(p.name, p.desc);
           matchSubCat = (actualSub === currentLogicSubCategory);
+        } else if (isAnalogCategory(currentCategory) && currentAnalogSubCategory && currentAnalogSubCategory !== 'Tất cả') {
+          const actualSub = p.subCategory || determineAnalogSubcategory(p.name, p.desc);
+          matchSubCat = (actualSub === currentAnalogSubCategory);
         }
         let matchMode = true;
         if (currentViewMode === 'all') matchMode = true;
@@ -534,6 +540,7 @@
                   ${p.favorite ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 font-medium"><i data-lucide="star" class="w-2.5 h-2.5 fill-amber-300"></i>Ghim</span>` : ''}
                   ${p.package ? `<span class="text-[10px] px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-mono">${p.package}</span>` : ''}
                   ${isLogicCategory(p.category) ? `<span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">${p.subCategory || determineLogicSubcategory(p.name, p.desc)}</span>` : ''}
+                  ${isAnalogCategory(p.category) ? `<span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-medium">${p.subCategory || determineAnalogSubcategory(p.name, p.desc)}</span>` : ''}
                   ${needBuy ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 font-medium">Sắp hết</span>` : ''}
                 </div>
                 <p class="text-xs text-slate-400 mt-0.5 line-clamp-1">${p.desc || p.category}</p>
@@ -751,7 +758,15 @@
         handleCategoryChange(editCatVal);
         const subSelect = document.getElementById('partSubCategory');
         if (subSelect) {
-          subSelect.value = p.subCategory || (isLogicCategory(editCatVal) ? determineLogicSubcategory(p.name, p.desc) : '');
+          if (p.subCategory) {
+            subSelect.value = p.subCategory;
+          } else if (isLogicCategory(editCatVal)) {
+            subSelect.value = determineLogicSubcategory(p.name, p.desc);
+          } else if (isAnalogCategory(editCatVal)) {
+            subSelect.value = determineAnalogSubcategory(p.name, p.desc);
+          } else {
+            subSelect.value = '';
+          }
         }
         document.getElementById('partDesc').value = p.desc || '';
         populateProjectDatalist();
@@ -843,9 +858,18 @@
         minQty: Number(document.getElementById('partMinQty').value || 0),
         project: document.getElementById('partProject').value.trim(),
         category: document.getElementById('partCategory').value.trim() || (categories[0] || 'Thụ động / Khác'),
-        subCategory: isLogicCategory(document.getElementById('partCategory').value.trim())
-          ? (document.getElementById('partSubCategory')?.value || determineLogicSubcategory(document.getElementById('partName').value.trim(), document.getElementById('partDesc').value.trim()))
-          : '',
+        subCategory: (function() {
+          const catVal = document.getElementById('partCategory').value.trim();
+          const nameVal = document.getElementById('partName').value.trim();
+          const descVal = document.getElementById('partDesc').value.trim();
+          const manualVal = document.getElementById('partSubCategory')?.value;
+          if (isLogicCategory(catVal)) {
+            return manualVal || determineLogicSubcategory(nameVal, descVal);
+          } else if (isAnalogCategory(catVal)) {
+            return manualVal || determineAnalogSubcategory(nameVal, descVal);
+          }
+          return '';
+        })(),
         desc: document.getElementById('partDesc').value.trim(),
         boxId: boxId,
         cell: cell,

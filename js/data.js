@@ -130,12 +130,23 @@
       return c === 'logic ic' || c.includes('logic') || c.includes('74hc') || c.includes('cd40');
     }
 
+    // KIỂM TRA PHÂN LOẠI CÓ PHẢI NHÓM ANALOG / OP-AMP KHÔNG
+    function isAnalogCategory(cat) {
+      if (!cat) return false;
+      const c = String(cat).toLowerCase().trim();
+      return c === 'analog / op-amp' || c.includes('analog') || c.includes('op-amp') || c.includes('opamp') || c.includes('khuếch đại');
+    }
+
     // TÌM PHÂN LOẠI PHÙ HỢP TRONG DANH SÁCH CATEGORIES HIỆN CÓ CỦA NGƯỜI DÙNG
     function findCategoryMatch(targetCat) {
       if (!targetCat) return '';
       if (categories.includes(targetCat)) return targetCat;
       if (isLogicCategory(targetCat)) {
         const found = categories.find(c => isLogicCategory(c));
+        if (found) return found;
+      }
+      if (isAnalogCategory(targetCat)) {
+        const found = categories.find(c => isAnalogCategory(c));
         if (found) return found;
       }
       const tLower = targetCat.toLowerCase().trim();
@@ -803,23 +814,133 @@
       'A4988': { desc: 'Module điều khiển động cơ bước vi bước vi sai (Microstepping Driver)', pkg: 'Module', cat: 'Công suất' },
       'DRV8825': { desc: 'Module điều khiển động cơ bước dòng cao tới 2.5A vi bước 1/32', pkg: 'Module', cat: 'Công suất' },
 
-      // Timers & Analog / Op-Amps
-      'NE555': { desc: 'IC định thời / tạo dao động xung vuông (Precision Timer)', pkg: 'DIP-8', cat: 'Analog / Op-Amp', pinout: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/NE555_Pinout.svg/500px-NE555_Pinout.svg.png' },
-      'LM555': { desc: 'IC định thời / tạo dao động xung vuông (Precision Timer)', pkg: 'DIP-8', cat: 'Analog / Op-Amp', pinout: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/NE555_Pinout.svg/500px-NE555_Pinout.svg.png' },
-      'NE556': { desc: 'IC định thời kép tích hợp 2 bộ 555 riêng biệt (Dual Timer)', pkg: 'DIP-14', cat: 'Analog / Op-Amp' },
-      'LM358': { desc: 'Bộ khuếch đại thuật toán kép nguồn đơn (Dual Op-Amp)', pkg: 'DIP-8', cat: 'Analog / Op-Amp', pinout: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/LM358_pinout.svg/500px-LM358_pinout.svg.png' },
-      'LM324': { desc: 'Bộ khuếch đại thuật toán 4 kênh nguồn đơn (Quad Op-Amp)', pkg: 'DIP-14', cat: 'Analog / Op-Amp', pinout: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/LM324_pinout.svg/500px-LM324_pinout.svg.png' },
-      'LM393': { desc: 'Bộ so sánh điện áp kép ngõ ra cực thu hở (Dual Voltage Comparator)', pkg: 'DIP-8', cat: 'Analog / Op-Amp' },
-      'LM339': { desc: 'Bộ so sánh điện áp 4 kênh ngõ ra cực thu hở (Quad Comparator)', pkg: 'DIP-14', cat: 'Analog / Op-Amp' },
-      'LM386': { desc: 'IC khuếch đại âm thanh công suất nhỏ nguồn thấp 300mW (Audio Amp)', pkg: 'DIP-8', cat: 'Analog / Op-Amp' },
-      'TL072': { desc: 'Op-Amp kép ngõ vào JFET âm thanh độ nhiễu thấp (Dual JFET Op-Amp)', pkg: 'DIP-8', cat: 'Analog / Op-Amp' },
-      'TL082': { desc: 'Op-Amp kép ngõ vào JFET tốc độ đáp ứng cao (Wide Bandwidth Op-Amp)', pkg: 'DIP-8', cat: 'Analog / Op-Amp' },
-      'TL074': { desc: 'Op-Amp 4 kênh ngõ vào JFET âm thanh chất lượng cao (Quad Op-Amp)', pkg: 'DIP-14', cat: 'Analog / Op-Amp' },
-      'TL084': { desc: 'Op-Amp 4 kênh ngõ vào JFET đa dụng (Quad JFET Op-Amp)', pkg: 'DIP-14', cat: 'Analog / Op-Amp' },
-      'NE5532': { desc: 'Op-Amp kép âm thanh Hi-Fi độ ồn siêu thấp (Dual Audio Op-Amp)', pkg: 'DIP-8', cat: 'Analog / Op-Amp' },
-      'OP07': { desc: 'Op-Amp độ chính xác cao bù điện áp siêu thấp (Ultra-Low Offset Op-Amp)', pkg: 'DIP-8', cat: 'Analog / Op-Amp' },
-      'MCP6002': { desc: 'Op-Amp kép Rail-to-Rail nguồn đơn 1.8V-6V tiết kiệm điện', pkg: 'DIP-8', cat: 'Analog / Op-Amp' },
-      'MCP602': { desc: 'Op-Amp kép Rail-to-Rail tốc độ cao 2.8MHz nguồn đơn', pkg: 'DIP-8', cat: 'Analog / Op-Amp' },
+      // Comprehensive Analog / Op-Amp IC Knowledge Base (120+ ICs with Sub-Catalogs)
+      'LM358': {"desc": "Bộ khuếch đại thuật toán kép nguồn đơn 3V-32V (Dual Op-Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/LM358_pinout.svg/500px-LM358_pinout.svg.png"},
+      'LM358N': {"desc": "Bộ khuếch đại thuật toán kép nguồn đơn 3V-32V (Dual Op-Amp DIP-8)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/LM358_pinout.svg/500px-LM358_pinout.svg.png"},
+      'LM358P': {"desc": "Dual General-Purpose Op-Amp chuẩn Texas Instruments (DIP-8)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/LM358_pinout.svg/500px-LM358_pinout.svg.png"},
+      'LM324': {"desc": "Bộ khuếch đại thuật toán 4 kênh nguồn đơn đa dụng (Quad Op-Amp)", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/LM324_pinout.svg/500px-LM324_pinout.svg.png"},
+      'LM324N': {"desc": "Quad Low-Power Op-Amp 4 kênh hoạt động từ nguồn đơn 3V-32V", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/LM324_pinout.svg/500px-LM324_pinout.svg.png"},
+      'UA741': {"desc": "Op-Amp kinh điển 1 kênh đa dụng có chân bù điện áp Offset (Single Op-Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/741_Op-amp_pinout.svg/500px-741_Op-amp_pinout.svg.png"},
+      'LM741': {"desc": "Op-Amp kinh điển 1 kênh bảo vệ quá tải ngõ vào và ngõ ra (Single Op-Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/741_Op-amp_pinout.svg/500px-741_Op-amp_pinout.svg.png"},
+      'RC4558': {"desc": "Dual Op-Amp tiền khuếch đại âm thanh và tín hiệu đa dụng băng thông 3MHz", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'MC1458': {"desc": "Dual Op-Amp đa dụng nội bộ bù tần số không lo dao động tự kích", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'NJM4558': {"desc": "Dual High Gain Op-Amp âm thanh và xử lý tín hiệu analog phổ biến", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'LM301': {"desc": "Op-Amp đa dụng có chân bù tần số rời cho phép tùy biến tốc độ đáp ứng", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'LM301A': {"desc": "Precision General-Purpose Op-Amp dải áp hoạt động tới ±18V", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'LF351': {"desc": "Op-Amp đơn ngõ vào JFET tốc độ cao băng thông rộng trở kháng vào 10^12 Ω", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'LF353': {"desc": "Op-Amp kép ngõ vào JFET băng thông 4MHz tốc độ quét 13V/µs", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'LF356': {"desc": "JFET-Input Op-Amp dòng đáp ứng cực nhanh thời gian xác lập siêu ngắn", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'CA3140': {"desc": "Op-Amp ngõ vào BiMOS MOSFET trở kháng siêu cao 1.5TΩ dòng vào cực nhỏ 10pA", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'CA3140E': {"desc": "BiMOS Operational Amplifier kết hợp ngõ vào MOSFET và ngõ ra Bipolar", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'CA3130': {"desc": "Op-Amp ngõ vào BiMOS ngõ ra CMOS Rail-to-Rail kéo áp sát nguồn", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'LM258': {"desc": "Dual Op-Amp tiêu chuẩn công nghiệp dải nhiệt độ rộng -25°C đến 85°C", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'LM2902': {"desc": "Quad Op-Amp 4 kênh chuẩn công nghiệp và ô tô nhiệt độ -40°C đến 125°C", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Đa Dụng"},
+      'TL071': {"desc": "Op-Amp đơn ngõ vào JFET âm thanh độ nhiễu thấp (Low-Noise JFET Op-Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'TL072': {"desc": "Op-Amp kép ngõ vào JFET âm thanh độ méo hài thấp (Dual Low-Noise Audio Op-Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/LM358_pinout.svg/500px-LM358_pinout.svg.png"},
+      'TL072CP': {"desc": "Dual Low-Noise JFET-Input General Purpose Audio Op-Amp (DIP-8)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'TL074': {"desc": "Op-Amp 4 kênh ngõ vào JFET âm thanh chất lượng cao (Quad Low-Noise Audio Op-Amp)", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/LM324_pinout.svg/500px-LM324_pinout.svg.png"},
+      'TL074CN': {"desc": "Quad Low-Noise JFET-Input Audio Op-Amp 4 kênh độ trung thực cao", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'TL081': {"desc": "Op-Amp đơn JFET tốc độ cao trở kháng vào cao (Wide Bandwidth JFET Op-Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'TL082': {"desc": "Op-Amp kép ngõ vào JFET tốc độ đáp ứng cao 13V/µs (Dual JFET Op-Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/LM358_pinout.svg/500px-LM358_pinout.svg.png"},
+      'TL084': {"desc": "Op-Amp 4 kênh ngõ vào JFET đa dụng chất lượng cao (Quad JFET Op-Amp)", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'TL061': {"desc": "Op-Amp đơn ngõ vào JFET tiêu thụ dòng siêu thấp Low-Power 200µA", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'TL062': {"desc": "Op-Amp kép JFET tiêu thụ dòng siêu thấp Low-Power cho thiết bị dùng pin", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'TL064': {"desc": "Op-Amp 4 kênh JFET tiêu thụ dòng siêu thấp Low-Power", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'NE5532': {"desc": "Op-Amp kép âm thanh Hi-Fi độ ồn siêu thấp 5nV/√Hz chuyên mạch Pre-Amp (Dual Audio Op-Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/LM358_pinout.svg/500px-LM358_pinout.svg.png"},
+      'NE5532P': {"desc": "Dual High-Performance Low-Noise Audio Op-Amp chuyên pre-amp âm thanh Hi-Fi", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'NE5534': {"desc": "Op-Amp đơn âm thanh chất lượng phòng thu băng thông 10MHz độ ồn cực thấp 3.5nV/√Hz", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'OPA2134': {"desc": "Op-Amp kép âm thanh cao cấp SoundPlus méo hài cực thấp 0.00008% (Burr-Brown)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'OPA2134PA': {"desc": "High Performance Audio Operational Amplifier ngõ vào FET của Burr-Brown", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'OPA134': {"desc": "Op-Amp đơn âm thanh cao cấp SoundPlus méo cực thấp ngõ vào FET (Burr-Brown)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'OPA2604': {"desc": "Op-Amp kép âm thanh FET-Input điện áp cao ±24V chất âm analog ấm áp", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'LM833': {"desc": "Dual Audio Op-Amp độ ồn thấp tối ưu cho tiền khuếch đại âm thanh và mixer", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'LM833N': {"desc": "Dual Audio Operational Amplifier băng thông 15MHz tốc độ quét 7V/µs", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'MUSES02': {"desc": "Op-Amp kép âm thanh Hi-End cao cấp cấu trúc đồng khử oxy OFC của hãng JRC", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'AD712': {"desc": "Dual Precision High Speed BiFET Op-Amp âm thanh chính xác băng thông 4MHz", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'OPA1612': {"desc": "SoundPlus Dual Bipolar Audio Op-Amp siêu tĩnh độ méo siêu nhỏ cho DAC/Audio", "pkg": "SOIC-8 / Module", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'OPA627': {"desc": "Op-Amp đơn High-Speed Difet âm thanh đỉnh cao băng thông 16MHz tốc độ 55V/µs", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp JFET & Âm Thanh"},
+      'OP07': {"desc": "Op-Amp độ chính xác cao bù điện áp siêu thấp 75µV trôi nhiệt cực nhỏ (Ultra-Low Offset)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'OP07CP': {"desc": "Precision Operational Amplifier điện áp lệch cực thấp 75µV độ ổn định cao", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'OP27': {"desc": "Op-Amp chính xác tốc độ cao độ ồn siêu thấp 3nV/√Hz cho đo lường chuẩn", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'OP37': {"desc": "Op-Amp chính xác tốc độ quét cực nhanh 17V/µs băng thông 63MHz (độ lợi > 5)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'OP77': {"desc": "Op-Amp đo lường độ chính xác cao trôi nhiệt cực thấp 0.3µV/°C CMRR 120dB", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'OP177': {"desc": "Op-Amp đo lường chuẩn tham chiếu Offset cực đại 10µV trôi nhiệt 0.1µV/°C", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'AD620': {"desc": "IC khuếch đại đo lường Instrumentation Amp chỉnh độ lợi 1-10000 bằng 1 điện trở Rg", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'AD620AN': {"desc": "Low Cost Low Power Instrumentation Amplifier đo cảm biến Loadcell/Y tế", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'INA128': {"desc": "IC khuếch đại đo lường độ chính xác cao CMRR 120dB của Burr-Brown", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'INA128P': {"desc": "Precision Low Power Instrumentation Amplifier chỉnh độ lợi từ 1 đến 10000", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'INA129': {"desc": "IC khuếch đại đo lường cảm biến cầu biến dạng Loadcell/Cặp nhiệt điện", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'INA126': {"desc": "IC khuếch đại đo lường nguồn đơn vi công suất 175µA dải áp 2.7V - 36V", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'ICL7650': {"desc": "Op-Amp tự động triệt tiêu điện áp lệch Chopper-Stabilized không trôi áp theo nhiệt", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'LTC1050': {"desc": "Precision Zero-Drift Op-Amp công nghệ ổn định bằng băm xung tích hợp tụ nội", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'LT1028': {"desc": "Op-Amp độ ồn nhỏ nhất thế giới 0.85nV/√Hz cho máy đo siêu âm và hạt nhân", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'AD524': {"desc": "IC khuếch đại đo lường lập trình được hệ số khuếch đại G=1, 10, 100, 1000 bằng chân ghim", "pkg": "DIP-16", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Chính Xác & Đo Lường"},
+      'MCP6001': {"desc": "Op-Amp đơn Rail-to-Rail nguồn thấp 1.8V-6V dòng tiêu thụ 100µA (SOT-23-5)", "pkg": "SOT-23-5", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'MCP6002': {"desc": "Op-Amp kép Rail-to-Rail ngõ vào & ngõ ra nguồn thấp 1.8V-6.0V tiết kiệm điện", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'MCP6002-I/P': {"desc": "Dual General Purpose Rail-to-Rail I/O Op-Amp nguồn 1.8V-6V (DIP-8)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'MCP6004': {"desc": "Op-Amp 4 kênh Rail-to-Rail nguồn đơn tối ưu cho Vi điều khiển/Arduino 3.3V/5V", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'MCP601': {"desc": "Op-Amp đơn Rail-to-Rail ngõ ra 2.8MHz có chân bù áp Offset", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'MCP602': {"desc": "Op-Amp kép Rail-to-Rail tốc độ cao 2.8MHz nguồn đơn (2.7V - 6.0V)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'LMC6482': {"desc": "Dual CMOS Op-Amp Rail-to-Rail cả ngõ vào và ngõ ra dải rộng 3V - 15V", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'LMC6484': {"desc": "Quad CMOS Op-Amp Rail-to-Rail Input/Output 4 kênh hoạt động từ nguồn 3V", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'LMC662': {"desc": "Dual CMOS Op-Amp dòng ngõ vào siêu nhỏ picoampe trở kháng 10^12 Ω", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'OPA340': {"desc": "Op-Amp đơn MicroAmplifier Rail-to-Rail tốc độ cao 5.5MHz nguồn đơn 2.5V-5.5V", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'OPA2340': {"desc": "Dual Rail-to-Rail CMOS Op-Amp tốc độ cao 5.5MHz tối ưu cho ADC vi điều khiển", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'AD822': {"desc": "Dual FET-Input Rail-to-Rail Op-Amp độ chính xác cao nguồn đơn 5V hoặc đôi ±15V", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'AD823': {"desc": "Dual 16MHz Rail-to-Rail FET Op-Amp tốc độ cao kéo tải điện dung lớn", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'AD8606': {"desc": "Precision Low Noise Rail-to-Rail Input/Output Op-Amp nguồn 2.7V - 5.5V", "pkg": "SOP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'TS922': {"desc": "Dual Op-Amp Rail-to-Rail dòng ngõ ra lớn tới 80mA kéo loa nhỏ/tai nghe trực tiếp", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Op-Amp Rail-to-Rail & Nguồn Đơn"},
+      'LM393': {"desc": "Bộ so sánh điện áp kép nguồn đơn ngõ ra cực thu hở (Dual Voltage Comparator)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/LM358_pinout.svg/500px-LM358_pinout.svg.png"},
+      'LM393P': {"desc": "Dual Differential Comparator ngõ ra cực thu hở kéo mức logic dễ dàng", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'LM339': {"desc": "Bộ so sánh điện áp 4 kênh nguồn đơn ngõ ra cực thu hở (Quad Comparator)", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/LM324_pinout.svg/500px-LM324_pinout.svg.png"},
+      'LM339N': {"desc": "Quad Differential Comparator 4 kênh độc lập dải áp 2V đến 36V", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'LM311': {"desc": "Bộ so sánh điện áp tốc độ cao có ngõ ra kéo tải trực tiếp 50mA kèm chân Strobe", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'LM311P': {"desc": "Voltage Comparator tốc độ cao ngõ ra transistor mở kéo tải relay/LED trực tiếp", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'LM2903': {"desc": "Dual Voltage Comparator chuẩn nhiệt độ công nghiệp -40°C đến 125°C", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'LM2901': {"desc": "Quad Voltage Comparator chuẩn nhiệt độ công nghiệp và ô tô", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'TLC3702': {"desc": "Dual Micropower LinCMOS Comparator ngõ ra Push-Pull không cần điện trở kéo lên", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'TLC3704': {"desc": "Quad LinCMOS Voltage Comparator ngõ ra Push-Pull tốc độ cao", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'LM319': {"desc": "Bộ so sánh điện áp kép tốc độ cực cao độ trễ 80ns hoạt động từ nguồn đơn 5V hoặc ±15V", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'MAX902': {"desc": "Dual High-Speed Voltage Comparator độ trễ thấp 8ns tương thích TTL", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'MAX9140': {"desc": "Bộ so sánh điện áp Rail-to-Rail tốc độ cao 40ns nguồn đơn 2.7V - 5.5V", "pkg": "SOT-23-5", "cat": "Analog / Op-Amp", "subCat": "Bộ So Sánh Điện Áp"},
+      'NE555': {"desc": "IC định thời / tạo dao động xung vuông kinh điển (Precision Timer)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/NE555_Pinout.svg/500px-NE555_Pinout.svg.png"},
+      'LM555': {"desc": "IC định thời / tạo dao động xung vuông kinh điển (Precision Timer)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/NE555_Pinout.svg/500px-NE555_Pinout.svg.png"},
+      'TLC555': {"desc": "IC 555 công nghệ CMOS tốc độ cao 2MHz tiêu thụ điện năng cực thấp", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'ICM7555': {"desc": "Phiên bản CMOS của 555 hoạt động từ 2V dòng tiêu thụ chỉ 60µA không sụt nguồn", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'NE556': {"desc": "IC định thời kép tích hợp 2 bộ 555 hoạt động độc lập (Dual Timer)", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'ICL8038': {"desc": "IC tạo sóng sin, tam giác, vuông chính xác chỉnh được tần số và độ rộng xung", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'XR2206': {"desc": "IC tạo hàm phát sóng sin, tam giác, răng cưa chất lượng cao điều chế AM/FM", "pkg": "DIP-16", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'CD4046': {"desc": "IC vòng khóa pha số / tương tự (Phase-Locked Loop PLL kèm bộ dao động VCO)", "pkg": "DIP-16", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'MAX038': {"desc": "IC phát hàm sóng tần số siêu cao tới 20MHz điều khiển bằng dòng điện", "pkg": "DIP-20", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'NE567': {"desc": "IC giải mã âm tần Tone Decoder kèm vòng khóa pha PLL chống nhiễu", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'LM567': {"desc": "Tone Decoder / Phase-Locked Loop lọc và phát hiện đúng tần số mục tiêu", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Định Thời & Tạo Sóng"},
+      'LM386': {"desc": "IC khuếch đại âm thanh nguồn thấp công suất 325mW - 1W (Low Voltage Audio Amp)", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh", "pinout": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LM386_Pinout.svg/500px-LM386_Pinout.svg.png"},
+      'TDA2030': {"desc": "IC khuếch đại âm thanh Hi-Fi công suất 14W - 18W class AB (Audio Power Amp)", "pkg": "TO-220-5", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TDA2030A': {"desc": "IC khuếch đại âm thanh Hi-Fi 18W class AB hoạt động nguồn đơn hoặc đôi ±18V", "pkg": "TO-220-5", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TDA2050': {"desc": "IC khuếch đại âm thanh Hi-Fi công suất 32W cho loa thùng 4Ω - 8Ω", "pkg": "TO-220-5", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TDA7297': {"desc": "IC khuếch đại âm thanh 2 kênh Dual Bridge 2x15W nguồn đơn 12V tiện dụng", "pkg": "MultiWatt-15", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TDA7294': {"desc": "IC công suất âm thanh DMOS Hi-Fi 100V 100W độ méo tiếng cực thấp class AB", "pkg": "MultiWatt-15", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TDA2822': {"desc": "IC khuếch đại âm thanh stereo 2 kênh nguồn thấp cho máy nghe nhạc/tai nghe", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TDA2822M': {"desc": "Dual Low-Voltage Power Amplifier hoạt động từ 1.8V chuyên tai nghe/loa mini", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'PAM8403': {"desc": "IC/Module khuếch đại âm thanh Stereo kỹ thuật số Class D 2x3W hiệu suất 90%", "pkg": "SOP-16 / Module", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'PAM8406': {"desc": "IC khuếch đại âm thanh Class D / Class AB kép 2x5W chuyển đổi linh hoạt", "pkg": "SOP-16 / Module", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TEA2025B': {"desc": "IC khuếch đại âm thanh Stereo 2.3W x 2 hoặc cầu BTL 4.7W cho loa vi tính", "pkg": "DIP-16", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'LM1875': {"desc": "IC công suất âm thanh Hi-Fi 20W độ méo tiếng siêu nhỏ 0.015% (TO-220-5)", "pkg": "TO-220-5", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'LM3886': {"desc": "IC công suất âm thanh cao cấp Overture 68W bảo vệ mạch an toàn SPIKe", "pkg": "TO-220-11", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TPA3116D2': {"desc": "IC khuếch đại công suất Class D Stereo 2x50W hoặc Mono 100W tần số quét cao", "pkg": "HTSSOP-32 / Module", "cat": "Analog / Op-Amp", "subCat": "Khuếch Đại Công Suất Âm Thanh"},
+      'TL431': {"desc": "IC tham chiếu điện áp điều chỉnh được 2.5V-36V độ ổn định cao (Programmable Shunt)", "pkg": "TO-92 / SOT-23", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'TL431A': {"desc": "Precision Programmable Reference dung sai chuẩn xác 0.5% dải áp 2.5V-36V", "pkg": "TO-92", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'TL432': {"desc": "IC tham chiếu điện áp đổi chân cho nguồn xung flyback/adapter", "pkg": "TO-92 / SOT-23", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'LM385': {"desc": "Diode Zener tham chiếu vi công suất 1.2V / 2.5V dòng tối thiểu chỉ 10µA", "pkg": "TO-92", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'LM336': {"desc": "IC tham chiếu điện áp chính xác 2.5V / 5.0V có chân chỉnh trôi nhiệt độ", "pkg": "TO-92", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'AD584': {"desc": "IC chuẩn tham chiếu điện áp phòng thí nghiệm 4 mức: 10.0V, 7.5V, 5.0V, 2.5V", "pkg": "TO-99 / DIP-8", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'REF02': {"desc": "IC tham chiếu điện áp chuẩn chính xác 5.0V kèm ngõ ra đo nhiệt độ 2.1mV/°C", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'CD4051': {"desc": "Bộ dồn/giải dồn kênh Analog 8 kênh (8-Channel Analog Multiplexer/Demultiplexer)", "pkg": "DIP-16", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'CD4052': {"desc": "Bộ dồn kênh Analog 4 kênh đôi kép (Dual 4-Channel Analog Multiplexer/Demux)", "pkg": "DIP-16", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'CD4053': {"desc": "Bộ chuyển mạch Analog 2 kênh 3 cụm (Triple 2-Channel Analog MUX/DEMUX)", "pkg": "DIP-16", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'CD4066': {"desc": "4 công tắc song công Analog/Digital độc lập trở kháng thấp (Quad Bilateral Switch)", "pkg": "DIP-14", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'DG408': {"desc": "Bộ dồn kênh Analog 8 kênh CMOS điện áp cao ±15V nội trở bật cực thấp 100Ω", "pkg": "DIP-16", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
+      'MAX318': {"desc": "Công tắc Analog CMOS tốc độ cao nội trở cực thấp thời gian trễ dưới 10ns", "pkg": "DIP-8", "cat": "Analog / Op-Amp", "subCat": "Tham Chiếu Áp & Mux/Switch Analog"},
 
       // Voltage Regulators & Power
       'LM7805': { desc: 'IC ổn áp tuyến tính ngõ ra +5V 1.5A', pkg: 'TO-220', cat: 'Công suất', pinout: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/7805_Pinout.svg/500px-7805_Pinout.svg.png' },
@@ -915,6 +1036,16 @@
       let stripped = clean.replace(/^(SN|MC|HD|DM|TC|HCF|HEF|MM|TI)/i, '');
       if (EXACT_IC_KNOWLEDGE[stripped]) {
         return EXACT_IC_KNOWLEDGE[stripped];
+      }
+
+      // Tra cứu thông minh: Loại bỏ hậu tố đóng gói & dải nhiệt độ (VD: LM358N, LM358P, TL072CP, NE5532P, OP07CP, LM386N-1, MCP6002-I/P)
+      let suffixStripped = clean.replace(/[\-\/][A-Z0-9\/]+$/i, '').replace(/(?:[NPD]|CN|CP|DR|CDR|IDR|EP|IP|AP|DT|PW)$/i, '');
+      if (EXACT_IC_KNOWLEDGE[suffixStripped]) {
+        return EXACT_IC_KNOWLEDGE[suffixStripped];
+      }
+      let strippedSuffix = stripped.replace(/[\-\/][A-Z0-9\/]+$/i, '').replace(/(?:[NPD]|CN|CP|DR|CDR|IDR|EP|IP|AP|DT|PW)$/i, '');
+      if (EXACT_IC_KNOWLEDGE[strippedSuffix]) {
+        return EXACT_IC_KNOWLEDGE[strippedSuffix];
       }
 
       const m74 = clean.match(/^74([A-Z]{0,4})?(\d{2,3})([A-Z0-9]*)$/i) || stripped.match(/^74([A-Z]{0,4})?(\d{2,3})([A-Z0-9]*)$/i);
@@ -1372,5 +1503,70 @@
       }
 
       return 'Cổng Logic';
+    }
+
+    // =========================================================================
+    // FEATURE 1.1: SUB-CATALOG PHÂN LOẠI CHỨC NĂNG SÂU CHO ANALOG / OP-AMP
+    // =========================================================================
+
+    const ANALOG_SUBCAT_LIST = [
+      { id: 'Op-Amp Đa Dụng', label: 'Op-Amp Đa Dụng', icon: 'activity', desc: 'LM358, LM324, UA741, RC4558, MC1458, LF351/353/356, CA3140' },
+      { id: 'Op-Amp JFET & Âm Thanh', label: 'JFET & Âm Thanh Hi-Fi', icon: 'volume-2', desc: 'TL071/072/074, TL082, NE5532, NE5534, OPA2134, LM833, MUSES' },
+      { id: 'Op-Amp Chính Xác & Đo Lường', label: 'Chính Xác & Đo Lường', icon: 'gauge', desc: 'OP07, OP27/37/77, AD620, INA128/129, ICL7650, Zero-Drift, LTC1050' },
+      { id: 'Op-Amp Rail-to-Rail & Nguồn Đơn', label: 'Rail-to-Rail & Nguồn Đơn', icon: 'sliders', desc: 'MCP6001/6002/6004, MCP601/602, LMC6482/6484, OPA340, AD822' },
+      { id: 'Bộ So Sánh Điện Áp', label: 'So Sánh Điện Áp', icon: 'git-commit', desc: 'LM393, LM339, LM311, LM2903, TLC3702, LM319 (Comparators)' },
+      { id: 'Định Thời & Tạo Sóng', label: 'Định Thời & Tạo Sóng', icon: 'clock', desc: 'NE555, LM555, TLC555, NE556, ICL8038, XR2206, CD4046 PLL, MAX038' },
+      { id: 'Khuếch Đại Công Suất Âm Thanh', label: 'Công Suất Âm Thanh', icon: 'speaker', desc: 'LM386, TDA2030, TDA2050, TDA7297, TDA7294, TDA2822, PAM8403, LM1875' },
+      { id: 'Tham Chiếu Áp & Mux/Switch Analog', label: 'Tham Chiếu & Switch Analog', icon: 'cpu', desc: 'TL431, TL432, LM385, LM336, AD584, CD4051, CD4052, CD4053, CD4066' }
+    ];
+
+    let currentAnalogSubCategory = 'Tất cả';
+
+    function determineAnalogSubcategory(rawName, rawDesc = '') {
+      if (!rawName) return 'Op-Amp Đa Dụng';
+      const clean = String(rawName).toUpperCase().trim();
+      const d = String(rawDesc || '').toLowerCase();
+
+      // 1. Rail-to-Rail & Low Voltage Single-Supply
+      if (/MCP600[124]|MCP60[12]|LMC648[24]|LMC662|OPA[23]?340|AD82[23]|AD860[65]|TS922|TLV237[124]/i.test(clean) || d.includes('rail-to-rail') || d.includes('rail to rail') || (d.includes('nguồn thấp') && d.includes('nguồn đơn'))) {
+        return 'Op-Amp Rail-to-Rail & Nguồn Đơn';
+      }
+
+      // 2. Precision & Instrumentation
+      if (/^(?:OP07|OP27|OP37|OP77|OP177|AD620|AD8421|INA12[896]|INA11[48]|INA13[28]|ICL7650|LTC1050|LT1028|AD524)/i.test(clean) || d.includes('instrumentation') || d.includes('đo lường') || d.includes('chính xác cao') || d.includes('zero-drift') || d.includes('chopper') || d.includes('ultra-low offset')) {
+        return 'Op-Amp Chính Xác & Đo Lường';
+      }
+
+      // 3. JFET & Hi-Fi Audio Op-Amps
+      if (/^(?:TL07[124]|TL08[124]|TL06[124]|NE553[24]|OPA2134|OPA134|OPA2604|OPA1612|OPA627|OPA2107|LM833|MUSES|AD712)/i.test(clean) || d.includes('jfet') || d.includes('âm thanh hi-fi') || d.includes('audio op-amp') || d.includes('low-noise audio') || d.includes('độ ồn siêu thấp') || d.includes('tiền khuếch đại âm thanh')) {
+        return 'Op-Amp JFET & Âm Thanh';
+      }
+
+      // 4. Comparators
+      if (/^(?:LM393|LM339|LM311|LM2903|LM2901|TLC370[24]|MAX902|MAX9140|CMP01|LM319)/i.test(clean) || d.includes('so sánh') || d.includes('comparator')) {
+        return 'Bộ So Sánh Điện Áp';
+      }
+
+      // 5. Timers, Function Generators & PLL
+      if (/^(?:NE555|LM555|TLC555|ICM7555|NE556|ICL8038|XR2206|CD4046|MAX038|NE567)/i.test(clean) || /(?:^|\D)555(?:\D|$)/.test(clean) || /(?:^|\D)556(?:\D|$)/.test(clean) || d.includes('định thời') || d.includes('timer') || d.includes('phát sóng') || d.includes('khóa pha') || d.includes('function generator') || d.includes('tạo xung')) {
+        return 'Định Thời & Tạo Sóng';
+      }
+
+      // 6. Power Audio Amplifiers
+      if (/^(?:LM386|TDA2030|TDA2050|TDA729[47]|TDA2822|PAM840[36]|TEA2025|LM1875|LM3886|TPA3116)/i.test(clean) || d.includes('công suất âm thanh') || d.includes('audio amp') || d.includes('class d') || d.includes('class ab') || d.includes('khuếch đại âm thanh') || d.includes('bridge amp')) {
+        return 'Khuếch Đại Công Suất Âm Thanh';
+      }
+
+      // 7. Voltage References & Analog Switches/Mux
+      if (/^(?:TL431|TL432|LM385|LM336|AD584|REF02|CD405[123]|CD4066|DG408|MAX318)/i.test(clean) || clean.includes('4051') || clean.includes('4052') || clean.includes('4053') || clean.includes('4066') || d.includes('tham chiếu') || d.includes('reference') || d.includes('bilateral switch') || d.includes('analog mux') || d.includes('công tắc analog') || d.includes('shunt regulator')) {
+        return 'Tham Chiếu Áp & Mux/Switch Analog';
+      }
+
+      // 8. General Purpose Op-Amps
+      if (/^(?:LM358|LM324|UA741|LM741|741|RC4558|MC1458|NJM4558|LM301|LF35[136]|CA3140|CA3130|LM258|LM2902)/i.test(clean) || d.includes('op-amp') || d.includes('opamp') || d.includes('thuật toán') || d.includes('operational amplifier')) {
+        return 'Op-Amp Đa Dụng';
+      }
+
+      return 'Op-Amp Đa Dụng';
     }
 
