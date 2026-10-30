@@ -261,7 +261,6 @@
         if (badge && manualClick) badge.classList.add('hidden');
       }
     }
-    }
 
     // TOGGLE FAVORITE / GHIM LINH KIỆN
 

@@ -1253,11 +1253,11 @@
 
         <!-- Filter Tabs trong Modal Thành Tích -->
         <div class="flex flex-col gap-2">
-          <!-- Hàng 1: Lọc trạng thái Đã có / Chưa có -->
+          <!-- Hàng 1: Lọc trạng thái Đã có / Chưa có + Tìm kiếm nhanh -->
           <div class="flex items-center gap-1.5 flex-wrap text-xs">
             <span class="text-slate-400 text-[11px] mr-1">Bộ lọc:</span>
             <button type="button" onclick="set74AchievementStatusFilter('all')" id="achievFilterBtn_all" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-indigo-600 text-white shadow-sm">
-              Tất cả (68)
+              Tất cả (597)
             </button>
             <button type="button" onclick="set74AchievementStatusFilter('owned')" id="achievFilterBtn_owned" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800 text-emerald-300 hover:bg-slate-700 border border-emerald-500/30">
               🟢 Đã có trong kho (<span id="achievBadgeOwned">0</span>)
@@ -1265,6 +1265,10 @@
             <button type="button" onclick="set74AchievementStatusFilter('missing')" id="achievFilterBtn_missing" class="px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700">
               ⚪ Chưa có (<span id="achievBadgeMissing">0</span>)
             </button>
+            <div class="sm:ml-auto w-full sm:w-56 relative mt-1 sm:mt-0">
+              <input type="text" id="achievSearchInput" oninput="set74AchievementSearch(this.value)" placeholder="Tìm mã 74 (VD: 595, nand)..." class="w-full bg-slate-950 border border-slate-700/80 rounded-lg pl-7 pr-3 py-1 text-xs text-slate-200 focus:outline-none focus:border-indigo-400 font-mono">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute left-2 top-1.5"></i>
+            </div>
           </div>
 
           <!-- Hàng 2: Lọc theo 8 Phân Loại Chức Năng (Sub-catalogs) -->
@@ -1290,13 +1294,13 @@
   </div>
 
     <!-- ================= CÁC THƯ VIỆN & MODULE CODE (GIỐNG #INCLUDE TRONG ARDUINO/ESP32) ================= -->
-  <script src="js/data.js?v=2.1.4"></script>
-  <script src="js/cloud.js?v=2.1.4"></script>
-  <script src="js/pinout.js?v=2.1.4"></script>
-  <script src="js/boxes.js?v=2.1.4"></script>
-  <script src="js/projects.js?v=2.1.4"></script>
-  <script src="js/batch_scan.js?v=2.1.4"></script>
-  <script src="js/achievement74.js?v=2.1.4"></script>
-  <script src="js/app.js?v=2.1.4"></script>
+  <script src="js/data.js?v=2.1.5"></script>
+  <script src="js/cloud.js?v=2.1.5"></script>
+  <script src="js/pinout.js?v=2.1.5"></script>
+  <script src="js/boxes.js?v=2.1.5"></script>
+  <script src="js/projects.js?v=2.1.5"></script>
+  <script src="js/batch_scan.js?v=2.1.5"></script>
+  <script src="js/achievement74.js?v=2.1.5"></script>
+  <script src="js/app.js?v=2.1.5"></script>
 </body>
 </html>

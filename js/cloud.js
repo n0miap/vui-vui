@@ -155,21 +155,22 @@
 
     function openSettingsModal(tab = 'cloud') {
       document.getElementById('cloudUrlInput').value = cloudUrl;
+      const serverUrl = typeof pinoutServerUrl !== 'undefined' ? pinoutServerUrl : (localStorage.getItem('ee_pinout_server_url') || '');
       const sInput = document.getElementById('pinoutServerUrlInput');
-      if (sInput) sInput.value = pinoutServerUrl;
+      if (sInput) sInput.value = serverUrl;
       
       const badge = document.getElementById('currentServerTypeBadge');
       if (badge) {
-        if (!pinoutServerUrl) {
+        if (!serverUrl) {
           badge.textContent = 'Chưa thiết lập';
           badge.className = 'text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono';
-        } else if (pinoutServerUrl.includes('localhost') || pinoutServerUrl.includes('127.0.0.1')) {
+        } else if (serverUrl.includes('localhost') || serverUrl.includes('127.0.0.1')) {
           badge.textContent = 'Laptop (Local)';
           badge.className = 'text-[10px] text-emerald-300 bg-emerald-500/20 px-1.5 py-0.5 rounded font-mono';
-        } else if (pinoutServerUrl.includes('trycloudflare.com')) {
+        } else if (serverUrl.includes('trycloudflare.com')) {
           badge.textContent = 'Cloudflare HTTPS';
           badge.className = 'text-[10px] text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded font-mono';
-        } else if (pinoutServerUrl.includes('ngrok')) {
+        } else if (serverUrl.includes('ngrok')) {
           badge.textContent = 'Ngrok Static Domain';
           badge.className = 'text-[10px] text-sky-300 bg-sky-500/20 px-1.5 py-0.5 rounded font-mono';
         } else {

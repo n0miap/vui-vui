@@ -582,7 +582,7 @@
               <div class="flex items-center gap-1.5 min-w-0">
                 <i data-lucide="zap" class="w-3.5 h-3.5 ${p.inUse > 0 ? 'text-sky-400' : 'text-slate-600'} shrink-0"></i>
                 <div class="truncate">
-                  <span class="${p.inUse > 0 ? 'text-sky-300 font-medium' : 'text-slate-500'}">Cắm mạch: ${p.inUse || 0}</span>
+                  <span onclick="editInUseDirect('${p.id}', this, event)" class="${p.inUse > 0 ? 'text-sky-300 font-medium' : 'text-slate-500'} cursor-pointer hover:underline" title="Bấm vào để sửa nhanh số lượng cắm mạch">Cắm mạch: ${p.inUse || 0}</span>
                   ${p.project ? `<span class="text-slate-400 text-[11px] block truncate" title="${p.project}">• ${p.project}</span>` : ''}
                 </div>
               </div>
@@ -608,7 +608,7 @@
             <div class="flex items-center gap-1.5">
               <span class="text-[11px] text-slate-400 mr-0.5">Trong hộp:</span>
               <button onclick="changeQty('${p.id}', -1)" class="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-slate-700 hover:bg-rose-600/80 active:scale-95 text-white font-bold flex items-center justify-center transition text-sm sm:text-xs" aria-label="Giảm 1">-</button>
-              <span class="min-w-[40px] text-center font-mono font-bold text-sm py-0.5 px-2 rounded-lg border ${qtyBadge}">${p.qty}</span>
+              <span onclick="editQtyDirect('${p.id}', this, event)" class="min-w-[40px] text-center font-mono font-bold text-sm py-0.5 px-2 rounded-lg border ${qtyBadge} cursor-pointer hover:ring-2 hover:ring-emerald-400/80 hover:scale-105 active:scale-95 transition" title="Bấm vào số để nhập nhanh số lượng">${p.qty}</span>
               <button onclick="changeQty('${p.id}', 1)" class="w-8 h-8 sm:w-7 sm:h-7 rounded-lg bg-slate-700 hover:bg-emerald-600/80 active:scale-95 text-white font-bold flex items-center justify-center transition text-sm sm:text-xs" aria-label="Tăng 1">+</button>
             </div>
           </div>
@@ -625,6 +625,89 @@
       p.qty = Math.max(0, Number(p.qty) + delta);
       saveData();
       renderParts();
+      if (typeof update74AchievementHeaderBadge === 'function') update74AchievementHeaderBadge();
+    }
+
+    function editQtyDirect(id, el, event) {
+      if (event) event.stopPropagation();
+      const p = parts.find(x => x.id === id);
+      if (!p || el.querySelector('input')) return;
+
+      const currentVal = Number(p.qty) || 0;
+      el.innerHTML = `<input type="number" min="0" value="${currentVal}" class="w-12 text-center bg-slate-950 border border-emerald-400 rounded text-emerald-300 font-mono font-bold text-sm py-0.5 px-0.5 focus:outline-none shadow-lg" />`;
+      const inp = el.querySelector('input');
+      if (!inp) return;
+      inp.focus();
+      inp.select();
+
+      let finished = false;
+      const commit = (save) => {
+        if (finished) return;
+        finished = true;
+        if (save) {
+          const val = parseInt(inp.value, 10);
+          if (!isNaN(val) && val >= 0) {
+            p.qty = val;
+            saveData();
+          }
+        }
+        renderParts();
+        if (typeof update74AchievementHeaderBadge === 'function') update74AchievementHeaderBadge();
+      };
+
+      inp.addEventListener('blur', () => commit(true));
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          inp.blur();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          commit(false);
+        }
+      });
+      inp.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    function editInUseDirect(id, el, event) {
+      if (event) event.stopPropagation();
+      const p = parts.find(x => x.id === id);
+      if (!p || el.querySelector('input')) return;
+
+      const currentVal = Number(p.inUse) || 0;
+      el.innerHTML = `<input type="number" min="0" value="${currentVal}" class="w-12 text-center bg-slate-950 border border-sky-400 rounded text-sky-300 font-mono font-bold text-xs py-0.5 px-0.5 focus:outline-none shadow-lg" />`;
+      const inp = el.querySelector('input');
+      if (!inp) return;
+      inp.focus();
+      inp.select();
+
+      let finished = false;
+      const commit = (save) => {
+        if (finished) return;
+        finished = true;
+        if (save) {
+          const val = parseInt(inp.value, 10);
+          if (!isNaN(val) && val >= 0) {
+            p.inUse = val;
+            saveData();
+          }
+        }
+        renderParts();
+        if (typeof update74AchievementHeaderBadge === 'function') update74AchievementHeaderBadge();
+      };
+
+      inp.addEventListener('blur', () => commit(true));
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          inp.blur();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          commit(false);
+        }
+      });
+      inp.addEventListener('click', (e) => e.stopPropagation());
     }
 
     function moveStock(id, direction) {
@@ -680,8 +763,8 @@
         document.getElementById('partSubCell').value = p.subCell || '';
         document.getElementById('partLocation').value = p.location || '';
         document.getElementById('partPinout').value = p.pinout || '';
-        if (p.pinout) showPinoutPreview(p.pinout);
-        else hidePinoutPreview();
+        if (p.pinout && typeof showPinoutPreview === 'function') showPinoutPreview(p.pinout);
+        else if (typeof hidePinoutPreview === 'function') hidePinoutPreview();
         const pinoutResults = document.getElementById('pinoutAutoResults');
         if (pinoutResults) pinoutResults.classList.add('hidden');
         document.getElementById('partDatasheet').value = p.datasheet || '';
@@ -713,7 +796,7 @@
         document.getElementById('partCell').value = presetCell || 'A1';
         document.getElementById('partSubCell').value = presetSubCell || '';
         document.getElementById('partPinout').value = '';
-        hidePinoutPreview();
+        if (typeof hidePinoutPreview === 'function') hidePinoutPreview();
         const pinoutResults = document.getElementById('pinoutAutoResults');
         if (pinoutResults) pinoutResults.classList.add('hidden');
         document.getElementById('partDatasheet').value = '';
@@ -825,6 +908,60 @@
 
 
 
+    // ================= PHÍM ESC & BẤM NỀN MỜ ĐÓNG MỌI MODAL / TAB =================
+    function closeTopmostModal() {
+      const modalCloseList = [
+        { id: 'bomModal', close: typeof closeBomModal === 'function' ? closeBomModal : null },
+        { id: 'buyModal', close: typeof closeBuyModal === 'function' ? closeBuyModal : null },
+        { id: 'replaceModal', close: typeof closeReplaceModal === 'function' ? closeReplaceModal : null },
+        { id: 'achievement74Modal', close: typeof close74AchievementModal === 'function' ? close74AchievementModal : null },
+        { id: 'partModal', close: typeof closePartModal === 'function' ? closePartModal : null },
+        { id: 'pinoutModal', close: typeof closePinoutModal === 'function' ? closePinoutModal : null },
+        { id: 'batchEnrichModal', close: typeof closeBatchEnrichModal === 'function' ? closeBatchEnrichModal : null },
+        { id: 'settingsModal', close: typeof closeSettingsModal === 'function' ? closeSettingsModal : null },
+        { id: 'categoriesModal', close: typeof closeCategoriesModal === 'function' ? closeCategoriesModal : null },
+        { id: 'projectsModal', close: typeof closeProjectsModal === 'function' ? closeProjectsModal : null },
+        { id: 'boxesModal', close: typeof closeBoxesModal === 'function' ? closeBoxesModal : null }
+      ];
+
+      for (const m of modalCloseList) {
+        const el = document.getElementById(m.id);
+        if (el && !el.classList.contains('hidden')) {
+          if (typeof m.close === 'function') {
+            m.close();
+          } else {
+            el.classList.add('hidden');
+          }
+          return true;
+        }
+      }
+
+      // Quét an toàn nếu có bất kỳ overlay modal nào khác đang mở
+      const visibleModals = Array.from(document.querySelectorAll('.fixed.inset-0:not(.hidden)'));
+      if (visibleModals.length > 0) {
+        visibleModals[visibleModals.length - 1].classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    // Bắt phím Escape (ESC) trên toàn bộ ứng dụng
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        const handled = closeTopmostModal();
+        if (handled) {
+          e.preventDefault();
+        }
+      }
+    });
+
+    // Bấm ra nền đen mờ bên ngoài modal cũng đóng modal
+    document.addEventListener('click', (e) => {
+      if (e.target && e.target.classList && e.target.classList.contains('fixed') && e.target.classList.contains('inset-0')) {
+        closeTopmostModal();
+      }
+    });
+
     init();
-    setupPinoutClipboardPaste();
+    if (typeof setupPinoutClipboardPaste === 'function') setupPinoutClipboardPaste();
   
