@@ -492,6 +492,172 @@ def get_desc():
 
     return jsonify({'desc': '', 'source': 'none'})
 
+# ================= 2.1 BỘ NHỚ CACHE & PROXY AI OVERVIEW (CHATGPT / LUNA 6.0) =================
+AI_CACHE_FILE = os.path.join(SCRIPT_DIR, 'js', 'ai_cache.js')
+
+def load_ai_cache_dict():
+    """Doc du lieu cache tu file js/ai_cache.js"""
+    if not os.path.exists(AI_CACHE_FILE):
+        return {}
+    try:
+        with open(AI_CACHE_FILE, 'r', encoding='utf-8') as f:
+            raw = f.read()
+        m = re.search(r'const\s+AI_CACHE\s*=\s*(\{[\s\S]*?\});', raw)
+        if m:
+            return json.loads(m.group(1))
+    except Exception as e:
+        print(f"[!] Khong the doc ai_cache.js: {e}")
+    return {}
+
+def save_ai_cache_dict(cache_dict):
+    """Ghi vinh vien du lieu cache vao file js/ai_cache.js"""
+    try:
+        os.makedirs(os.path.dirname(AI_CACHE_FILE), exist_ok=True)
+        json_str = json.dumps(cache_dict, ensure_ascii=False, indent=2)
+        content_to_write = f"""// =========================================================================\n// AI COMPONENT KNOWLEDGE CACHE (BỘ NHỚ LINH KIỆN ĐÃ TỪNG TRA CỨU AI)\n// Tự động lưu trữ vĩnh viễn trên máy - Tra cứu lại tốn 0 token, 0ms!\n// =========================================================================\n\nconst AI_CACHE = {json_str};\n\nif (typeof window !== 'undefined') {{\n  window.AI_CACHE = AI_CACHE;\n}}\n"""
+        with open(AI_CACHE_FILE, 'w', encoding='utf-8') as f:
+            f.write(content_to_write)
+        print(f"[+] Da cap nhat ai_cache.js thanh cong ({len(cache_dict)} linh kien)")
+        return True
+    except Exception as e:
+        print(f"[!] Loi ghi ai_cache.js: {e}")
+        return False
+
+def save_single_ai_cache_entry(name, data_item):
+    if not name or not data_item:
+        return
+    clean_key = str(name).strip().upper()
+    current = load_ai_cache_dict()
+    current[clean_key] = {
+        'name': data_item.get('name', clean_key).strip(),
+        'desc': data_item.get('desc', '').strip(),
+        'pkg': data_item.get('pkg', '').strip(),
+        'cat': data_item.get('category', data_item.get('cat', '')).strip(),
+        'subCat': data_item.get('subCategory', data_item.get('subCat', '')).strip(),
+        'pinout': data_item.get('pinout', '').strip(),
+        'savedAt': data_item.get('savedAt', '')
+    }
+    save_ai_cache_dict(current)
+
+@app.route('/api/ai/cache', methods=['GET'])
+def api_get_ai_cache():
+    return jsonify(load_ai_cache_dict())
+
+@app.route('/api/ai/cache/save', methods=['POST'])
+def api_save_ai_cache():
+    data = request.get_json(silent=True) or {}
+    name = data.get('name', '').strip()
+    if name:
+        save_single_ai_cache_entry(name, data)
+        return jsonify({'ok': True, 'saved': name})
+    elif 'cache' in data and isinstance(data['cache'], dict):
+        save_ai_cache_dict(data['cache'])
+        return jsonify({'ok': True, 'count': len(data['cache'])})
+    return jsonify({'ok': False, 'message': 'Thiếu dữ liệu cache'}), 400
+
+@app.route('/api/ai/cache/delete', methods=['POST'])
+def api_delete_ai_cache():
+    data = request.get_json(silent=True) or {}
+    name = data.get('name', '').strip()
+    if not name:
+        return jsonify({'ok': False, 'message': 'Thiếu tên linh kiện'}), 400
+    clean_key = str(name).strip().upper()
+    current = load_ai_cache_dict()
+    deleted = False
+    if clean_key in current:
+        del current[clean_key]
+        deleted = True
+    alt_key = re.sub(r'[\s\-_]', '', clean_key)
+    if alt_key in current:
+        del current[alt_key]
+        deleted = True
+    if deleted:
+        save_ai_cache_dict(current)
+        return jsonify({'ok': True, 'deleted': clean_key})
+    return jsonify({'ok': False, 'message': 'Không tìm thấy'}), 404
+
+
+@app.route('/api/ai/overview', methods=['POST'])
+def api_ai_overview():
+    data = request.get_json(silent=True) or {}
+    name = data.get('name', '').strip()
+    api_key = data.get('apiKey', '').strip()
+
+    if not name:
+        return jsonify({'ok': False, 'message': 'Chưa có tên linh kiện'}), 400
+
+    clean_key = name.upper()
+    existing_cache = load_ai_cache_dict()
+    if clean_key in existing_cache:
+        c = existing_cache[clean_key]
+        print(f"[+] Cache HIT cho {clean_key} (0 token)")
+        return jsonify({
+            'ok': True,
+            'desc': c.get('desc', ''),
+            'pkg': c.get('pkg', ''),
+            'category': c.get('cat', ''),
+            'subCategory': c.get('subCat', ''),
+            'modelUsed': 'Bộ nhớ cache nội bộ (0 token)',
+            'cached': True,
+            'provider': 'openai'
+        })
+
+    # Prompt sieu ngan toi uu token cho Luna 6.0 / ChatGPT
+    prompt = f'Mã: "{name}". JSON: {{"desc":"<chức năng tiếng Việt <=60 ký tự>","pkg":"<kiểu chân>","cat":"<Logic IC|Analog / Op-Amp|MCU / Board|Cảm biến / Module|Công suất|Điện trở|Tụ điện|Diode / Transistor|Thụ động / Khác>","sub":"<nhóm con nếu có>"}}'
+
+    base_url = data.get('baseUrl', 'https://api.openai.com/v1').strip().rstrip('/')
+    model = data.get('model', 'luna-6.0').strip() or 'luna-6.0'
+    endpoint = f"{base_url}/chat/completions"
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "Kỹ sư điện tử. Trả JSON thuần túy."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.1,
+        "max_tokens": 120
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
+    try:
+        req = urllib.request.Request(
+            endpoint,
+            data=json.dumps(payload).encode('utf-8'),
+            headers=headers
+        )
+        with urllib.request.urlopen(req, timeout=35) as resp:
+            res_data = json.loads(resp.read().decode('utf-8', errors='ignore'))
+            raw_text = res_data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            clean_json = re.sub(r'```json|```', '', raw_text).strip()
+            m_json = re.search(r'(\{[\s\S]*?\})', clean_json)
+            if m_json:
+                clean_json = m_json.group(1)
+            parsed = json.loads(clean_json)
+
+            res_obj = {
+                'ok': True,
+                'desc': parsed.get('desc', ''),
+                'pkg': parsed.get('pkg', ''),
+                'category': parsed.get('cat', parsed.get('category', '')),
+                'subCategory': parsed.get('sub', parsed.get('subCategory', '')),
+                'modelUsed': model,
+                'cached': False,
+                'provider': 'openai'
+            }
+
+            # Luu ngay vao ai_cache.js de lan sau khong can hoi lai
+            if res_obj['desc']:
+                save_single_ai_cache_entry(name, res_obj)
+
+            return jsonify(res_obj)
+    except Exception as e:
+        err_body = getattr(e, 'read', lambda: b'')().decode('utf-8', errors='ignore')
+        return jsonify({'ok': False, 'message': err_body or str(e)}), 500
+
 # ================= 3. TIM KIEM SAN PHAM & GIA 4 SHOP (TUYET NGA, HSHOP, CAKA, SHOPEE) =================
 def search_shop_products(name, pkg=''):
     results = {}

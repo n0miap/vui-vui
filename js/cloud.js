@@ -137,7 +137,7 @@
     }
 
     function switchSettingsTab(tab = 'cloud') {
-      const tabs = ['cloud', 'server', 'backup'];
+      const tabs = ['cloud', 'server', 'backup', 'ai'];
       tabs.forEach(t => {
         const btn = document.getElementById('settingsTabBtn_' + t);
         const pane = document.getElementById('settingsTabPane_' + t);
@@ -150,6 +150,9 @@
           pane.classList.add('hidden');
         }
       });
+      if (tab === 'ai') {
+        if (typeof updateAiSettingsUI === 'function') updateAiSettingsUI();
+      }
       if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
@@ -177,6 +180,10 @@
           badge.textContent = 'Custom URL';
           badge.className = 'text-[10px] text-purple-300 bg-purple-500/20 px-1.5 py-0.5 rounded font-mono';
         }
+      }
+
+      if (typeof updateAiSettingsUI === 'function') {
+        updateAiSettingsUI();
       }
 
       switchSettingsTab(tab);

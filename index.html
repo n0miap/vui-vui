@@ -70,6 +70,10 @@
             <i data-lucide="cpu" class="w-4 h-4"></i>
             <span class="hidden md:inline">Dự án (Breadboard)</span>
           </button>
+          <button onclick="openKnowledgeModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-medium transition" title="Tra cứu Database mô tả linh kiện & Tự thêm linh kiện mới">
+            <i data-lucide="book-open" class="w-4 h-4 text-cyan-400"></i>
+            <span class="hidden md:inline">Từ điển IC</span>
+          </button>
           <button onclick="open74AchievementModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 text-xs font-medium transition" title="Bộ sưu tập & Bảng thành tích toàn bộ IC họ 74xx">
             <i data-lucide="award" class="w-4 h-4 text-indigo-400"></i>
             <span class="hidden md:inline">Thành tích 74xx</span>
@@ -106,6 +110,9 @@
 
       <!-- Mobile Feature Buttons Strip (Thanh công cụ cuộn ngang trên mobile) -->
       <div class="flex sm:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
+        <button onclick="openKnowledgeModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 text-xs font-medium whitespace-nowrap shrink-0 active:scale-95 transition">
+          <i data-lucide="book-open" class="w-3.5 h-3.5 text-cyan-400"></i> Từ điển IC
+        </button>
         <button onclick="openBatchEnrichModal()" class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs font-medium whitespace-nowrap shrink-0 active:scale-95 transition">
           <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Quét kho
         </button>
@@ -381,9 +388,17 @@
           <div>
             <div class="flex items-center justify-between">
               <label class="text-xs text-slate-400">Chức năng ngắn gọn</label>
-              <button type="button" onclick="autoSuggestDesc(true)" id="btnAutoDesc" class="text-[11px] text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 transition" title="Tự động tra cứu chức năng IC này qua thư viện hoặc online">
-                <i data-lucide="sparkles" class="w-3 h-3"></i> Tự tìm mô tả
-              </button>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="openKnowledgeModal(document.getElementById('partName')?.value || '')" class="text-[11px] text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1 transition font-medium" title="Tra cứu hoặc tự thêm mô tả linh kiện vào Database">
+                  <i data-lucide="book-open" class="w-3 h-3 text-cyan-400"></i> Database IC
+                </button>
+                <button type="button" onclick="askAiForDesc(true)" id="btnAiDesc" class="text-[11px] text-emerald-400 hover:text-emerald-300 hover:underline flex items-center gap-1 transition font-medium" title="Dùng AI Overview (Luna 6.0 / ChatGPT) tóm tắt chức năng IC">
+                  <i data-lucide="sparkles" class="w-3 h-3 text-emerald-400"></i> AI Overview
+                </button>
+                <button type="button" onclick="autoSuggestDesc(true)" id="btnAutoDesc" class="text-[11px] text-amber-400 hover:text-amber-300 hover:underline flex items-center gap-1 transition" title="Tự động tra cứu chức năng IC này">
+                  <i data-lucide="search" class="w-3 h-3"></i> Tự tìm
+                </button>
+              </div>
             </div>
             <input id="partDesc" type="text" placeholder="VD: 6 cổng đảo NOT (Hex Inverter)" class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none">
             <div id="descAutoBadge" class="hidden mt-1 text-[11px] text-emerald-400 flex items-center gap-1 font-medium"></div>
@@ -591,6 +606,9 @@
         <button type="button" onclick="switchSettingsTab('backup')" id="settingsTabBtn_backup" class="px-3 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 shrink-0">
           <i data-lucide="database" class="w-4 h-4"></i> 3. Sao Lưu File
         </button>
+        <button type="button" onclick="switchSettingsTab('ai')" id="settingsTabBtn_ai" class="px-3 py-2 text-xs font-semibold rounded-t-lg transition border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-1.5 shrink-0">
+          <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i> 4. AI Overview (Luna 6.0)
+        </button>
       </div>
 
       <!-- Nội dung các Tab cuộn mượt mà -->
@@ -673,6 +691,106 @@
                 <i data-lucide="upload" class="w-4 h-4 text-sky-400"></i> Nhập file .JSON
                 <input type="file" accept=".json" onchange="importJSON(event)" class="hidden">
               </label>
+            </div>
+          </div>
+        </div>
+
+<!-- TAB 4: AI OVERVIEW (LUNA 6.0 / CHATGPT / OPENAI) -->
+        <div id="settingsTabPane_ai" class="hidden flex flex-col gap-3">
+          <!-- Banner Luna 6.0 -->
+          <div class="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-3 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <i data-lucide="bot" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-xs text-white">Luna 6.0 / ChatGPT / OpenAI API</h4>
+                  <p class="text-[11px] text-emerald-300/80">Tự động tóm tắt chức năng IC bằng model Luna 6.0 (Tối ưu tiết kiệm token)</p>
+                </div>
+              </div>
+              <span id="openaiKeyStatusBadge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">Chưa cài key</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Phân tích chức năng linh kiện, IC, op-amp bằng model <b>Luna 6.0</b> với prompt siêu ngắn tối ưu hóa chi phí token. Kết quả tự động ghi nhớ vĩnh viễn vào bộ nhớ cache.
+            </p>
+          </div>
+
+          <!-- Form cấu hình Luna 6.0 / OpenAI -->
+          <div class="bg-slate-800/70 border border-emerald-500/30 rounded-xl p-3 flex flex-col gap-2.5">
+            <!-- API Key -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-xs font-semibold text-emerald-300 flex items-center gap-1.5">
+                  <i data-lucide="key" class="w-3.5 h-3.5"></i> API Key (Luna Token / OpenAI Bearer Key):
+                </label>
+                <span class="text-[11px] text-slate-400">Lưu an toàn ở localStorage</span>
+              </div>
+              <div class="relative">
+                <input id="openaiApiKeyInput" type="password" placeholder="Dán mã key (sk-... hoặc Luna API Token) vào đây" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-9 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono">
+                <button type="button" onclick="toggleOpenAiKeyVisibility()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white" title="Ẩn/Hiện Key">
+                  <i id="openaiKeyEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Base URL & Model -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label class="text-[11px] text-slate-400">Base URL (Endpoint API)</label>
+                <input id="openaiBaseUrlInput" type="text" placeholder="https://api.openai.com/v1" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono">
+              </div>
+              <div>
+                <label class="text-[11px] text-slate-400">Tên Model AI</label>
+                <input id="openaiModelInput" type="text" placeholder="luna-6.0" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono">
+              </div>
+            </div>
+
+            <!-- Quick Model Select chips -->
+            <div class="flex items-center gap-1.5 flex-wrap text-[11px]">
+              <span class="text-slate-400 text-[10px]">Chọn nhanh:</span>
+              <button type="button" onclick="setQuickOpenAiModel('luna-6.0')" class="px-2 py-0.5 rounded bg-slate-900 border border-emerald-500/50 hover:border-emerald-400 text-emerald-300 font-mono text-[10px]">luna-6.0</button>
+              <button type="button" onclick="setQuickOpenAiModel('gpt-4o-mini')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-emerald-400 text-slate-300 font-mono text-[10px]">gpt-4o-mini</button>
+              <button type="button" onclick="setQuickOpenAiModel('gpt-4o')" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 hover:border-emerald-400 text-slate-300 font-mono text-[10px]">gpt-4o</button>
+            </div>
+
+            <!-- Nút Thử Nghiệm & Lưu -->
+            <div class="flex gap-2 pt-1">
+              <button type="button" onclick="testOpenAiConnection()" id="btnTestOpenAi" class="bg-slate-700 hover:bg-slate-600 text-emerald-300 px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i> Thử nghiệm AI
+              </button>
+              <button type="button" onclick="saveOpenAiConfig()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-lg text-xs transition flex items-center justify-center gap-1.5">
+                <i data-lucide="save" class="w-3.5 h-3.5"></i> Lưu Cấu Hình AI
+              </button>
+              <button type="button" onclick="clearOpenAiConfig()" class="px-3 bg-slate-800 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-700 py-2 rounded-lg text-xs transition">
+                Xóa Key
+              </button>
+            </div>
+
+            <div id="openaiTestResult" class="hidden text-xs p-2.5 rounded-lg bg-slate-900 border border-slate-700"></div>
+          </div>
+
+          <!-- BỘ NHỚ CACHE LINH KIỆN (TIẾT KIỆM 100% TOKEN CHO CÁC LẦN SAU) -->
+          <div class="bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                <i data-lucide="database" class="w-4 h-4"></i> Bộ Nhớ Đệm AI (Cache - 0 Token)
+              </span>
+              <span id="aiCacheCountBadge" class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-mono font-medium">0 linh kiện</span>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Mỗi linh kiện sau khi AI phân tích xong sẽ được <b>tự động lưu vào file <code>js/ai_cache.js</code></b> và bộ nhớ máy. Những lần tra cứu sau sẽ trả kết quả tức thì (0ms) và <b>tốn đúng 0 token</b>.
+            </p>
+            <div class="flex gap-2 pt-1 flex-wrap sm:flex-nowrap">
+              <button type="button" onclick="closeSettingsModal(); openKnowledgeModal();" class="flex-1 bg-cyan-600/30 hover:bg-cyan-600/40 text-cyan-200 border border-cyan-500/40 py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="book-open" class="w-3.5 h-3.5 text-cyan-400"></i> Quản Lý & Xem Toàn Bộ Database IC
+              </button>
+              <button type="button" onclick="exportAiCacheToFile()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i> Xuất file
+              </button>
+              <button type="button" onclick="clearAiCache()" class="px-3 bg-slate-800 hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 border border-slate-700 py-2 rounded-lg text-xs transition">
+                Xóa Cache
+              </button>
             </div>
           </div>
         </div>
@@ -1293,14 +1411,414 @@
     </div>
   </div>
 
+
+
+  <!-- ================= MODAL 12: TỪ ĐIỂN & DATABASE MÔ TẢ LINH KIỆN ================= -->
+
+  <div id="knowledgeModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4">
+
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-5xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[94vh]">
+
+      <!-- Header cố định -->
+
+      <div class="flex items-center justify-between px-4 py-3.5 border-b border-slate-800 bg-slate-950/70 shrink-0">
+
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0 shadow-inner">
+
+            <i data-lucide="book-open" class="w-5 h-5 text-cyan-300"></i>
+
+          </div>
+
+          <div class="min-w-0">
+
+            <div class="flex items-center gap-2 flex-wrap">
+
+              <h3 class="font-bold text-base sm:text-lg text-white tracking-wide truncate">Database & Từ Điển Mô Tả Linh Kiện</h3>
+
+              <span id="kdbTotalCountBadge" class="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">0 linh kiện</span>
+
+            </div>
+
+            <p class="text-xs text-slate-400 mt-0.5 truncate">Tra cứu mô tả có sẵn • Tự do thêm & chỉnh sửa mô tả cho các linh kiện bạn tìm được</p>
+
+          </div>
+
+        </div>
+
+        <button onclick="closeKnowledgeModal()" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition shrink-0 ml-2">
+
+          <i data-lucide="x" class="w-5 h-5"></i>
+
+        </button>
+
+      </div>
+
+
+
+      <!-- Body cuộn mượt mà -->
+
+      <div class="p-3 sm:p-4 flex flex-col gap-3.5 overflow-y-auto text-sm flex-1">
+
+        
+
+        <!-- PHẦN 1: FORM TỰ THÊM TAY / CHỈNH SỬA MÔ TẢ LINH KIỆN -->
+
+        <div id="kdbFormBox" class="bg-slate-800/80 border border-cyan-500/30 rounded-2xl p-3 sm:p-4 flex flex-col gap-3 shadow-lg">
+
+          <div class="flex items-center justify-between gap-2 border-b border-slate-700/70 pb-2">
+
+            <h4 id="kdbFormTitle" class="font-bold text-xs sm:text-sm text-cyan-300 flex items-center gap-1.5">
+
+              <i data-lucide="plus-circle" class="w-4 h-4 text-cyan-400"></i> Thêm mô tả linh kiện mới vào Database
+
+            </h4>
+
+            <div class="flex items-center gap-2">
+
+              <button type="button" onclick="fetchAiForKnowledgeForm()" id="btnKdbAiSuggest" class="text-[11px] font-medium text-emerald-300 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 px-2.5 py-1 rounded-lg flex items-center gap-1 transition" title="Dùng AI (Luna 6.0) để tóm tắt và điền nhanh thông tin vào form">
+
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-emerald-400"></i> AI Gợi ý nhanh
+
+              </button>
+
+              <button type="button" onclick="cancelEditKnowledgeItem()" id="kdbFormCancelBtn" class="hidden text-[11px] font-medium text-slate-400 hover:text-white bg-slate-800 px-2 py-1 rounded-lg transition">
+
+                Hủy sửa
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+
+          <form id="kdbAddForm" onsubmit="saveKnowledgeForm(event)" class="flex flex-col gap-2.5">
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+
+              <!-- Mã / Tên linh kiện -->
+
+              <div>
+
+                <label class="text-[11px] font-semibold text-slate-300 block mb-1">
+
+                  Mã / Tên linh kiện <span class="text-rose-400">*</span>:
+
+                </label>
+
+                <input id="kdbFormName" type="text" required placeholder="VD: CH340G, ESP32-CAM, INA219..."
+
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-cyan-300 font-mono font-medium focus:border-cyan-400 focus:outline-none">
+
+              </div>
+
+
+
+              <!-- Kiểu chân / Đóng gói -->
+
+              <div>
+
+                <label class="text-[11px] font-semibold text-slate-300 block mb-1">
+
+                  Kiểu chân / Package:
+
+                </label>
+
+                <input id="kdbFormPkg" type="text" placeholder="VD: SOP-16, DIP-8, TO-220, Module..."
+
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none">
+
+              </div>
+
+
+
+              <!-- Phân loại danh mục -->
+
+              <div>
+
+                <label class="text-[11px] font-semibold text-slate-300 block mb-1">
+
+                  Nhóm phân loại:
+
+                </label>
+
+                <select id="kdbFormCat" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none">
+
+                </select>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- Mô tả chức năng tiếng Việt -->
+
+            <div>
+
+              <label class="text-[11px] font-semibold text-slate-300 block mb-1">
+
+                Mô tả chức năng tiếng Việt <span class="text-rose-400">*</span>:
+
+              </label>
+
+              <textarea id="kdbFormDesc" required rows="2" placeholder="VD: IC chuyển đổi USB sang UART / COM ảo tốc độ cao, hỗ trợ chuẩn 3.3V/5V..."
+
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none"></textarea>
+
+            </div>
+
+
+
+            <!-- Link sơ đồ chân & Nhóm phụ -->
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+
+              <div>
+
+                <label class="text-[11px] text-slate-400 block mb-1">
+
+                  Link ảnh sơ đồ chân (Pinout URL - tùy chọn):
+
+                </label>
+
+                <input id="kdbFormPinout" type="url" placeholder="https://... hoặc dán link ảnh Wikipedia/Datasheet"
+
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none">
+
+              </div>
+
+              <div>
+
+                <label class="text-[11px] text-slate-400 block mb-1">
+
+                  Nhóm chức năng sâu / Ghi chú (tùy chọn):
+
+                </label>
+
+                <input id="kdbFormSubCat" type="text" placeholder="VD: Cổng Logic, Bộ đệm, Giao tiếp I2C/UART..."
+
+                  class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none">
+
+              </div>
+
+            </div>
+
+
+
+            <div class="flex items-center justify-between pt-1 gap-2 flex-wrap">
+
+              <span class="text-[11px] text-slate-400 flex items-center gap-1">
+
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+
+                Lưu xong sẽ tự động có hiệu lực ngay trong kho và tra cứu 0ms!
+
+              </span>
+
+              <button type="submit" id="kdbFormSubmitBtn" class="ml-auto bg-cyan-600 hover:bg-cyan-500 text-white font-medium px-4 py-2 rounded-lg text-xs transition flex items-center gap-1.5 shadow-md shadow-cyan-900/30">
+
+                <i data-lucide="save" class="w-3.5 h-3.5"></i> Lưu vào Database
+
+              </button>
+
+            </div>
+
+          </form>
+
+        </div>
+
+
+
+        <!-- PHẦN 2: THANH TÌM KIẾM & BỘ LỌC DATABASE -->
+
+        <div class="flex flex-col gap-2.5 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+
+            <!-- Ô tìm kiếm trực tiếp -->
+
+            <div class="relative flex-1">
+
+              <input type="text" id="kdbSearchInput" oninput="setKnowledgeSearch(this.value)" placeholder="Tìm mã linh kiện, chức năng, kiểu chân (VD: 358, nand, usb, esp, diode)..."
+
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-8 pr-8 py-2 text-xs text-slate-100 placeholder-slate-500 focus:border-cyan-400 focus:outline-none font-mono">
+
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5"></i>
+
+              <button type="button" onclick="clearKnowledgeSearch()" class="absolute right-2.5 top-2.5 text-slate-500 hover:text-slate-300" title="Xóa tìm kiếm">
+
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+
+              </button>
+
+            </div>
+
+
+
+            <!-- Dropdown lọc danh mục -->
+
+            <div class="sm:w-56 shrink-0">
+
+              <select id="kdbCatFilterSelect" onchange="setKnowledgeCategoryFilter(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-xs text-slate-200 focus:border-cyan-400 focus:outline-none">
+
+                <option value="all">Tất cả danh mục</option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Các nút Tab lọc nguồn -->
+
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+
+            <button type="button" onclick="setKnowledgeSourceFilter('all')" id="kdbTabBtn_all" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-600 text-white shadow-sm transition shrink-0">
+
+              Tất cả
+
+            </button>
+
+            <button type="button" onclick="setKnowledgeSourceFilter('custom')" id="kdbTabBtn_custom" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-amber-300 hover:bg-slate-700 border border-amber-500/30 transition shrink-0">
+
+              ⭐ Tự thêm & Cache (<span id="kdbCustomCountBadge">0</span>)
+
+            </button>
+
+            <button type="button" onclick="setKnowledgeSourceFilter('analog')" id="kdbTabBtn_analog" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition shrink-0">
+
+              Analog & Op-Amp / Nguồn
+
+            </button>
+
+            <button type="button" onclick="setKnowledgeSourceFilter('logic74')" id="kdbTabBtn_logic74" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 transition shrink-0">
+
+              Logic IC Họ 74
+
+            </button>
+
+          </div>
+
+
+
+          <!-- Dòng trạng thái kết quả -->
+
+          <div id="kdbFilterStatusText" class="text-[11px] text-slate-400 px-0.5"></div>
+
+        </div>
+
+
+
+        <!-- PHẦN 3: DANH SÁCH LINH KIỆN ĐƯỢC RENDER -->
+
+        <div id="kdbListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+
+          <!-- Rendered dynamically -->
+
+        </div>
+
+
+
+        <!-- Hộp rỗng khi không có kết quả -->
+
+        <div id="kdbEmptyState" class="hidden flex flex-col items-center justify-center p-8 bg-slate-950/40 border border-dashed border-slate-800 rounded-2xl text-center">
+
+          <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-500 mb-2">
+
+            <i data-lucide="help-circle" class="w-6 h-6"></i>
+
+          </div>
+
+          <h4 class="font-bold text-sm text-slate-200 mb-1">Chưa có linh kiện nào khớp với từ khóa <span id="kdbEmptyQueryText" class="text-cyan-400 font-mono"></span></h4>
+
+          <p class="text-xs text-slate-400 max-w-md mb-3">Bạn có thể tự thêm mô tả cho linh kiện này vào database ngay bây giờ bằng form phía trên!</p>
+
+          <button type="button" onclick="const nameInput = document.getElementById('kdbFormName'); if(nameInput) { nameInput.value = knowledgeSearchQuery; nameInput.focus(); } const formBox = document.getElementById('kdbFormBox'); if(formBox) formBox.scrollIntoView({behavior:'smooth'});" class="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium flex items-center gap-1.5 transition">
+
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Thêm mã này vào Database ngay
+
+          </button>
+
+        </div>
+
+
+
+        <!-- Nút Tải thêm -->
+
+        <div class="text-center pt-2">
+
+          <button type="button" id="kdbLoadMoreBtn" onclick="loadMoreKnowledge()" class="hidden px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 text-xs font-medium transition inline-flex items-center gap-1.5">
+
+            <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Xem thêm 40 linh kiện nữa
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Footer cố định -->
+
+      <div class="flex items-center justify-between px-4 py-3 border-t border-slate-800 bg-slate-950/70 text-xs shrink-0 flex-wrap gap-2">
+
+        <div class="flex items-center gap-2">
+
+          <button type="button" onclick="exportAiCacheToFile()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5 transition" title="Tải file ai_cache.js về máy tính để sao lưu hoặc chia sẻ">
+
+            <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-400"></i> Xuất file ai_cache.js
+
+          </button>
+
+          <label class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5 cursor-pointer transition" title="Nhập danh sách mô tả từ file JSON / ai_cache.js">
+
+            <i data-lucide="upload" class="w-3.5 h-3.5 text-sky-400"></i> Nhập file
+
+            <input type="file" accept=".json,.js" onchange="importKnowledgeCache(event)" class="hidden">
+
+          </label>
+
+        </div>
+
+        <button type="button" onclick="closeKnowledgeModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">
+
+          Đóng
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- Toast thông báo nhỏ góc dưới -->
+
+  <div id="kdbToast" class="hidden"></div>
+
+
+
     <!-- ================= CÁC THƯ VIỆN & MODULE CODE (GIỐNG #INCLUDE TRONG ARDUINO/ESP32) ================= -->
-  <script src="js/data.js?v=2.1.6"></script>
-  <script src="js/cloud.js?v=2.1.5"></script>
-  <script src="js/pinout.js?v=2.1.6"></script>
-  <script src="js/boxes.js?v=2.1.5"></script>
-  <script src="js/projects.js?v=2.1.5"></script>
-  <script src="js/batch_scan.js?v=2.1.6"></script>
-  <script src="js/achievement74.js?v=2.1.6"></script>
-  <script src="js/app.js?v=2.1.6"></script>
+  <script src="js/ai_cache.js?v=2.1.12"></script>
+  <script src="js/data.js?v=2.1.12"></script>
+  <script src="js/cloud.js?v=2.1.12"></script>
+  <script src="js/ai.js?v=2.1.12"></script>
+
+  <script src="js/knowledge_db.js?v=2.1.12"></script>
+  <script src="js/pinout.js?v=2.1.12"></script>
+  <script src="js/boxes.js?v=2.1.12"></script>
+  <script src="js/projects.js?v=2.1.12"></script>
+  <script src="js/batch_scan.js?v=2.1.12"></script>
+  <script src="js/achievement74.js?v=2.1.12"></script>
+  <script src="js/app.js?v=2.1.12"></script>
 </body>
 </html>

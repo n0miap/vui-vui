@@ -51,7 +51,11 @@
           lucide.createIcons();
         }
       } else {
-        if (badge) badge.classList.add('hidden');
+        if (badge) {
+          badge.innerHTML = `<i data-lucide="info" class="w-3.5 h-3.5 text-cyan-400"></i> <span>Chưa có trong DB. <button type="button" onclick="openKnowledgeModal('${(rawName).replace(/'/g, "\\'")}')" class="text-cyan-300 underline font-semibold hover:text-white">+ Tự thêm mô tả</button> <span class="text-slate-500">hoặc</span> <button type="button" onclick="askAiForDesc(true)" class="text-emerald-300 underline font-semibold hover:text-white">Dùng AI</button></span>`;
+          badge.classList.remove('hidden');
+          if (window.lucide) lucide.createIcons();
+        }
       }
     }
 
@@ -155,125 +159,15 @@
         return;
       }
 
-      if (badge) {
-        badge.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 text-amber-400 animate-spin"></i> <span>Đang tìm mô tả trực tuyến...</span>`;
-        badge.classList.remove('hidden');
-        lucide.createIcons();
-      }
-
-      try {
-        let foundDesc = '';
-        let foundSource = '';
-        let foundDatasheet = '';
-        let foundCode = '';
-
-        if (pinoutServerUrl) {
-          try {
-            const sRes = await fetch(`${pinoutServerUrl}/api/desc?name=${encodeURIComponent(rawName)}`, { signal: AbortSignal.timeout(2500) });
-            if (sRes.ok) {
-              const sData = await sRes.json();
-              if (sData && sData.desc) {
-                foundDesc = sData.desc;
-                foundSource = sData.source || '';
-                foundDatasheet = sData.datasheet || '';
-                foundCode = sData.code || '';
-              }
-            }
-          } catch(e) {}
+      // TẦNG 2: LUNA 6.0 / CHATGPT AI OVERVIEW (Kèm bộ nhớ cache 0 token)
+      if (typeof askAiForDesc === 'function') {
+        await askAiForDesc(manualClick);
+      } else {
+        if (badge) {
+          badge.innerHTML = `<i data-lucide="info" class="w-3.5 h-3.5 text-amber-400"></i> <span>Chưa tìm thấy mô tả trong database. <button type="button" onclick="openKnowledgeModal('${(rawName).replace(/'/g, "\\'")}')" class="text-cyan-300 underline font-semibold hover:text-white">+ Tự thêm mô tả</button></span>`;
+          badge.classList.remove('hidden');
+          if (window.lucide) lucide.createIcons();
         }
-
-        // TẦNG DỰ PHÒNG TRỰC TIẾP TỪ CACHE WIKI 7400 TIẾNG VIỆT (Nếu Server Python không phản hồi)
-        if (!foundDesc) {
-          try {
-            if (!window.__wiki74Cache) {
-              const cRes = await fetch('wiki_7400_cache.json', { signal: AbortSignal.timeout(2000) });
-              if (cRes.ok) window.__wiki74Cache = await cRes.json();
-            }
-            if (window.__wiki74Cache) {
-              const cands = normalize74Candidates(rawName);
-              for (const cand of cands) {
-                if (window.__wiki74Cache[cand]) {
-                  const it = window.__wiki74Cache[cand];
-                  foundDesc = it.desc;
-                  foundDatasheet = it.datasheet || '';
-                  foundCode = cand;
-                  foundSource = 'wiki_vi_7400';
-                  break;
-                }
-              }
-            }
-          } catch(e) {}
-        }
-
-        if (!foundDesc) {
-          const wikiQueries = [rawName, `${rawName} integrated circuit`, rawName.replace(/([0-9]+)/, ' $1')];
-          for (const q of wikiQueries) {
-            try {
-              const wRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`, { signal: AbortSignal.timeout(3000) });
-              if (wRes.ok) {
-                const wData = await wRes.json();
-                if (wData.extract) {
-                  const s = wData.extract.split('. ')[0].trim();
-                  if (s && s.length < 160) {
-                    foundDesc = s;
-                    foundSource = 'wikipedia_en';
-                    break;
-                  }
-                }
-              }
-            } catch(e) {}
-          }
-        }
-
-        if (foundDesc) {
-          descInput.value = foundDesc;
-
-          const datasheetInput = document.getElementById('partDatasheet');
-          if (datasheetInput && !datasheetInput.value.trim() && foundDatasheet) {
-            datasheetInput.value = foundDatasheet;
-          }
-
-          if (foundSource === 'wiki_vi_7400') {
-            const catSelect = document.getElementById('partCategory');
-            if (catSelect && (!catSelect.value || catSelect.value === 'Tất cả')) {
-              const matchedCat = findCategoryMatch('Logic IC');
-              if (matchedCat) catSelect.value = matchedCat;
-            }
-          }
-
-          const fetchedCatVal = document.getElementById('partCategory')?.value;
-          if (isLogicCategory(fetchedCatVal)) {
-            const autoSub = determineLogicSubcategory(rawName, foundDesc);
-            const subSelect = document.getElementById('partSubCategory');
-            if (subSelect && autoSub && !subSelect.value) subSelect.value = autoSub;
-          } else if (isAnalogCategory(fetchedCatVal)) {
-            const autoSub = determineAnalogSubcategory(rawName, foundDesc);
-            const subSelect = document.getElementById('partSubCategory');
-            if (subSelect && autoSub && !subSelect.value) subSelect.value = autoSub;
-          }
-
-          if (badge) {
-            if (foundSource === 'wiki_vi_7400') {
-              badge.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Wiki 7400 (VN) <b>${foundCode || rawName}</b>: ${foundDesc}${foundDatasheet ? ' • Đã kèm Datasheet ✓' : ''}</span>`;
-            } else {
-              badge.innerHTML = `<i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-400"></i> <span>Đã tìm thấy mô tả từ Wikipedia</span>`;
-            }
-            badge.classList.remove('hidden');
-            lucide.createIcons();
-          }
-
-          if (pinoutInput && !pinoutInput.value.trim()) {
-            autoFetchPinout(true);
-          }
-        } else if (manualClick) {
-          if (badge) {
-            badge.innerHTML = `<i data-lucide="info" class="w-3.5 h-3.5 text-amber-400"></i> <span>Chưa tìm thấy mô tả tự động, bạn có thể tự nhập ngắn gọn nhé</span>`;
-            badge.classList.remove('hidden');
-            lucide.createIcons();
-          }
-        }
-      } catch (err) {
-        if (badge && manualClick) badge.classList.add('hidden');
       }
     }
 

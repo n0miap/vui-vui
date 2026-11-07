@@ -1029,6 +1029,32 @@
       if (!rawName) return null;
       let clean = rawName.trim().toUpperCase();
 
+      // 0. Tra cứu từ bộ nhớ Cache AI (js/ai_cache.js & localStorage - Tiết kiệm 100% token)
+      if (typeof lookupAiCache === 'function') {
+        const cached = lookupAiCache(rawName);
+        if (cached && cached.desc) {
+          return {
+            desc: cached.desc,
+            pkg: cached.pkg || '',
+            cat: cached.cat || cached.category || '',
+            subCat: cached.subCat || cached.subCategory || '',
+            pinout: cached.pinout || null
+          };
+        }
+      } else if (typeof AI_CACHE !== 'undefined' && AI_CACHE) {
+        const key = clean.replace(/^(SN|MC|HD|DM|TC|HCF|HEF|MM|TI)/i, '').replace(/(?:[NPD]|CN|CP|DR|CDR|IDR|EP|IP|AP|DT|PW)$/i, '');
+        const item = AI_CACHE[clean] || AI_CACHE[key];
+        if (item && item.desc) {
+          return {
+            desc: item.desc,
+            pkg: item.pkg || '',
+            cat: item.cat || item.category || '',
+            subCat: item.subCat || item.subCategory || '',
+            pinout: item.pinout || null
+          };
+        }
+      }
+
       if (EXACT_IC_KNOWLEDGE[clean]) {
         return EXACT_IC_KNOWLEDGE[clean];
       }
